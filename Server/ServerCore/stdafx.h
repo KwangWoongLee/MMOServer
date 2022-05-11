@@ -8,19 +8,36 @@
 
 #define NOMINMAX
 
+// 윈도우 관련
 #include <Ws2tcpip.h>
 #include <winsock2.h>
 #include <mswsock.h>
 #include <Mmsystem.h>
 #include <Ws2spi.h>
 #include <Mstcpip.h>
-
 #include <windows.h>
+#include <cassert>
+
+// std
 #include <iostream>
 #include <stdexcept>
 #include <format>
+#include <memory>
+#include <thread>
 
+//자료구조
 #include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <atomic>
+
+
+#include "Singleton.h"
+
+//임시
+//enum class eThreadType {
+//	MAIN,
+//	IO_WORKER,
+//};
+//
+//thread_local eThreadType threadType;

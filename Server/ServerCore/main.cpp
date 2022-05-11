@@ -1,11 +1,21 @@
 #include "stdafx.h"
-#include "Listener.h"
+#include "Server.h"
+
 
 int main()
 {
+	//threadType = eThreadType::MAIN;
 	try {
-		Listener listener;
-		listener.Init(7700);
+		Server server;
+		server.Init();
+		
+		server.Run();
+		//while (server.GetState() != Server::eState::STOP)
+		while (true)
+		{
+			server.Stop();
+			;
+		}
 	}
 	catch (std::string& e)
 	{
@@ -13,8 +23,5 @@ int main()
 		return -1; // 비정상 종료
 	}	
 
-	while (true)
-	{
-		;
-	}
+	return 0;
 }

@@ -164,6 +164,7 @@
     <ClCompile Include="IOCP.cpp" />
     <ClCompile Include="Listener.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Server.cpp" />
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -177,7 +178,9 @@
     <ClInclude Include="IOContext.h" />
     <ClInclude Include="IOCP.h" />
     <ClInclude Include="Listener.h" />
+    <ClInclude Include="Server.h" />
     <ClInclude Include="Session.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
