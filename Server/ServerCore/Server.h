@@ -11,7 +11,7 @@ public:
 		STOP,
 	};
 
-	void Init();
+	void Init(short port, short threadCount);
 	void Run();
 	void Stop();
 	

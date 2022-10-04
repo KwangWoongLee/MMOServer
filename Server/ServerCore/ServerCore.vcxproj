@@ -159,29 +159,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Connector.cpp" />
-    <ClCompile Include="IOContext.cpp" />
     <ClCompile Include="IOCP.cpp" />
     <ClCompile Include="Listener.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Packet.cpp" />
+    <ClCompile Include="PacketAnalyzer.cpp" />
+    <ClCompile Include="RecvBuffer.cpp" />
+    <ClCompile Include="SendBuffer.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="Session.cpp" />
+    <ClCompile Include="SessionManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Stream.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Connector.h" />
     <ClInclude Include="IOContext.h" />
     <ClInclude Include="IOCP.h" />
     <ClInclude Include="Listener.h" />
+    <ClInclude Include="Packet.h" />
+    <ClInclude Include="PacketAnalyzer.h" />
+    <ClInclude Include="PacketFactory.h" />
+    <ClInclude Include="PacketType.h" />
+    <ClInclude Include="RecvBuffer.h" />
+    <ClInclude Include="SendBuffer.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="Session.h" />
+    <ClInclude Include="SessionManager.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Stream.h" />
+    <ClInclude Include="Types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

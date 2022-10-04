@@ -1,6 +1,5 @@
 #pragma once
-#include "Session.h"
-#include <functional>
+#include "stdafx.h"
 
 class Listener
 {
@@ -13,7 +12,5 @@ private:
 	SOCKET mListenSocket;
 	char acceptBuff[64];
 	
-	void asyncAccept(std::function<std::shared_ptr<Session>()> sessionFactory);
+	void asyncAccept(auto sessionFactory);
 };
-
-static LPFN_ACCEPTEX FnAcceptEx = nullptr;

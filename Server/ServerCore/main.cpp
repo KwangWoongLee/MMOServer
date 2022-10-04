@@ -7,19 +7,22 @@ int main()
 	//threadType = eThreadType::MAIN;
 	try {
 		Server server;
-		server.Init();
+		server.Init(8080, 3);
 		
 		server.Run();
-		//while (server.GetState() != Server::eState::STOP)
+		
 		while (true)
 		{
-			server.Stop();
-			;
+			if (server.GetState() == Server::eState::STOP)
+			{
+				server.Stop();
+				break;
+			}
 		}
 	}
-	catch (std::string& e)
+	catch (std::exception& e)
 	{
-		std::cerr << e << std::endl;
+		std::cerr << e.what() << std::endl;
 		return -1; // 비정상 종료
 	}	
 

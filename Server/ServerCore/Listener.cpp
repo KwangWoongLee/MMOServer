@@ -16,9 +16,11 @@ void Listener::Init(short port)
 		if (mListenSocket == INVALID_SOCKET)
 			throw std::format("Listen Socket Create Failed {}", WSAGetLastError());
 
-		sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+		ZeroMemory(&sockAddr, sizeof(sockAddr));
 		sockAddr.sin_family = AF_INET;
 		sockAddr.sin_port = htons(port);
+		std::wstring ip = L"127.0.0.1";
+		InetPton(AF_INET, ip.c_str(), &sockAddr.sin_addr);
 
 		if (bind(mListenSocket, (LPSOCKADDR)&sockAddr, sizeof(sockAddr)))
 			throw std::format("Listen Socket Bind Failed {}", WSAGetLastError());
@@ -39,9 +41,14 @@ void Listener::Init(short port)
 			&guidAcceptEx, sizeof(GUID), &FnAcceptEx, sizeof(LPFN_ACCEPTEX), &bytes, NULL, NULL))
 			throw std::format("AcceptEx Regist Failed {}", WSAGetLastError());
 
-		
+		GUID guidDisconnectEx = WSAID_DISCONNECTEX;
+		if (SOCKET_ERROR == WSAIoctl(mListenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER,
+			&guidDisconnectEx, sizeof(GUID), &FnDisConnectEx, sizeof(LPFN_DISCONNECTEX), &bytes, NULL, NULL))
+			throw std::format("DisConnectEx Regist Failed {}", WSAGetLastError());
+
+
 	}
-	catch (std::string& e)
+	catch (std::exception& e)
 	{
 		if (mListenSocket != NULL)
 		{
@@ -57,7 +64,7 @@ void Listener::Init(short port)
 
 void Listener::Start()
 {
-	asyncAccept([]() { return std::make_shared<PacketSession>(); });
+	asyncAccept([]() { return new ClientSession; });
 }
 
 void Listener::Stop()
@@ -71,16 +78,9 @@ void Listener::Stop()
 	WSACleanup();
 }
 
-void Listener::asyncAccept(std::function<std::shared_ptr<Session>()> sessionFactory)
+void Listener::asyncAccept(auto sessionFactory)
 {
-	DWORD bytes = 0;
-
-	Overlapped* acceptOverlapped = new Overlapped;
-	memset(&acceptOverlapped->mOverlapped, 0, sizeof(WSAOVERLAPPED));
-
-	acceptOverlapped->mType = eIOType::ACCEPT;
-	acceptOverlapped->mWSABuf.buf = nullptr;
-	acceptOverlapped->mWSABuf.len = 0;
+	DWORD bytes{0};
 
 
 	SOCKET clientSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -90,7 +90,8 @@ void Listener::asyncAccept(std::function<std::shared_ptr<Session>()> sessionFact
 	auto session = sessionFactory();
 	session->Init(clientSocket);
 
-	IOCP::GetInstance().RegistCompletionPort(clientSocket, reinterpret_cast<ULONG_PTR>(session.get()));
+	auto acceptOverlapped = new AcceptOverlapped;
+	acceptOverlapped->SetSession(session);
 
 	if (FALSE == FnAcceptEx(mListenSocket, clientSocket, acceptBuff, 0,
 		sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytes, (LPOVERLAPPED)acceptOverlapped))
@@ -100,8 +101,9 @@ void Listener::asyncAccept(std::function<std::shared_ptr<Session>()> sessionFact
 			// Pending 외에 다른 오류라면 잘못된것
 			delete acceptOverlapped;
 			std::cout << WSAGetLastError();
-			//throw std::format("Async Accept Failed {}", WSAGetLastError());
+			throw std::format("Async Accept Failed {}", WSAGetLastError());
 		}
 	}
+
 }
 

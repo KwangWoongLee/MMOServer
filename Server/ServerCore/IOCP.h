@@ -2,19 +2,19 @@
 class IOCP : public Singleton< IOCP >
 {
 public:
-	IOCP() {};
+	IOCP() : mCompletionPort(nullptr) {};
 	~IOCP() {};
 
 
 	void createCompletionPort();
 	void RegistCompletionPort(SOCKET socket, ULONG_PTR key);
 	
-	void Start();
+	void Start(short threadCount);
 	void Stop();
 	
 	
 private:
-	HANDLE mCompletionPort;
+	HANDLE mCompletionPort = nullptr;
 	std::vector<std::thread> mIOWorkerThreadPool;
 
 	void createThreadPool(short threadCount);
