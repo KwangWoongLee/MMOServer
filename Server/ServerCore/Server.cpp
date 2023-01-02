@@ -2,35 +2,39 @@
 #include "Server.h"
 #include "IOCP.h"
 
-void Server::Init(short port, short threadCount)
+ServerEngine::ServerEngine(std::string_view ip, uint16 port, std::unique_ptr<IOCP>&& iocp, uint16 maxSessionCount, uint8 threadCount, SessionFactory sessionFactory)
+	: Engine(ip, port, std::move(iocp), maxSessionCount, threadCount, sessionFactory)
 {
-	IOCP::GetInstance().Start(threadCount);
-	mListener.Init(port);
-
-	mState = eState::INIT;
 }
 
-void Server::Run()
+
+bool ServerEngine::Init()
 {
-	if (mState != eState::INIT)
-	{
-		throw std::exception("서버가 완벽히 초기화 되지 않았습니다.");
-	}
+	if (Engine::Init() == false)
+		return false;
 
-	mListener.Start();
+	//다운 캐스팅이지만 shared_ptr만 얻는 것이므로 static_pointer_cast로 사용
+	auto serverEngineRef = static_pointer_cast<ServerEngine>(shared_from_this());
+	mListener = std::make_shared<Listener>(serverEngineRef);
 
-	mState = eState::RUN;
+	if (mListener->Init() == false)
+		return false;
+
+	return true;
 }
 
-void Server::Stop()
+void ServerEngine::Run()
 {
-	if (mState != eState::RUN)
+	while (true)
 	{
-		throw std::exception("서버가 작동중이지 않습니다.");
+		// IOCP 루프
+		Engine::Run(); 
 	}
+}
 
-	mListener.Stop();
-	IOCP::GetInstance().Stop();
+void ServerEngine::Stop()
+{
+	mListener = nullptr;
 
-	mState = eState::STOP;
+	Engine::Stop();
 }

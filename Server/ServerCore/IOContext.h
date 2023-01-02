@@ -10,9 +10,6 @@ enum class eIOType
 	DISCONNECT
 };
 
-class Session;
-using SessionPtr = Session*;
-
 enum class eDisConnectReason
 {
 	UNKNOWN,
@@ -25,69 +22,92 @@ enum class eDisConnectReason
 	IO_COMPLETE_ERROR,
 };
 
-class Overlapped
+class Overlapped : public OVERLAPPED
 {
 public:
-	Overlapped() {
-		memset(&this->mOverlapped, 0, sizeof(WSAOVERLAPPED));
-
-		this->mWSABuf.buf = nullptr;
-		this->mWSABuf.len = 0;
+	Overlapped() { Init(); };
+	virtual ~Overlapped() = default;
+	inline void Init() {
+		OVERLAPPED::hEvent = 0;
+		OVERLAPPED::Internal = 0;
+		OVERLAPPED::InternalHigh = 0;
+		OVERLAPPED::Offset = 0;
+		OVERLAPPED::OffsetHigh = 0;
 	};
-	virtual ~Overlapped() {};
 
-	WSAOVERLAPPED mOverlapped;
+	IOCPObjectRef GetOwner() const { return mOwner; };
+	void	SetOwner(IOCPObjectRef iocpObject) { mOwner = iocpObject; };
 
-	eIOType mType;
-	WSABUF mWSABuf;
-
-	SessionPtr GetSession() const { return mSession; };
-	void SetSession(SessionPtr session) { mSession = session; };
-
+	eIOType GetType() const { return mType; };
+	void SetType(eIOType type) { mType = type; };
 
 protected:
-	SessionPtr mSession = nullptr;
-}; 
 
-class AcceptOverlapped : public Overlapped
-{
-public:
-	AcceptOverlapped() {
-		mType = eIOType::ACCEPT;
-	};
-
+private:
+	IOCPObjectRef mOwner = nullptr;
+	eIOType mType;
 };
 
-class DisConnectOverlapped : public Overlapped
+
+#pragma region Overlapped For Listener
+
+class AcceptEvent : public Overlapped
 {
 public:
-	DisConnectOverlapped():mDisConnectReason(eDisConnectReason::UNKNOWN)
+	AcceptEvent() : Overlapped() {
+		SetType(eIOType::ACCEPT);
+	};
+
+	SessionRef GetSession() { return mSession; };
+	void SetSession(SessionRef session) { mSession = session; }
+
+private:
+	SessionRef mSession = nullptr;
+};
+
+
+#pragma endregion
+
+#pragma region Overlapped For Session
+
+class ConnectEvent : public Overlapped
+{
+public:
+	ConnectEvent()
 	{
-		mType = eIOType::DISCONNECT;
+		SetType(eIOType::CONNECT);
 	};
-
-	eDisConnectReason mDisConnectReason;
 };
 
-class RecvOverlapped : public Overlapped
+
+class DisconnectEvent : public Overlapped
 {
 public:
-	RecvOverlapped() {
-		mType = eIOType::RECV;
+	DisconnectEvent()
+	{
+		SetType(eIOType::DISCONNECT);
 	};
 };
 
-class SendOverlapped : public Overlapped
+class RecvEvent : public Overlapped
 {
 public:
-	SendOverlapped() {
-		mType = eIOType::SEND;
+	RecvEvent() {
+		SetType(eIOType::RECV);
+	};
+};
+
+class SendEvent : public Overlapped
+{
+public:
+	SendEvent() {
+		SetType(eIOType::SEND);
 	};
 
+	//Vector<SendBufferRef>& GetSendBuffers() { return sendBuffers; };
 
+private:
+	//Vector<SendBufferRef> sendBuffers;
 };
 
-class IOContext
-{
-
-};
+#pragma endregion

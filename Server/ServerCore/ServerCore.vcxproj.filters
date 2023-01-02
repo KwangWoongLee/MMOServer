@@ -1,105 +1,153 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Network">
+      <UniqueIdentifier>{06b2eeed-7ff4-4874-99a2-465a7686d5e3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="Network\Packet">
+      <UniqueIdentifier>{2b02be4c-36ae-44df-ac0b-597f1d28c8a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{3299bd67-5cbc-46ad-8a14-0c93107ba19a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Contents">
+      <UniqueIdentifier>{5a9145ba-e4ca-47f5-9ed6-7a3e095762e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{c40e7ea3-7523-48ca-839e-87c625eb5589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Memory">
+      <UniqueIdentifier>{582a411d-4e00-45b6-84fd-bfe1a4f92b02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{86188ce4-060f-427a-813d-6f22a68f63e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AfterMove">
+      <UniqueIdentifier>{44074949-cf2b-4560-b5c9-d04cd71b12c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AfterMove\Proto">
+      <UniqueIdentifier>{a23f32b7-e03a-4288-b2f5-814b86042ba8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Session.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Packet.cpp">
+      <Filter>Network\Packet</Filter>
     </ClCompile>
     <ClCompile Include="Listener.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="IOCP.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Session.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="SessionManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RecvBuffer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="SendBuffer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Stream.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Packet.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="MemoryPool.cpp">
+      <Filter>Memory</Filter>
     </ClCompile>
-    <ClCompile Include="PacketAnalyzer.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="CorePch.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadManager.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadLocalStorage.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketUtil.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CircularBuffer.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="GRPC.cpp">
+      <Filter>AfterMove</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ProtoFiles\match.grpc.pb.cc">
+      <Filter>AfterMove\Proto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ProtoFiles\match.pb.cc">
+      <Filter>AfterMove\Proto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Session.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Listener.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IOContext.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCP.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Server.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SessionManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RecvBuffer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SendBuffer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Stream.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Packet.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PacketType.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PacketFactory.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Network\Packet</Filter>
     </ClInclude>
     <ClInclude Include="PacketAnalyzer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Network\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketFactory.h">
+      <Filter>Network\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketType.h">
+      <Filter>Network\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCP.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Listener.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="IOContext.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="CircularBuffer.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SendBuffer.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryPool.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="CorePch.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadManager.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadLocalStorage.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketUtil.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="GRPC.h">
+      <Filter>AfterMove</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ProtoFiles\match.grpc.pb.h">
+      <Filter>AfterMove\Proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ProtoFiles\match.pb.h">
+      <Filter>AfterMove\Proto</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

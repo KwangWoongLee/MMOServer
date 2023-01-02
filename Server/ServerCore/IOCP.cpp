@@ -2,178 +2,108 @@
 #include "IOCP.h"
 #include "IOContext.h"
 
-void IOCP::createCompletionPort()
+IOCP::IOCP()
+{
+}
+
+IOCP::~IOCP()
+{
+	//// stop 안거치고 왔을수도 있어서 한번 더 해주기
+	//for (auto& thread : mIOWorkerThreadPool)
+	//{
+	//	if (thread.joinable())
+	//		thread.join();
+	//}
+
+	//mCompletionPort = INVALID_HANDLE_VALUE;
+	//mIOWorkerThreadPool.clear();
+}
+
+bool IOCP::createCompletionPort()
 {
 	// 최초에 한번만 CompletionPort 초기화
-	mCompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+	mCompletionPort = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 
-	if (mCompletionPort == NULL)
-		throw std::format("IOCP Create Failed {}", GetLastError());
+	if (mCompletionPort == nullptr)
+		return false;
+
+	return true;
 }
 
-void IOCP::RegistCompletionPort(SOCKET socket, ULONG_PTR key)
-{
-	assert(socket != INVALID_SOCKET);
 
+bool IOCP::RegistForCompletionPort(IOCPObjectRef iocpObject)
+{
 	// Accept가 들어올 때, CompletionPort에 등록
-	HANDLE handle = CreateIoCompletionPort((HANDLE)socket, mCompletionPort, key, 0);
+	HANDLE handle = ::CreateIoCompletionPort(iocpObject->GetHandle(), mCompletionPort, 0, 0);
 
+	// 성공하면 CompletionPort를 리턴
 	if (handle != mCompletionPort)
-		throw std::format("IOCP Regist Failed {}", GetLastError());
+		return false;
+
+	return true;
 }
 
-void IOCP::createThreadPool(short threadCount)
-{
-	assert(threadCount >= 0);
 
-	for (int i = 0; i < threadCount; ++i)
-		mIOWorkerThreadPool.push_back(std::move(std::thread(&IOCP::IOWorkerFunc, this)));
+bool IOCP::Init(uint8 threadCount)
+{
+	return createCompletionPort();
 }
 
-void IOCP::Start(short threadCount)
+void IOCP::Run()
 {
-	createCompletionPort();
-	createThreadPool(threadCount);
+
 }
 
 void IOCP::Stop()
-{
-	stopThreads();
-}
-
-void IOCP::stopThreads()
-{
+{	
 	// PostQueuedCompletionStatus 로 IOCP에 종료 신호를 줌
-	BOOL ret = PostQueuedCompletionStatus(mCompletionPort, 0, THREAD_DIE, NULL);
+	BOOL ret = ::PostQueuedCompletionStatus(mCompletionPort, 0, THREAD_DIE, NULL);
 
-	if (!ret)
-		throw std::format("Stop IOCP Failed {}", GetLastError());
+	//if (!ret)
+	//	throw std::format("Stop IOCP Failed {}", GetLastError());
+
+	//mIOWorkerThreadPool.reserve(threadCount);
+
+
+	//for (size_t i{}; i < mIOWorkerThreadPool.capacity(); ++i)
+	//	mIOWorkerThreadPool.push_back(std::thread(&IOCP::IOWorkerFunc, 10));
+
 
 	//for (auto& thread : mIOWorkerThreadPool)
 	//{
-	//	if(thread.joinable())
+	//	if (thread.joinable())
 	//		thread.join();
 	//}
 }
 
-
-void IOCP::IOWorkerFunc()
+void IOCP::IOWorkerFunc(uint32 timeout)
 {
-	//threadType = eThreadType::IO_WORKER;
-
 	while (true)
 	{
-		Overlapped* overlapped = nullptr;
-		SessionPtr clientSession = nullptr;
-		DWORD dwTransferred = 0; 
+		Overlapped* iocpEvent = nullptr;
+		ULONG_PTR key = 0;
+		DWORD dwTransferred = 0;
 
+		bool ret = ::GetQueuedCompletionStatus(mCompletionPort, &dwTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), static_cast<DWORD>(timeout));
+		// 성공하면  TRUE를 반환하고 그렇지 않으면 FALSE를 반환합니다.
 
-		bool ret = GetQueuedCompletionStatus(mCompletionPort, &dwTransferred, reinterpret_cast<PULONG_PTR>(&clientSession), reinterpret_cast<LPOVERLAPPED*>(&overlapped), INFINITE);
-				// 성공하면  TRUE를 반환하고 그렇지 않으면 FALSE를 반환합니다.
-		
 		if (ret == true) // 성공
 		{
-			//if(mCompletionPort == THREAD_DIE)
-
-			if (mCompletionPort == THREAD_DIE) // mCompletionPort == 0인 경우, Post로 서버에서 종료 메시지 보낸 것 => 쓰레드 종료
-			{
-				break;
-			}
-
-			if (overlapped == nullptr)
-			{
-				// 완료 패킷 가져오기 실패 로그 남기기
-				continue;
-			}
+			iocpEvent->GetOwner()->Dispatch(iocpEvent, dwTransferred);
 
 		}
 		else { // 실패
-			if (overlapped == nullptr)
-			{
-				if (WSAGetLastError() == WAIT_TIMEOUT)
-					return;
-			}
-			else 
-			{
-				clientSession->AsyncDisconnect(eDisConnectReason::IO_COMPLETE_ERROR);
-			}
+			auto err = WSAGetLastError();
+			if (err == WAIT_TIMEOUT)
+				return;
 
-			continue;
+			else
+			{
+				eIOType type = iocpEvent->GetType();
+				iocpEvent->GetOwner()->Dispatch(iocpEvent, dwTransferred);
+
+				break;
+			}
 		}
-
-		//여기까지 오면, eIOType 에 맞게 정상처리
-		bool except = false;
-
-		try 
-		{
-			switch (auto ioType = overlapped->mType; ioType)
-			{
-			case eIOType::ACCEPT:
-			{
-				auto acceptOverlapped = static_cast<AcceptOverlapped*>(overlapped);
-				auto session = acceptOverlapped->GetSession();
-
-				session->OnAcceptCompleted();
-			}
-				break;
-
-			case eIOType::DISCONNECT:
-			{
-				auto disConnectOverlapped = static_cast<DisConnectOverlapped*>(overlapped);
-				clientSession->OnDisconnected(disConnectOverlapped->mDisConnectReason);
-			}
-				break;
-
-			case eIOType::SEND:
-			{
-				if (dwTransferred == 0)
-				{
-					//클라이언트가 끊은 경우
-					throw eDisConnectReason::TRANS_ZERO;
-				}
-
-
-				if (overlapped == nullptr)
-				{
-					throw eDisConnectReason::SEND_COMPLETE_ERROR;
-				}
-
-				//TODO
-				clientSession->OnSendCompleted(dwTransferred);
-			}
-				break;
-
-			case eIOType::RECV:
-			{
-				if (dwTransferred == 0)
-				{
-					//클라이언트가 끊은 경우
-					throw eDisConnectReason::TRANS_ZERO;
-				}
-
-				if (overlapped == nullptr)
-				{
-					throw eDisConnectReason::RECV_COMPLETE_ERROR;
-				}
-
-				clientSession->OnRecvCompleted(dwTransferred);
-			}
-				break;
-
-			default:
-				throw eDisConnectReason::UNKNOWN;
-				break;
-
-			}
-			
-		}
-		catch (eDisConnectReason reason)
-		{
-			//클라이언트 종료하기
-			clientSession->AsyncDisconnect(reason);
-		}
-
-		//delete overlapped;
-		
 	}
 }

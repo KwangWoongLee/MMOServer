@@ -1,25 +1,34 @@
 #pragma once
-class IOCP : public Singleton< IOCP >
+
+// Completion Port를 통해 들어온 I/O 작업을 하는 주체가 상속받을 클래스
+class IOCPObject : public EnableShared<IOCPObject>
+{
+	// 추상클래스
+public:
+	virtual HANDLE GetHandle() const = 0;
+	virtual void Dispatch(class Overlapped* iocpEvent, uint32 numOfBytes = 0) = 0;
+};
+
+
+class IOCP
 {
 public:
-	IOCP() : mCompletionPort(nullptr) {};
-	~IOCP() {};
+	IOCP();
+	virtual ~IOCP();
 
+	bool RegistForCompletionPort(IOCPObjectRef iocpObject);
 
-	void createCompletionPort();
-	void RegistCompletionPort(SOCKET socket, ULONG_PTR key);
-	
-	void Start(short threadCount);
+	bool Init(uint8 threadCount);
+	void Run();
 	void Stop();
 	
 	
 private:
-	HANDLE mCompletionPort = nullptr;
-	std::vector<std::thread> mIOWorkerThreadPool;
+	HANDLE mCompletionPort = INVALID_HANDLE_VALUE;
 
-	void createThreadPool(short threadCount);
-	void stopThreads();
+private:
+	bool createCompletionPort();
 
 	// IOWorker 쓰레드 함수
-	void IOWorkerFunc();
+	void IOWorkerFunc(uint32 timeout = INFINITE);
 };

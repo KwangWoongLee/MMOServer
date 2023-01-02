@@ -2,108 +2,105 @@
 #include "Listener.h"
 #include "IOCP.h"
 #include "IOContext.h"
+#include "Server.h"
 
-void Listener::Init(short port)
+#pragma region Listener Virtual
+
+void Listener::Dispatch(Overlapped* iocpEvent, uint32 numOfBytes)
 {
-	WSADATA WSAData;
-	SOCKADDR_IN sockAddr;
+	// dynamic_cast로 다운캐스팅 해야하지만, Listener IOCP Object는 Accept 이벤트만 처리하기때문에
+	// 그냥 이상한게 들어오면 프로그램 뻗어버리기
+	// ASSERT
 
-	try {
-		if (WSAStartup(MAKEWORD(2, 2), &WSAData) != 0)
-			throw std::format("Winsock Init Failed {}", WSAGetLastError());
+	AcceptEvent* acceptEvent = static_cast<AcceptEvent*>(iocpEvent);
+	auto session = acceptEvent->GetSession();
 
-		mListenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
-		if (mListenSocket == INVALID_SOCKET)
-			throw std::format("Listen Socket Create Failed {}", WSAGetLastError());
+	SOCKET sessionSock = reinterpret_cast<SOCKET>(session->GetHandle());
 
-		ZeroMemory(&sockAddr, sizeof(sockAddr));
-		sockAddr.sin_family = AF_INET;
-		sockAddr.sin_port = htons(port);
-		std::wstring ip = L"127.0.0.1";
-		InetPton(AF_INET, ip.c_str(), &sockAddr.sin_addr);
-
-		if (bind(mListenSocket, (LPSOCKADDR)&sockAddr, sizeof(sockAddr)))
-			throw std::format("Listen Socket Bind Failed {}", WSAGetLastError());
-
-		if (SOCKET_ERROR == listen(mListenSocket, SOMAXCONN))
-			throw std::format("Listen Failed {}", WSAGetLastError());
-
-		IOCP::GetInstance().RegistCompletionPort(mListenSocket,(ULONG_PTR)0);
-
-		//TODO : Set Socket Option
-		 
-
-		//AcceptEx Register
-		DWORD bytes = 0;
-
-		GUID guidAcceptEx = WSAID_ACCEPTEX;
-		if (SOCKET_ERROR == WSAIoctl(mListenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER,
-			&guidAcceptEx, sizeof(GUID), &FnAcceptEx, sizeof(LPFN_ACCEPTEX), &bytes, NULL, NULL))
-			throw std::format("AcceptEx Regist Failed {}", WSAGetLastError());
-
-		GUID guidDisconnectEx = WSAID_DISCONNECTEX;
-		if (SOCKET_ERROR == WSAIoctl(mListenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER,
-			&guidDisconnectEx, sizeof(GUID), &FnDisConnectEx, sizeof(LPFN_DISCONNECTEX), &bytes, NULL, NULL))
-			throw std::format("DisConnectEx Regist Failed {}", WSAGetLastError());
-
-
-	}
-	catch (std::exception& e)
+	// Listen Socket이 가진 옵션 그대로 가져가기
+	if (SocketUtil::GetInstance().SetUpdateAcceptSocket(sessionSock, mListenSocket) == false)
 	{
-		if (mListenSocket != NULL)
-		{
-			closesocket(mListenSocket);
-			mListenSocket = NULL;
-		}
-
-		WSACleanup();
-
-		throw e;
+		// 실패했더라도 Accept는 다시 걸어주기
+		return;
 	}
+
+	// Accept 소켓의 접속 정보 가져오기
+	if (session->SetSockAddr() == false)
+	{
+		// 실패했더라도 Accept는 다시 걸어주기
+
+		return;
+	}
+
+	session->OnAcceptCompleted();
+}
+#pragma endregion
+
+
+Listener::Listener(ServerEngineRef server)
+	: mServer(server)
+{
 }
 
-void Listener::Start()
+Listener::~Listener()
 {
-	asyncAccept([]() { return new ClientSession; });
+	::closesocket(mListenSocket);
+	mListenSocket = INVALID_SOCKET;
+	mServer = nullptr;
+
+	mAcceptEvents.clear();
 }
 
-void Listener::Stop()
+bool Listener::Init()
 {
-	if (mListenSocket != NULL)
+	mListenSocket = SocketUtil::GetInstance().CreateSocket();
+
+	if (mListenSocket == INVALID_SOCKET)
+		return false;
+
+	if (mServer->RegistForCompletionPort(shared_from_this()) == false)
+		return false;
+
+	if (SocketUtil::GetInstance().SetReuseAddress(mListenSocket, true) == false)
+		return false;
+
+	if (SocketUtil::GetInstance().SetLinger(mListenSocket, 0, 0) == false)
+		return false;
+
+	if (bind() == false)
+		return false;
+
+	if (listen() == false)
+		return false;
+
+	// 최대 세션 갯수만큼 AcceptEx 해놓기
+	prepareAccepts();
+
+	return true;
+}
+
+bool Listener::bind()
+{
+	return false;
+}
+
+void Listener::prepareAccepts()
+{
+	uint16 maxSessionCount = mServer->GetMaxSessionCount();
+	mAcceptEvents.reserve(maxSessionCount);
+
+	for (uint16 i{}; i < maxSessionCount; ++i)
 	{
-		closesocket(mListenSocket);
-		mListenSocket = NULL;
+		auto acceptEvent = new AcceptEvent();
+		acceptEvent->SetOwner(shared_from_this());
+
+		mAcceptEvents.push_back(acceptEvent);
 	}
 	
-	WSACleanup();
 }
 
-void Listener::asyncAccept(auto sessionFactory)
+bool Listener::listen(int32 backlog)
 {
-	DWORD bytes{0};
-
-
-	SOCKET clientSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (clientSocket == INVALID_SOCKET)
-		throw std::format("Accept Socket Create Failed {}", WSAGetLastError());
-
-	auto session = sessionFactory();
-	session->Init(clientSocket);
-
-	auto acceptOverlapped = new AcceptOverlapped;
-	acceptOverlapped->SetSession(session);
-
-	if (FALSE == FnAcceptEx(mListenSocket, clientSocket, acceptBuff, 0,
-		sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytes, (LPOVERLAPPED)acceptOverlapped))
-	{
-		if (WSAGetLastError() != WSA_IO_PENDING)
-		{
-			// Pending 외에 다른 오류라면 잘못된것
-			delete acceptOverlapped;
-			std::cout << WSAGetLastError();
-			throw std::format("Async Accept Failed {}", WSAGetLastError());
-		}
-	}
-
+	return false;
 }
 

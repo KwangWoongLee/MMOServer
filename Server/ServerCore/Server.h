@@ -1,24 +1,19 @@
 #pragma once
 #include "Listener.h"
+#include "Engine.h"
 
-class Server
+class ServerEngine : public Engine
 {
 public:
-	enum class eState
-	{
-		INIT,
-		RUN,
-		STOP,
-	};
+	ServerEngine(std::string_view ip, uint16 port, std::unique_ptr<IOCP>&& iocp, uint16 maxSessionCount, uint8 threadCount, SessionFactory sessionFactory);
+	virtual ~ServerEngine() = default;
 
-	void Init(short port, short threadCount);
-	void Run();
-	void Stop();
+public:
+	virtual bool Init() override;
+	virtual void Run() override;
+	virtual void Stop() override;
 	
-	eState GetState() { return mState; }
-
 private:
-	Listener mListener;
-	eState mState;
+	ListenerRef mListener = nullptr;
 };
 
