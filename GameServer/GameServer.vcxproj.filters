@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Contents">
+      <UniqueIdentifier>{4dae2cc8-231f-4c0f-a467-6808593d6d7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic">
+      <UniqueIdentifier>{824ecb43-a0f2-4799-84d3-4a22f6a8c076}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Contents\Actor">
+      <UniqueIdentifier>{c6406397-415e-42aa-9949-adc9d05b3cb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{074d8735-79cd-4796-b36c-9c01ef79b781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Proto">
+      <UniqueIdentifier>{fb783b72-061b-4d94-9ed1-625da67247f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Proto\grpc">
+      <UniqueIdentifier>{d56c76f6-8400-4d72-94e4-81308cb0747c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Proto\contents">
+      <UniqueIdentifier>{a8c405a0-ec7c-45b8-baf5-bd73d46ac853}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Grpc">
+      <UniqueIdentifier>{90404565-d584-4879-ba7f-702055a6863a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{2c1c1ed5-0deb-4501-be1c-7ae356675360}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GRPC.cpp">
+      <Filter>Network\Grpc</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="main.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSession.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketHandler.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomManager.cpp">
+      <Filter>Contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>Contents\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="Room.cpp">
+      <Filter>Contents</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMap.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="Proto\enum.pb.cc">
+      <Filter>Network\Proto\contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Proto\protocol.pb.cc">
+      <Filter>Network\Proto\contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Proto\struct.pb.cc">
+      <Filter>Network\Proto\contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Proto\match.pb.cc">
+      <Filter>Network\Proto\contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Proto\match.grpc.pb.cc">
+      <Filter>Network\Proto\grpc</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Contents\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="Position.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="GameRandom.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Block.cpp">
+      <Filter>Contents\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSessionManager.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="GameManager.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="MatchClient.cpp">
+      <Filter>Network\Grpc</Filter>
+    </ClCompile>
+    <ClCompile Include="MatchManager.cpp">
+      <Filter>Network\Grpc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GRPC.h">
+      <Filter>Network\Grpc</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="GameSession.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketHandler.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTypes.h" />
+    <ClInclude Include="RoomManager.h">
+      <Filter>Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor.h">
+      <Filter>Contents\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="Room.h">
+      <Filter>Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMap.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="Proto\enum.pb.h">
+      <Filter>Network\Proto\contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Proto\protocol.pb.h">
+      <Filter>Network\Proto\contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Proto\struct.pb.h">
+      <Filter>Network\Proto\contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Proto\match.pb.h">
+      <Filter>Network\Proto\contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Proto\match.grpc.pb.h">
+      <Filter>Network\Proto\grpc</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Contents\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="Position.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="GameRandom.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Block.h">
+      <Filter>Contents\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="User.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSessionManager.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="GameManager.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="MatchClient.h">
+      <Filter>Network\Grpc</Filter>
+    </ClInclude>
+    <ClInclude Include="MatchManager.h">
+      <Filter>Network\Grpc</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

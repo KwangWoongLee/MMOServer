@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+message Request {
+
+}
+
+
+message Response {
+    bool result = 1;
+}
+
+message ServerInfo {
+  string    host = 1;
+  uint32     port = 2;
+  string    region = 3;
+  RoomList  roomList = 4;
+}
+
+
+message RegistServerRequest {
+	ServerInfo serverInfo = 1;
+}
+
+
+message RemoveServerRequest {
+    uint32  serverId = 1;
+}
+
+
+
+message ServerInfoList 
+{
+  repeated ServerInfo serverInfos = 1;
+}
+
+message PUser
+{
+    uint64 aidx = 1;
+    string name = 2;
+    string region = 3;
+}
+
+message RoomInfo
+{
+    uint64      hostAidx = 1;
+    string      title = 2;
+    uint32      mapId = 3;
+    uint32      minMemberCount = 4;
+    uint32      maxMemberCount = 5;
+    uint32      nowMemberCount = 6;
+}
+
+
+//////////////////////////////////////////////
+
+message GetRoomListRequest
+{
+    string region = 1;
+}
+
+//////////////////////////////////////////////
+
+message CreatRoomRequest
+{
+    uint64     hostAidx = 1;
+    string      title = 2;
+    uint32      mapId = 3;
+    uint32      minMemberCount = 4;
+    uint32      maxMemberCount = 5;
+}
+
+message CreatRoomResponse
+{
+    bool result = 1;
+    string roomKey = 2;
+}
+///////////////////////////////////////////////
+
+message CreatRoomTCPRequest
+{
+    uint32      mapId = 1;
+}
+
+///////////////////////////////////////////////
+
+message EnterRoomRequest
+{
+    PUser userInfo = 1;
+    string roomKey = 2;
+}
+
+message RoomList 
+{
+  repeated RoomInfo roomInfos = 1;
+}
+
+
+service MatchService {
+    // node 2 match(game)
+    rpc GetRoomList (GetRoomListRequest) returns (RoomList) {}; // region 확인 후, 해당 리젼 룸 리스트 제공
+    rpc CreateRoom (CreatRoomRequest) returns (CreatRoomResponse) {}; // go tcp
+    //rpc EnterRoom (EnterRoomRequest) returns (Response) {};
+    //rpc LeaveRoom (PUser) returns (Response) {};
+
+    //rpc StartGame (PUser) returns (Response) {}; // 방장만 가능
+
+    // match 2 node(chat)
+    //rpc EnterUser (EnteredRoomInfo) returns (Response) {}; // 같은방에서의 채팅만 허용
+    //rpc LeaveUser (PUser) returns (Response) {};
+
+    // match 2 tcp
+    rpc CreateRoomTCP (stream CreatRoomTCPRequest) returns (Response) {}; // User의 region 확인해서 가능한 서버에서 룸 생성
+
+    // tcp 2 match
+    rpc RegistServer (RegistServerRequest) returns (Response) {};
+    rpc RemoveServer (RemoveServerRequest) returns (Response) {};
+}

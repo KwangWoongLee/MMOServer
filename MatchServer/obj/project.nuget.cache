@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "v0ICXch+oQztV6jrsMF7gP+D0Oqv7Ud1b5iQ9+5fYBh1Tch8IokR5Hq2zKTrF3grH4ETSUKU6h5bEEookQ7lWQ==",
+  "success": true,
+  "projectFilePath": "C:\\workspace\\portfolio\\CppServer\\MatchServer\\MatchServer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lgu48\\.nuget\\packages\\google.protobuf\\3.21.12\\google.protobuf.3.21.12.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\grpc\\2.46.5\\grpc.2.46.5.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\grpc.core\\2.46.5\\grpc.core.2.46.5.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\grpc.core.api\\2.51.0\\grpc.core.api.2.51.0.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\grpc.net.client\\2.51.0\\grpc.net.client.2.51.0.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\grpc.net.common\\2.51.0\\grpc.net.common.2.51.0.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\grpc.tools\\2.51.0\\grpc.tools.2.51.0.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\3.0.3\\microsoft.extensions.logging.abstractions.3.0.3.nupkg.sha512",
+    "C:\\Users\\lgu48\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
+  ],
+  "logs": []
+}

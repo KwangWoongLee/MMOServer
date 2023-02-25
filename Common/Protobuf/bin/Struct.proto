@@ -1,0 +1,27 @@
+syntax = "proto3";
+package Protocol;
+
+import "Enum.proto";
+
+message Pos
+{
+	float x = 1;
+	float y = 2;
+}
+
+message Actor
+{
+	uint64 id = 1;
+	//string name = 2;
+	ActorType type = 3;
+	// Ω∫≈» ¡§∫∏...
+	Pos position = 4;
+	optional PlayerType playerType = 5;
+	optional BlockType blockType = 6;
+}
+
+message Player
+{
+	Actor actor = 1;
+	PlayerType playerType = 2;
+}
