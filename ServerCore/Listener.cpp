@@ -87,7 +87,9 @@ bool Listener::Init()
 
 bool Listener::bind()
 {
-	if ( ::bind(mListenSocket, (struct sockaddr*)&mServer->GetSockAddress().GetSockAddr(), sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
+	auto serverSocketAddr = mServer->GetSockAddress().GetSockAddr();
+
+	if ( ::bind(mListenSocket, (struct sockaddr*)&serverSocketAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
 		return false;
 
 	return true;

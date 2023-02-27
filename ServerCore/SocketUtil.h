@@ -6,7 +6,8 @@ public:
 	SocketAddress();
 	virtual ~SocketAddress() = default;
 
-	SocketAddress(std::string_view ip, uint32 port);
+	SocketAddress(uint16 port);
+	SocketAddress(std::string_view ip, uint16 port);
 
 public:
 	SOCKADDR_IN& GetSockAddr() { return mSockAddr; }

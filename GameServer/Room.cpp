@@ -69,11 +69,12 @@ void Room::Leave(UserRef user)
 	user->mPlayer = nullptr;
 
 	mUserMap.erase(user->mAidx);
+
 }
 
 void Room::Ping(UserRef user)
 {
-	if (auto session = user->GetSession(); session == nullptr)
+	if (auto session = user->GetSession(); session == nullptr || session->mConnected == false)
 		return;
 	else
 	{
@@ -83,11 +84,11 @@ void Room::Ping(UserRef user)
 			return;
 		}
 
-
+		//cout << "SEND PING " << endl;
 		Protocol::S_PING pingPkt;
 		session->Send(0, pingPkt);
 
-		DoTimer(5000, &Room::Ping, user);
+		DoTimer(1000, &Room::Ping, user);
 	}
 
 }

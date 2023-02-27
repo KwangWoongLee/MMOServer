@@ -4,8 +4,8 @@
 
 ServerEngine::ServerEngine(std::string_view ip, uint16 port, std::shared_ptr<IOCP> iocp, uint16 maxSessionCount, SessionFactory sessionFactory)
 	: Engine(iocp, maxSessionCount, sessionFactory), 
-	mSockAddr(SocketAddress(ip, port)),
-	//mIP(ip),
+	mSockAddr(SocketAddress(port)),
+	mIP(ip),
 	mPort(port)
 {
 }

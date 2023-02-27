@@ -2,14 +2,8 @@
 
 class CircularBuffer
 {
-	enum : uint32
-	{
-		CAPACITY = 0x10000,
-		UNKNOWN = CAPACITY + 1
-	};
-
 public:
-	CircularBuffer();
+	CircularBuffer(uint32 capacity);
 	virtual ~CircularBuffer();
 
 	void BufferReset();
@@ -30,6 +24,7 @@ private:
 
 private:
 	std::vector<char> mBuffer;
+	uint32	mCapacity = 0x10000; // SEND : 65535
 
 	uint32 mARegionPos;
 	uint32	mARegionSize;

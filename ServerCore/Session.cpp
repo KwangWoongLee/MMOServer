@@ -30,6 +30,8 @@ void Session::Dispatch(Overlapped* iocpEvent, uint32 numOfBytes)
 	}
 }
 Session::Session()
+	: mSendBuffer(65535),
+	mRecvBuff(65535*10)
 {
 	mSocket = SocketUtil::GetInstance().CreateSocket();
 }
@@ -132,30 +134,21 @@ void Session::AsyncRecv()
 	}
 }
 
-bool Session::AsyncSend()
+void Session::AsyncSend()
 {
 	if (mConnected == false)
-		return false;
-	
+		return;
+
 	{
 		WRITE_LOCK;
 
 		/// 보낼 데이터가 없는 경우
 		if (0 == mSendBuffer.GetContiguiousBytes())
 		{
-			/// 보낼 데이터도 없는 경우
-			if (0 == mSendPendingCount)
-				return true;
-
-			return false;			
+			mSendEvent.owner = nullptr;
+			mSendRegistered.store(false);
+			return;			
 		}
-
-		/// 이전의 send가 완료 안된 경우
-		if (mSendPendingCount > 0)
-		{
-			return false;
-		}
-
 
 		mSendEvent.Init();
 		mSendEvent.owner = shared_from_this();
@@ -171,14 +164,9 @@ bool Session::AsyncSend()
 			if (WSAGetLastError() != WSA_IO_PENDING)
 			{
 				mSendEvent.owner = nullptr;
-
-				return true;
+				mSendRegistered.store(false);
 			}
 		}
-
-		mSendPendingCount++;
-
-		return mSendPendingCount == 1;
 	}
 }
 
@@ -241,7 +229,7 @@ void Session::OnRecvCompleted(uint32 transferred)
 }
 
 void Session::OnSendCompleted(uint32 transferred)
-{	
+{
 	mSendEvent.owner = nullptr;
 
 	if (transferred == 0)
@@ -258,7 +246,7 @@ void Session::OnSendCompleted(uint32 transferred)
 
 		mSendBuffer.Remove(transferred);
 
-		mSendPendingCount--;
+		mSendRegistered.store(false);
 	}
 }
 
@@ -280,34 +268,40 @@ void Session::DisConnect(const char* reason)
 	asyncDisconnect();
 }
 
-bool Session::Send(const char* buffer, uint32 contentSize)
+void Session::Send(const char* buffer, uint32 contentSize)
 {
 	if (!mConnected.load())
-		return false;
+		return;
+
+
+	bool registerSend = false;
 
 	{
 		WRITE_LOCK;
 
 		if (mSendBuffer.GetFreeSpaceSize() < contentSize)
-			return false;
-
-
-		auto sessionRef = static_pointer_cast<Session>(shared_from_this());
-		TLS_SendSessionQueue.push(sessionRef);
+			return;
 
 		char* destData = mSendBuffer.GetBuffer();
 		memcpy(destData, buffer, contentSize);
 
 		mSendBuffer.Commit(contentSize);
+
+		if (mSendRegistered.exchange(true) == false)
+			registerSend = true;
 	}
 
-	return true;
+	if (registerSend)
+		AsyncSend();
 }
 
-bool PacketSession::Send(uint16 packetId, google::protobuf::MessageLite& packet)
+void PacketSession::Send(uint16 packetId, google::protobuf::MessageLite& packet)
 {
 	if (mConnected.load() == false)
-		return false;
+		return;
+
+	bool registerSend = false;
+
 	{
 		WRITE_LOCK;
 
@@ -322,7 +316,7 @@ bool PacketSession::Send(uint16 packetId, google::protobuf::MessageLite& packet)
 		auto packetSize = sizeof(PacketHeader) + contentSize;
 
 		if (mSendBuffer.GetFreeSpaceSize() < packetSize)
-			return false;
+			return;
 
 		google::protobuf::io::ArrayOutputStream arrayOutputStream(mSendBuffer.GetBuffer(), packetSize);
 		google::protobuf::io::CodedOutputStream codedOutputStream(&arrayOutputStream);
@@ -331,14 +325,16 @@ bool PacketSession::Send(uint16 packetId, google::protobuf::MessageLite& packet)
 		codedOutputStream.WriteRaw(&header, sizeof(PacketHeader));
 		packet.SerializeToCodedStream(&codedOutputStream);
 
-
-		auto sessionRef = static_pointer_cast<Session>(shared_from_this());
-		TLS_SendSessionQueue.push(sessionRef);
-
 		mSendBuffer.Commit(packetSize);
+
+
+		if (mSendRegistered.exchange(true) == false)
+			registerSend = true;
 	}
-	
-	return true;
+
+
+	if (registerSend)
+		AsyncSend();
 }
 
 bool PacketSession::OnRecv()

@@ -30,7 +30,7 @@ public:
 	bool SetSockAddr();
 	
 	void AsyncRecv();
-	bool AsyncSend();
+	void AsyncSend();
 	
 	// 두 함수는 하는 동작은 유사하나, 서버에서 Accept가 되었을 때와, 클라이언트 쪽에서 Connect 되었을 때 각각 호출된다.
 	// 서버가 클라이언트가 될 때도 있으므로 ConnectEx를 정의해서 사용
@@ -42,7 +42,7 @@ public:
 
 	bool Connect();
 	void DisConnect(const char* reason);
-	bool Send(const char* buffer, uint32 contentSize);
+	void Send(const char* buffer, uint32 contentSize);
 
 	RecvBuffer& GetRecvBuffer() { return mRecvBuff; };
 
@@ -74,6 +74,7 @@ public:
 
 	USE_LOCK;
 	std::atomic<bool> mConnected = false;
+	std::atomic<bool> mSendRegistered = false;
 
 	RecvBuffer		mRecvBuff;
 	SendBuffer		mSendBuffer;
@@ -105,7 +106,7 @@ public:
 
 	PacketSessionRef GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); };
 
-	bool Send(uint16 packetId, google::protobuf::MessageLite& packet);
+	void Send(uint16 packetId, google::protobuf::MessageLite& packet);
 
 protected:
 	virtual bool OnRecv() final override;

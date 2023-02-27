@@ -16,7 +16,7 @@ public:
 	SocketAddress& GetSockAddress() { return mSockAddr; };
 	
 private:
-	//std::string_view mIP;
+	std::string mIP;
 	uint16 mPort;
 	ListenerRef mListener = nullptr;
 	SocketAddress mSockAddr = {};

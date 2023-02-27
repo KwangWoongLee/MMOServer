@@ -12,7 +12,17 @@ SocketAddress::SocketAddress()
 	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
 }
 
-SocketAddress::SocketAddress(std::string_view ip, uint32 port)
+
+SocketAddress::SocketAddress(uint16 port)
+{
+	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
+
+	mSockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	mSockAddr.sin_family = AF_INET;
+	mSockAddr.sin_port = htons((SHORT)port);
+}
+
+SocketAddress::SocketAddress(std::string_view ip, uint16 port)
 {
 	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
 

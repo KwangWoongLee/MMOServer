@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "CircularBuffer.h"
 
-CircularBuffer::CircularBuffer() 
-	: mARegionPos(0), mBRegionPos(UNKNOWN),mARegionSize(0), mBRegionSize(0)
+CircularBuffer::CircularBuffer(uint32 capacity) 
+	: mCapacity(capacity), mARegionPos(0), mBRegionPos(mCapacity + 1), mARegionSize(0), mBRegionSize(0)
 {
-	mBuffer = std::vector<char>(CAPACITY);
+	mBuffer = std::vector<char>(mCapacity);
 }
 
 CircularBuffer::~CircularBuffer()
@@ -50,17 +50,17 @@ void CircularBuffer::Remove(uint32 len)
 		if (mBRegionSize > 0)
 		{
 			/// 앞으로 당겨 붙이기
-			if (mBRegionPos != UNKNOWN)
+			if (mBRegionPos != mCapacity + 1)
 				std::move(mBuffer.begin() + mBRegionPos, mBuffer.begin() + mBRegionPos + mBRegionSize, mBuffer.begin());
 
 			mARegionPos = mBRegionPos;
 			mARegionSize = mBRegionSize;
-			mBRegionPos = UNKNOWN;
+			mBRegionPos = mCapacity + 1;
 			mBRegionSize = 0;
 		}
 		else
 		{
-			mBRegionPos = UNKNOWN;
+			mBRegionPos = mCapacity + 1;
 			mBRegionSize = 0;
 			mARegionPos = 0;
 			mARegionSize = 0;
@@ -71,7 +71,7 @@ void CircularBuffer::Remove(uint32 len)
 
 uint32 CircularBuffer::GetFreeSpaceSize()
 {
-	if (mBRegionPos != UNKNOWN)
+	if (mBRegionPos != mCapacity + 1)
 		return GetBFreeSpace();
 	else
 	{
@@ -102,7 +102,7 @@ uint32 CircularBuffer::GetContiguiousBytes() const
 /// 쓰기가 가능한 위치 (버퍼의 끝부분) 반환
 char* CircularBuffer::GetBuffer()
 {
-	if (mBRegionPos != UNKNOWN)
+	if (mBRegionPos != mCapacity + 1)
 		return &mBuffer[static_cast<uint64>(mBRegionPos + mBRegionSize)];
 	else
 		return &mBuffer[static_cast<uint64>(mARegionPos + mARegionSize)];
@@ -114,7 +114,7 @@ char* CircularBuffer::GetBuffer()
 /// 커밋(aka. IncrementWritten)
 void CircularBuffer::Commit(uint32 len)
 {
-	if (mBRegionPos != UNKNOWN)
+	if (mBRegionPos != mCapacity + 1)
 		mBRegionSize += len;
 	else
 		mARegionSize += len;
@@ -147,7 +147,7 @@ uint32 CircularBuffer::GetSpaceBeforeA() const
 
 uint32 CircularBuffer::GetBFreeSpace() const
 {
-	if (mBRegionPos == UNKNOWN)
+	if (mBRegionPos == mCapacity + 1)
 		return 0;
 
 	return (mARegionPos - mBRegionPos - mBRegionSize);

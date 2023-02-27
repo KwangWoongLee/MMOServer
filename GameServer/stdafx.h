@@ -5,8 +5,6 @@
 #ifdef _DEBUG
 #pragma comment(lib, "ServerCore\\Debug\\ServerCore.lib")
 #pragma comment(lib, "Protobuf\\Debug\\libprotobufd.lib")
-#pragma comment(lib, "python39.lib")
-
 #else
 
 #pragma comment(lib, "ServerCore\\Release\\ServerCore.lib")

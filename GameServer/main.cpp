@@ -9,23 +9,6 @@
 #include "RoomManager.h"
 #include "MatchManager.h"
 
-#include <Python.h>
-
-void AsyncSendJob()
-{
-	// TLS 작업이라 No Lock
-	while (TLS_SendSessionQueue.empty() == false)
-	{
-		auto sessionRef = TLS_SendSessionQueue.front();
-
-		if (sessionRef->AsyncSend() == true) // 남은 Send 작업이 없을 경우, 제거
-		{
-			sessionRef = nullptr;
-			TLS_SendSessionQueue.pop();
-		}
-	}
-}
-
 
 int main()
 {
@@ -69,7 +52,7 @@ int main()
 
 		auto newRoom = gRoomManager->Add(1, 1, 10, 1);
 
-		int threadCount = 5;
+		int threadCount = 6;
 
 		gGameManager->DoTimer(250, &GameManager::Update);
 
@@ -88,12 +71,10 @@ int main()
 
 						// 글로벌 큐
 						ThreadManager::DoGlobalQueueWork();
-
-						AsyncSendJob();
 					}
 				});
 
-		}
+	}
 
 		gThreadManager->Join();
 		

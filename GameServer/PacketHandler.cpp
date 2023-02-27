@@ -22,6 +22,7 @@ void PacketHandler::Init()
 void PacketHandler::C_PONG(PacketSessionRef session, PacketHeader header, google::protobuf::io::CodedInputStream& inputStream)
 {
 	GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
+	//cout << gameSession->GetUser()->mAidx << "PONG " << endl;
 
 	gameSession->GetUser()->mPing = GetTickCount64();
 }
