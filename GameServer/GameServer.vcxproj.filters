@@ -97,6 +97,9 @@
     <ClCompile Include="MatchManager.cpp">
       <Filter>Network\Grpc</Filter>
     </ClCompile>
+    <ClCompile Include="View.cpp">
+      <Filter>Contents</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GRPC.h">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="MatchManager.h">
       <Filter>Network\Grpc</Filter>
+    </ClInclude>
+    <ClInclude Include="View.h">
+      <Filter>Contents</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

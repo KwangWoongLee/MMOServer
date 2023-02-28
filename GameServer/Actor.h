@@ -13,11 +13,6 @@ public:
 
 	virtual void Update() = 0;
 
-	virtual void Spawn(RoomRef room) {
-		mId = room->actorId;
-		mRoom = room;
-	};
-
 	virtual void SetActorInfo(Protocol::PActor* actor) {
 		actor->set_id(mId);
 		actor->set_type(mType);
@@ -29,12 +24,15 @@ public:
 	virtual void SetDetailType(Protocol::PActor* actor) {};
 
 
+	void SetId(uint64 id) { mId = id; }
 	void SetPosition(Position pos, bool randPos = false);
 
 	float	GetSpeed() const { return mSpeed; }
 	void	SetSpeed(float speed) { mSpeed = speed; }
 
 	ActorRef GetActorRef() { return shared_from_this(); };
+
+
 
 public:
 	uint64					mId{};
@@ -47,6 +45,14 @@ public:
 	uint16					mWidthSize = 0;
 
 	Protocol::ActorType		mType = Protocol::ActorType::ACTOR_TYPE_NONE;
+
+	bool operator ==(const ActorRef& other) {
+		return other->mId == mId;
+	}
+
+	bool operator <(ActorRef & other) {
+		return mId < other->mId ;
+	}
 };
 
 

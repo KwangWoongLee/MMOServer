@@ -46,7 +46,10 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 	GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
 
 	PlayerRef newPlayer = std::make_shared<Player>(pkt.playertype());
+	newPlayer->mView.SetOwner(newPlayer);
 	newPlayer->SetPosition({ 1.f * 32,11.f * 32 }, false);
+	newPlayer->SetRoom(roomRef);
+	
 
 	UserRef newUser = std::make_shared<User>(gameSession, aidx, name, roomId, newPlayer);
 	gameSession->SetUser(newUser);

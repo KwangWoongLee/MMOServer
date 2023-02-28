@@ -13,6 +13,7 @@ public:
 
 	bool Init();
 	void Update();
+	void ViewUpdate();
 
 	RoomRef			GetRoomRef() { return static_pointer_cast<Room>(shared_from_this()); }
 
@@ -24,8 +25,11 @@ public:
 	void Despawn(ActorRef actor);
 	void Broadcast(uint16 packetId, google::protobuf::MessageLite& packet);
 	void Broadcast(uint16 packetId, google::protobuf::MessageLite& packet, uint64 ignore);
+	void BroadcastNear(Position pos, uint16 packetId, google::protobuf::MessageLite& packet);
 
 
+	std::set<ActorRef> GetNearActors(Position src);
+	std::set<UserRef> GetNearUsers(Position src);
 
 	void ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt);
 	void ApplyPlayerBomb(PlayerRef bombOwner);

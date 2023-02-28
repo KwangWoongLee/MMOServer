@@ -18,25 +18,46 @@ Room::Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount,
 
 bool Room::Init()
 {
-	return mGameMap.Init(GetRoomRef());
+	if (mGameMap.Init(GetRoomRef()) == false)
+		return false;
+
+	DoTimer(100, &Room::ViewUpdate);
+
+	return true;
 }
 
 void Room::Update()
 {
+}
 
+void Room::ViewUpdate()
+{
+	//cout << "View Update" << endl;
+
+	DoTimer(100, &Room::ViewUpdate);
+
+	for (auto [aidx, userRef] : mUserMap)
+	{
+		auto session = userRef->GetSession();
+		if (session == nullptr)
+			continue;
+
+		if (userRef->mPlayer == nullptr)
+			continue;
+
+		userRef->mPlayer->GetView().Update(session);
+	}
 }
 
 void Room::Enter(UserRef user)
 {
-	actorId++;
 	auto playerRef = user->mPlayer;
-
-	playerRef->Spawn(GetRoomRef());
+	playerRef->SetId(actorId);
 
 	//원래 있던 객체 보내주기
 	{
 		Protocol::S_ENTER_GAME enterGamePkt;
-		enterGamePkt.set_myplayerid(playerRef->mId);
+		enterGamePkt.set_myplayerid(actorId);
 		
 
 		for (auto [id, actor] : mActorMap)
@@ -51,25 +72,25 @@ void Room::Enter(UserRef user)
 		{
 			session->Send(1, enterGamePkt);
 		}
-
-		
 	}
 
-	mUserMap[user->mAidx] = user;
-	
-	Spawn(playerRef);
 
+	mActorMap[actorId] = playerRef;
+	mUserMap[user->mAidx] = user;
+
+	actorId++;
+	
 	Ping(user);
 }
 
 
 void Room::Leave(UserRef user)
 {
-	Despawn(user->mPlayer);
-	user->mPlayer = nullptr;
-
+	mActorMap.erase(user->mPlayer->mId);
 	mUserMap.erase(user->mAidx);
 
+	user->mPlayer->GetView().Destroy();
+	user->mPlayer = nullptr;
 }
 
 void Room::Ping(UserRef user)
@@ -95,7 +116,6 @@ void Room::Ping(UserRef user)
 
 void Room::Spawn(ActorRef actor)
 {
-	mActorMap[actor->mId] = actor;
 
 	Protocol::S_SPAWN spawnPkt;
 
@@ -103,6 +123,7 @@ void Room::Spawn(ActorRef actor)
 	actor->SetActorInfo(spawnActor);
 
 	Broadcast(2, spawnPkt);
+	//BroadcastNear(actor->mPos, 2, spawnPkt);
 }
 
 void Room::Despawn(ActorRef actor)
@@ -114,8 +135,8 @@ void Room::Despawn(ActorRef actor)
 	cout << "DESPAWN " << actor->mId << endl;
 
 	Broadcast(3, despawnPkt);
+	//BroadcastNear(actor->mPos, 3, despawnPkt);
 
-	mActorMap.erase(actor->mId);
 }
 
 void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
@@ -125,6 +146,10 @@ void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
 		auto session = userRef->GetSession();
 		if (session == nullptr) // weak 처리
 			continue;
+
+		if(userRef->mPlayer == nullptr)
+			continue;
+		
 		session->Send(packetId, packet);
 	}
 }
@@ -142,6 +167,67 @@ void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet, uin
 		}
 
 	}
+}
+
+void Room::BroadcastNear(Position src, uint16 packetId, google::protobuf::MessageLite& packet)
+{
+	auto nearUser = GetNearUsers(src);
+
+	for (auto userRef : nearUser)
+	{
+		auto session = userRef->GetSession();
+		if (session == nullptr) continue;
+
+		session->Send(packetId, packet);
+	}
+
+	nearUser.clear();
+}
+
+std::set<ActorRef> Room::GetNearActors(Position src)
+{
+	std::set<ActorRef> actors;
+
+	for (auto [id, actorRef] : mActorMap)
+	{
+		auto [targetX, targetY] = actorRef->mPos;
+
+		float fDistanceX = fabsf(src.x - targetX);
+		float fRadCX = 100.f;
+
+		float fDistanceY = fabsf(src.y - targetY);
+		float fRadCY = 100.f;
+
+		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
+			actors.insert(actorRef);
+
+	}
+
+	return actors;
+}
+
+std::set<UserRef> Room::GetNearUsers(Position src)
+{
+	std::set<UserRef> users;
+
+	for (auto [aidx, userRef] : mUserMap)
+	{
+		if (userRef->mPlayer == nullptr) 
+			continue;
+
+		auto [targetX, targetY] = userRef->mPlayer->mPos;
+
+		float fDistanceX = fabsf(src.x - targetX);
+		float fRadCX = 100.f;
+
+		float fDistanceY = fabsf(src.y - targetY);
+		float fRadCY = 100.f;
+
+		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
+			users.insert(userRef);
+	}
+
+	return users;
 }
 
 void Room::ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt)
@@ -178,13 +264,13 @@ void Room::ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACT
 
 
 
-		Protocol::S_ACTION  broadCastPkt;
-		broadCastPkt.set_tickcount(GetTickCount64());
-		broadCastPkt.set_actorid(player->mId);
-		broadCastPkt.set_playeraction(static_cast<Protocol::Action>(action));
-		
-		//Broadcast(4, broadCastPkt, session->GetUser()->mAidx);
-		Broadcast(4, broadCastPkt);
+		Protocol::S_ACTION  actionPkt;
+		actionPkt.set_tickcount(GetTickCount64());
+		actionPkt.set_actorid(player->mId);
+		actionPkt.set_playeraction(static_cast<Protocol::Action>(action));
+
+		//Broadcast(4, actionPkt);
+		BroadcastNear(player->mPos, 4, actionPkt);
 	}
 }
 

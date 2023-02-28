@@ -5,11 +5,6 @@ Player::~Player()
 {
 }
 
-void Player::Spawn(RoomRef room)
-{
-	Actor::Spawn(room);
-}
-
 void Player::Update()
 {
 

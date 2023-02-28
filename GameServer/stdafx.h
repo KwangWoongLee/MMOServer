@@ -12,6 +12,7 @@
 #endif // _DEBUG
 
 #include <utility>
+#include <algorithm>
 
 #include "CorePch.h"
 

@@ -3,11 +3,12 @@
 #include "Actor.h"
 #include "Proto/protocol.pb.h"
 //#include "Bomb.h"
+#include "View.h"
 
 class Player : public Actor
 {
 public:
-	Player() {};
+	Player(){};
 	Player(Protocol::PlayerType playerType)
 		:Actor(Protocol::ActorType::ACTOR_TYPE_PLAYER),
 		mPlayerType(playerType)
@@ -19,7 +20,6 @@ public:
 	virtual ~Player();
 
 	virtual void Update() override;
-	virtual void Spawn(RoomRef room) override;
 	virtual void SetActorInfo(Protocol::PActor* actor) override
 	{
 		Actor::SetActorInfo(actor);
@@ -31,9 +31,18 @@ public:
 		mPlayerType = actor->playertype();
 	};
 
+public:
+	void SetRoom(RoomRef room) { mRoom = room; }
+	RoomRef GetRoom() { return mRoom.lock(); }
+
+	View& GetView() { return mView; }
+
 	//Position SearchBombPosition();
 
 	Protocol::PlayerType    mPlayerType = Protocol::PlayerType::PLAYER_TYPE_NONE;
+	weak_ptr<Room>			mRoom;
+
+	View	mView;
 
 	//std::vector<BombRef> mBombs;
 

@@ -144,7 +144,6 @@ bool GameMap::spawnMapActor()
 	if (auto room = mRoom.lock())
 	{
 		bgActor->mId = 0;
-		room->Spawn(bgActor);
 
 		for (auto i = 0; i < mMap.size(); ++i)
 			for (auto j = 0; j < mMap[0].size(); ++j)
@@ -161,7 +160,6 @@ bool GameMap::spawnMapActor()
 				blockRef->SetPosition(Position(i * 32.f, j * 32.f));
 
 				blockRef->mId = room->actorId++;
-				room->Spawn(blockRef);
 			}
 
 		return true;

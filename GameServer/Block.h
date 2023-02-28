@@ -17,7 +17,6 @@ public:
 	virtual ~Block();
 
 	virtual void Update() override {};
-	virtual void Spawn(RoomRef room) override;
 	virtual void SetActorInfo(Protocol::PActor* actor) override
 	{
 		Actor::SetActorInfo(actor);
