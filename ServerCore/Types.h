@@ -29,8 +29,7 @@ using PacketSessionRef = std::shared_ptr<class PacketSession>;
 using EngineRef = std::shared_ptr<class Engine>;
 using ServerEngineRef = std::shared_ptr<class ServerEngine>;
 using ClientEngineRef = std::shared_ptr<class ClientEngine>;
-using SendBufferRef = std::shared_ptr<class SendBuffer>;
-using SendBufferChunkRef = std::shared_ptr<class SendBufferChunk>;
+using CircularBufferRef = std::shared_ptr<class CircularBuffer>;
 
 
 
@@ -45,9 +44,4 @@ struct PacketHeader
 	uint64 tickCount;
 };
 
-
-//template<typename T, typename... Args>
-//std::shared_ptr<T> MakeShared(Args&&... args)
-//{
-//	return std::shared_ptr<T>{ xnew<T>(forward<Args>(args)...), xdelete<T> };
-//}
+#define _STOMP

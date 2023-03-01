@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Allocator.cpp" />
     <ClCompile Include="CircularBuffer.cpp" />
     <ClCompile Include="ClientEngine.cpp" />
     <ClCompile Include="CorePch.cpp" />
@@ -177,6 +178,9 @@
     <ClCompile Include="Listener.cpp" />
     <ClCompile Include="Lock.cpp" />
     <ClCompile Include="LockQueue.cpp" />
+    <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="MemoryPool.cpp" />
+    <ClCompile Include="ObjectPool.cpp" />
     <ClCompile Include="ServerEngine.cpp" />
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SocketUtil.cpp" />
@@ -190,7 +194,9 @@
     <ClCompile Include="ThreadManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Allocator.h" />
     <ClInclude Include="ClientEngine.h" />
+    <ClInclude Include="Container.h" />
     <ClInclude Include="CoreMacro.h" />
     <ClInclude Include="CorePch.h" />
     <ClInclude Include="Engine.h" />
@@ -205,6 +211,9 @@
     <ClInclude Include="Lock.h" />
     <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="LockQueue.h" />
+    <ClInclude Include="Memory.h" />
+    <ClInclude Include="MemoryPool.h" />
+    <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="ServerEngine.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="Singleton.h" />

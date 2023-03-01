@@ -13,7 +13,7 @@ public:
 	static void DistributeReservedJobs();
 
 private:
-	USE_LOCK;
+	USE_LOCK; // ??
 
 	std::vector<std::thread> mThreads;
 	void initTLS();

@@ -8,19 +8,19 @@ class JobQueue : public enable_shared_from_this<JobQueue>
 public:
 	void DoAsync(Callback&& callback)
 	{
-		Push(std::make_shared<Job>(std::move(callback)));
+		Push(ObjectPool<Job>::MakeShared(std::move(callback)));
 	}
 
 	template<typename T, typename Ret, typename... Args>
 	void DoAsync(Ret(T::* memFunc)(Args...), Args... args)
 	{
 		std::shared_ptr<T> owner = static_pointer_cast<T>(shared_from_this());
-		Push(std::make_shared<Job>(owner, memFunc, std::forward<Args>(args)...));
+		Push(ObjectPool<Job>::MakeShared(owner, memFunc, std::forward<Args>(args)...));
 	}
 
 	void DoTimer(uint64 tick, std::function<void()>&& callback)
 	{
-		JobRef job = std::make_shared<Job>(std::move(callback));
+		JobRef job = ObjectPool<Job>::MakeShared(std::move(callback));
 		gJobTimer->Reserve(tick, shared_from_this(), job);
 	}
 
@@ -28,7 +28,7 @@ public:
 	void DoTimer(uint64 tickAfter, Ret(T::* memFunc)(Args...), Args... args)
 	{
 		std::shared_ptr<T> owner = static_pointer_cast<T>(shared_from_this());
-		JobRef job = std::make_shared<Job>(owner, memFunc, std::forward<Args>(args)...);
+		JobRef job = ObjectPool<Job>::MakeShared(owner, memFunc, std::forward<Args>(args)...);
 		gJobTimer->Reserve(tickAfter, shared_from_this(), job);
 	}
 

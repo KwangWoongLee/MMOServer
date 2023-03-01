@@ -6,17 +6,10 @@
 #include "IOCP.h"
 #include "Engine.h"
 
-constexpr int DATA_SIZE = 2;
-constexpr size_t BUFF_SIZE = 1024;
-constexpr size_t SEND_BUFF_SIZE = 4096;
-
-
 class Session : public IOCPObject
 {
 	friend class Engine;
 
-	using RecvBuffer = CircularBuffer;
-	using SendBuffer = CircularBuffer;
 	//추상클래스 IOCPObject 순수가상함수 오버라이딩
 public:
 	virtual HANDLE GetHandle() override { return reinterpret_cast<HANDLE>(mSocket); }
@@ -24,7 +17,7 @@ public:
 
 public:
 	Session();
-	virtual ~Session() {};
+	virtual ~Session();
 
 public:
 	bool SetSockAddr();
@@ -43,8 +36,6 @@ public:
 	bool Connect();
 	void DisConnect(const char* reason);
 	void Send(const char* buffer, uint32 contentSize);
-
-	RecvBuffer& GetRecvBuffer() { return mRecvBuff; };
 
 	EngineRef GetEngine() { return mEngine.lock(); };
 	void SetEngine(EngineRef engine) { mEngine = engine; };
@@ -70,14 +61,14 @@ public:
 	virtual void OnSend(uint32 transferred) = 0;
 	virtual void OnDisconnected() = 0;
 
-	char	mAcceptBuf[64];
+	char	mAcceptBuf[64] = {};
 
 	USE_LOCK;
 	std::atomic<bool> mConnected = false;
 	std::atomic<bool> mSendRegistered = false;
 
-	RecvBuffer		mRecvBuff;
-	SendBuffer		mSendBuffer;
+	CircularBufferRef	mRecvBuff;
+	CircularBufferRef	mSendBuffer;
 
 	uint16			mSendPendingCount = 0;
 private:

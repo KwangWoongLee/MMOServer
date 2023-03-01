@@ -30,10 +30,17 @@ void Session::Dispatch(Overlapped* iocpEvent, uint32 numOfBytes)
 	}
 }
 Session::Session()
-	: mSendBuffer(65535),
-	mRecvBuff(65535*10)
 {
 	mSocket = SocketUtil::GetInstance().CreateSocket();
+
+	mSendBuffer = ObjectPool<CircularBuffer>::MakeShared(65535);
+	mRecvBuff = ObjectPool<CircularBuffer>::MakeShared(65535);
+}
+
+Session::~Session()
+{
+	mSendBuffer = nullptr;
+	mRecvBuff = nullptr;
 }
 
 
@@ -113,8 +120,8 @@ void Session::AsyncRecv()
 	mRecvEvent.owner = shared_from_this(); 
 	
 	WSABUF wsaBuf;
-	wsaBuf.buf = mRecvBuff.GetBuffer();
-	wsaBuf.len = static_cast<ULONG>(mRecvBuff.GetFreeSpaceSize());
+	wsaBuf.buf = mRecvBuff->GetBuffer();
+	wsaBuf.len = static_cast<ULONG>(mRecvBuff->GetFreeSpaceSize());
 
 	DWORD flags = 0;
 	DWORD recvBytes = 0;
@@ -143,7 +150,7 @@ void Session::AsyncSend()
 		WRITE_LOCK;
 
 		/// 보낼 데이터가 없는 경우
-		if (0 == mSendBuffer.GetContiguiousBytes())
+		if (0 == mSendBuffer->GetContiguiousBytes())
 		{
 			mSendEvent.owner = nullptr;
 			mSendRegistered.store(false);
@@ -156,8 +163,8 @@ void Session::AsyncSend()
 		DWORD sendbytes = 0;
 		DWORD flags = 0;
 		WSABUF wsaBuf;
-		wsaBuf.len = (ULONG)mSendBuffer.GetContiguiousBytes();
-		wsaBuf.buf = mSendBuffer.GetBufferStart();
+		wsaBuf.len = (ULONG)mSendBuffer->GetContiguiousBytes();
+		wsaBuf.buf = mSendBuffer->GetBufferStart();
 
 		if (SOCKET_ERROR == WSASend(mSocket, &wsaBuf, 1, &sendbytes, flags, &mSendEvent, NULL))
 		{
@@ -213,14 +220,14 @@ void Session::OnRecvCompleted(uint32 transferred)
 	}
 
 	// WSARecv 등록 시, 최대 Freespace만큼 받을 수 있도록 등록했는데 초과됨, 더 받음
-	uint32 freeSize = mRecvBuff.GetFreeSpaceSize();
+	uint32 freeSize = mRecvBuff->GetFreeSpaceSize();
 	if (transferred > freeSize)
 	{
 		DisConnect("Recv Buffer Over Write");
 		return;
 	}
 
-	mRecvBuff.Commit(transferred);
+	mRecvBuff->Commit(transferred);
 
 	OnRecv();
 
@@ -244,7 +251,7 @@ void Session::OnSendCompleted(uint32 transferred)
 	{
 		WRITE_LOCK;
 
-		mSendBuffer.Remove(transferred);
+		mSendBuffer->Remove(transferred);
 
 		mSendRegistered.store(false);
 	}
@@ -279,13 +286,13 @@ void Session::Send(const char* buffer, uint32 contentSize)
 	{
 		WRITE_LOCK;
 
-		if (mSendBuffer.GetFreeSpaceSize() < contentSize)
+		if (mSendBuffer->GetFreeSpaceSize() < contentSize)
 			return;
 
-		char* destData = mSendBuffer.GetBuffer();
+		char* destData = mSendBuffer->GetBuffer();
 		memcpy(destData, buffer, contentSize);
 
-		mSendBuffer.Commit(contentSize);
+		mSendBuffer->Commit(contentSize);
 
 		if (mSendRegistered.exchange(true) == false)
 			registerSend = true;
@@ -315,17 +322,17 @@ void PacketSession::Send(uint16 packetId, google::protobuf::MessageLite& packet)
 
 		auto packetSize = sizeof(PacketHeader) + contentSize;
 
-		if (mSendBuffer.GetFreeSpaceSize() < packetSize)
+		if (mSendBuffer->GetFreeSpaceSize() < packetSize)
 			return;
 
-		google::protobuf::io::ArrayOutputStream arrayOutputStream(mSendBuffer.GetBuffer(), packetSize);
+		google::protobuf::io::ArrayOutputStream arrayOutputStream(mSendBuffer->GetBuffer(), packetSize);
 		google::protobuf::io::CodedOutputStream codedOutputStream(&arrayOutputStream);
 
 
 		codedOutputStream.WriteRaw(&header, sizeof(PacketHeader));
 		packet.SerializeToCodedStream(&codedOutputStream);
 
-		mSendBuffer.Commit(packetSize);
+		mSendBuffer->Commit(packetSize);
 
 
 		if (mSendRegistered.exchange(true) == false)
@@ -341,7 +348,7 @@ bool PacketSession::OnRecv()
 {
 	//패킷분석
 	//완료 안되면 다시
-	google::protobuf::io::ArrayInputStream arrayInputStream(mRecvBuff.GetBufferStart(), mRecvBuff.GetContiguiousBytes());
+	google::protobuf::io::ArrayInputStream arrayInputStream(mRecvBuff->GetBufferStart(), mRecvBuff->GetContiguiousBytes());
 	google::protobuf::io::CodedInputStream codedInputStream(&arrayInputStream);
 
 	PacketHeader packetheader;
@@ -365,7 +372,7 @@ bool PacketSession::OnRecv()
 
 		/// 읽은 만큼 전진 및 버퍼에서 제거
 		codedInputStream.Skip(packetheader.size); ///< readraw에서 헤더 크기만큼 미리 전진했기때문
-		mRecvBuff.Remove(sizeof(PacketHeader) + packetheader.size);
+		mRecvBuff->Remove(sizeof(PacketHeader) + packetheader.size);
 	}
 
 	return true;

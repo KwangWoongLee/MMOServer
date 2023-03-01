@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "Room.h"
 #include "User.h"
+#include <random>
 
 std::vector<function<void(PacketSessionRef, PacketHeader, google::protobuf::io::CodedInputStream&)>> HandleFuncs(UINT16_MAX);
 uint64 aidx = 1;
@@ -22,7 +23,6 @@ void PacketHandler::Init()
 void PacketHandler::C_PONG(PacketSessionRef session, PacketHeader header, google::protobuf::io::CodedInputStream& inputStream)
 {
 	GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
-	//cout << gameSession->GetUser()->mAidx << "PONG " << endl;
 
 	gameSession->GetUser()->mPing = GetTickCount64();
 }
@@ -45,13 +45,43 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 
 	GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
 
-	PlayerRef newPlayer = std::make_shared<Player>(pkt.playertype());
+	if (aidx == 9999)
+	{
+		roomRef->DoTimer(500, &Room::Test, gameSession);
+		return;
+	}
+
+
+
+
+	PlayerRef newPlayer = MakeShared<Player>(pkt.playertype());
 	newPlayer->mView.SetOwner(newPlayer);
-	newPlayer->SetPosition({ 1.f * 32,11.f * 32 }, false);
+
+	Position pos = {};
+	//{
+	//  //·£´ý Æ÷Áö¼Ç
+	//	std::random_device rd;
+	//	std::mt19937 gen(rd());
+	//	std::uniform_int_distribution<int> dis(1, 11);
+
+	//	pos = { dis(gen) * 32.f,dis(gen) * 32.f };
+	//}
+
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> dis(0, 3);
+
+		std::vector<Position> startPos = { {1 * 32.f,11 * 32.f}, {1 * 32.f,1 * 32.f}, {11 * 32.f,1 * 32.f}, {11 * 32.f,12 * 32.f} };
+
+		pos = startPos[dis(gen)];
+	}
+	
+	newPlayer->SetPosition(pos, false);
 	newPlayer->SetRoom(roomRef);
 	
 
-	UserRef newUser = std::make_shared<User>(gameSession, aidx, name, roomId, newPlayer);
+	UserRef newUser = MakeShared<User>(gameSession, aidx, name, roomId, newPlayer);
 	gameSession->SetUser(newUser);
 
 	roomRef->DoAsync(&Room::Enter, newUser);

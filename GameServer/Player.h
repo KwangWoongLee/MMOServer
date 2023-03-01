@@ -44,6 +44,6 @@ public:
 
 	View	mView;
 
-	//std::vector<BombRef> mBombs;
+	//Vector<BombRef> mBombs;
 
 };

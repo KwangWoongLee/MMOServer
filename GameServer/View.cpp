@@ -24,7 +24,7 @@ void View::Update(GameSessionRef session)
 	}
 
  	auto nowActorSet = room->GetNearActors(owner->mPos);
-	//
+
 	std::set<ActorRef> newActorSet;
 	std::set_difference(nowActorSet.begin(), nowActorSet.end(), mPrevActorSet.begin(), mPrevActorSet.end(), std::inserter(newActorSet, newActorSet.end()));
 

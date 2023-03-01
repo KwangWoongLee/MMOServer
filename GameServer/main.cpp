@@ -23,7 +23,7 @@ int main()
 		std::string grpcHost = "localhost";
 		uint16		grpcPort = 5001;
 
-		ServerEngineRef server = std::make_shared<ServerEngine>(tcpHost, tcpPort, std::make_unique<IOCP>(), 1000, []() { return std::make_shared<GameSession>(); }
+		ServerEngineRef server = MakeShared<ServerEngine>(tcpHost, tcpPort, std::make_unique<IOCP>(), 5000, []() { return MakeShared<GameSession>(); }
 			);
 		//	
 		if (server->Init() == false)

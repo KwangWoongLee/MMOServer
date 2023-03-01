@@ -60,8 +60,8 @@ bool GameMap::Init(RoomRef room)
 
 	if(loadData() == false) 
 		return false;
-	//if(spawnMapActor() == false) 
-	//	return false;
+	if(spawnMapActor() == false) 
+		return false;
 
 	return true;
 }
@@ -101,7 +101,7 @@ bool GameMap::loadData(std::string_view mapFileName, std::string_view collisionF
 	while (getline(mapfile, line))
 	{
 		auto maxX = mMapRange[1];
-		vector<short> row;
+		Vector<short> row;
 		row.reserve(maxX);
 		stringstream lineStream(line);
 
@@ -117,7 +117,7 @@ bool GameMap::loadData(std::string_view mapFileName, std::string_view collisionF
 	while (getline(collisionFile, line))
 	{
 		auto maxX = mMapRange[1];
-		vector<short> row;
+		Vector<short> row;
 		row.reserve(maxX);
 		stringstream lineStream(line);
 
@@ -138,12 +138,13 @@ bool GameMap::spawnMapActor()
 	uint8 gameScale = 2;
 	Position BGPos(mMapRange[1] * 32 * gameScale / 2, (mMapRange[3] - 1) * 32 * gameScale / 2);
 
-	auto bgActor = make_shared<BG>();
+	auto bgActor = MakeShared<BG>();
 	bgActor->SetPosition(BGPos);
 
 	if (auto room = mRoom.lock())
 	{
 		bgActor->mId = 0;
+		room->Spawn(bgActor);
 
 		for (auto i = 0; i < mMap.size(); ++i)
 			for (auto j = 0; j < mMap[0].size(); ++j)
@@ -152,7 +153,7 @@ bool GameMap::spawnMapActor()
 				if (blockType == Protocol::BlockType::BLOCK_TYPE_NONE)
 					continue;
 
-				auto blockRef = std::make_shared<Block>(blockType);
+				auto blockRef = MakeShared<Block>(blockType);
 				blockRef->mName = "";
 				blockRef->mType = Protocol::ActorType::ACTOR_TYPE_BLOCK;
 				blockRef->mBlockType = blockType;
@@ -160,6 +161,8 @@ bool GameMap::spawnMapActor()
 				blockRef->SetPosition(Position(i * 32.f, j * 32.f));
 
 				blockRef->mId = room->actorId++;
+
+				room->Spawn(blockRef);
 			}
 
 		return true;

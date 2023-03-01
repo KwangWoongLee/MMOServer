@@ -23,7 +23,7 @@ public:
 private:
 	SOCKET mListenSocket = INVALID_SOCKET;
 	ServerEngineRef mServer = nullptr;
-	std::vector<AcceptEvent*> mAcceptEvents;
+	Vector<AcceptEvent*> mAcceptEvents;
 
 	void prepareAccepts();
 	void asyncAccept(AcceptEvent* acceptEvent);

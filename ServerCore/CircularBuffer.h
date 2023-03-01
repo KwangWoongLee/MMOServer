@@ -23,7 +23,7 @@ private:
 	uint32 GetBFreeSpace() const;
 
 private:
-	std::vector<char> mBuffer;
+	Vector<char> mBuffer;
 	uint32	mCapacity = 0x10000; // SEND : 65535
 
 	uint32 mARegionPos;

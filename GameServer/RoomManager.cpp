@@ -13,7 +13,7 @@ shared_ptr<RoomManager> gRoomManager = make_shared<RoomManager>();
 uint64 RoomManager::Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount, uint32 minMemberCount)
 {
 	uint64 roomId = smRoomId++;
-	auto roomRef = std::make_shared<Room>(roomId, GameMap(gameMapId), hostAidx, maxMemberCount, minMemberCount);
+	auto roomRef = MakeShared<Room>(roomId, GameMap(gameMapId), hostAidx, maxMemberCount, minMemberCount);
 	if (roomRef->Init() == false)
 	{
 		roomRef = nullptr;

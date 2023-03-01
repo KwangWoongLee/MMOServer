@@ -2,7 +2,7 @@
 #include "GameManager.h"
 #include "RoomManager.h"
 
-std::shared_ptr<GameManager> gGameManager = std::make_shared<GameManager>();
+std::shared_ptr<GameManager> gGameManager = MakeShared<GameManager>();
 
 GameManager::GameManager()
 {

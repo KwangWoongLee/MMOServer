@@ -38,8 +38,10 @@ using namespace std;
 
 #include "CoreMacro.h"
 #include "CoreGlobal.h"
+#include "Container.h"
+#include "Memory.h"
+#include "ObjectPool.h"
 #include "ThreadLocalStorage.h"
-
 #include "Lock.h"
 #include "Session.h"
 #include "JobQueue.h"

@@ -18,7 +18,7 @@ bool ServerEngine::Init()
 
 	//다운 캐스팅이지만 shared_ptr만 얻는 것이므로 static_pointer_cast로 사용
 	auto serverEngineRef = static_pointer_cast<ServerEngine>(shared_from_this());
-	mListener = std::make_shared<Listener>(serverEngineRef);
+	mListener = MakeShared<Listener>(serverEngineRef);
 
 	if (mListener->Init() == false)
 		return false;

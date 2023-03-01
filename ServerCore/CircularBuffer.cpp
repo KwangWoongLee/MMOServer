@@ -4,12 +4,11 @@
 CircularBuffer::CircularBuffer(uint32 capacity) 
 	: mCapacity(capacity), mARegionPos(0), mBRegionPos(mCapacity + 1), mARegionSize(0), mBRegionSize(0)
 {
-	mBuffer = std::vector<char>(mCapacity);
+	mBuffer = Vector<char>(mCapacity);
 }
 
 CircularBuffer::~CircularBuffer()
 {
-	mBuffer.clear();
 }
 
 void CircularBuffer::BufferReset()

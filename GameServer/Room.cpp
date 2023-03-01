@@ -49,6 +49,7 @@ void Room::ViewUpdate()
 	}
 }
 
+
 void Room::Enter(UserRef user)
 {
 	auto playerRef = user->mPlayer;
@@ -116,27 +117,14 @@ void Room::Ping(UserRef user)
 
 void Room::Spawn(ActorRef actor)
 {
-
-	Protocol::S_SPAWN spawnPkt;
-
-	auto spawnActor = spawnPkt.add_actors();
-	actor->SetActorInfo(spawnActor);
-
-	Broadcast(2, spawnPkt);
-	//BroadcastNear(actor->mPos, 2, spawnPkt);
+	if(mActorMap.find(actor->mId) == mActorMap.end())
+		mActorMap[actor->mId] = actor;
 }
 
 void Room::Despawn(ActorRef actor)
 {
-	Protocol::S_DESPAWN despawnPkt;
-
-	auto despawnActor = despawnPkt.add_actors();
-	actor->SetActorInfo(despawnActor);
-	cout << "DESPAWN " << actor->mId << endl;
-
-	Broadcast(3, despawnPkt);
-	//BroadcastNear(actor->mPos, 3, despawnPkt);
-
+	if (mActorMap.find(actor->mId) != mActorMap.end())
+		mActorMap.erase(actor->mId);
 }
 
 void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
@@ -186,6 +174,7 @@ void Room::BroadcastNear(Position src, uint16 packetId, google::protobuf::Messag
 
 std::set<ActorRef> Room::GetNearActors(Position src)
 {
+	// 최적화 필요
 	std::set<ActorRef> actors;
 
 	for (auto [id, actorRef] : mActorMap)
@@ -193,10 +182,10 @@ std::set<ActorRef> Room::GetNearActors(Position src)
 		auto [targetX, targetY] = actorRef->mPos;
 
 		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = 100.f;
+		float fRadCX = 30.f;
 
 		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = 100.f;
+		float fRadCY = 30.f;
 
 		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
 			actors.insert(actorRef);
@@ -208,6 +197,7 @@ std::set<ActorRef> Room::GetNearActors(Position src)
 
 std::set<UserRef> Room::GetNearUsers(Position src)
 {
+	// 최적화 필요
 	std::set<UserRef> users;
 
 	for (auto [aidx, userRef] : mUserMap)
@@ -218,10 +208,10 @@ std::set<UserRef> Room::GetNearUsers(Position src)
 		auto [targetX, targetY] = userRef->mPlayer->mPos;
 
 		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = 100.f;
+		float fRadCX = 30.f;
 
 		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = 100.f;
+		float fRadCY = 30.f;
 
 		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
 			users.insert(userRef);
@@ -269,7 +259,6 @@ void Room::ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACT
 		actionPkt.set_actorid(player->mId);
 		actionPkt.set_playeraction(static_cast<Protocol::Action>(action));
 
-		//Broadcast(4, actionPkt);
 		BroadcastNear(player->mPos, 4, actionPkt);
 	}
 }
@@ -384,6 +373,22 @@ bool Room::IsCollision(ActorRef actor, Position dest)
 	}
 
 	return false;
+}
+
+void Room::Test(GameSessionRef session)
+{
+	DoTimer(1000, &Room::Test, session);
+	// 기존 패킷 활용
+
+	Protocol::S_ENTER_GAME enterGamePkt;
+
+	for (auto [id, actor] : mActorMap)
+	{
+		auto spawnActor = enterGamePkt.add_exisitingactors();
+		actor->SetActorInfo(spawnActor);
+	}
+
+	session->Send(1, enterGamePkt);
 }
 
 

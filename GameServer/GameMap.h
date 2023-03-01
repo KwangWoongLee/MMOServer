@@ -8,14 +8,14 @@ public:
 	bool Init(RoomRef room);
 	bool ApplyMove(ActorRef actor, Position dest);
 
-	std::vector<short> mMapRange; // 0 : minX , 1 : maxX, 2 : minY, 3 : maxY
+	Vector<short> mMapRange; // 0 : minX , 1 : maxX, 2 : minY, 3 : maxY
 private:
 	uint8 mId{};
 	weak_ptr<Room> mRoom;
 //
 
-	std::vector<std::vector<short>> mMapCollision;
-	std::vector<std::vector<short>> mMap;
+	Vector<Vector<short>> mMapCollision;
+	Vector<Vector<short>> mMap;
 
 	bool canGo(ActorRef actor, Position dest);
 	

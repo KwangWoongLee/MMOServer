@@ -38,6 +38,9 @@ public:
 
 	std::atomic<uint64> actorId = 1;
 
+	void Test(GameSessionRef session);
+
+
 private:
 	std::map<uint64, ActorRef> mActorMap;
 	std::map<uint64, UserRef> mUserMap;
@@ -46,6 +49,8 @@ private:
 	uint64 mHostAidx;
 	uint32 mMaxMemberCount;
 	uint32 mMinMemberCount;
+
+	
 
 	ActorRef findActor(uint64 id);
 };

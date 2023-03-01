@@ -2,7 +2,7 @@
 #include "MatchManager.h"
 #include "MatchClient.h"
 
-std::shared_ptr<MatchManager> gMatchManager = std::make_shared<MatchManager>();
+std::shared_ptr<MatchManager> gMatchManager = MakeShared<MatchManager>();
 
 MatchManager::MatchManager()
 {
@@ -22,7 +22,7 @@ bool MatchManager::Init(std::string host, uint16 port)
 	std::string sPort = to_string(port);
 	auto serverAddress = host.append(":").append(sPort);
 	
-	mMatchClient = std::make_shared<MatchClient>(serverAddress , grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()) );
+	mMatchClient = MakeShared<MatchClient>(serverAddress , grpc::CreateChannel(serverAddress, grpc::InsecureChannelCredentials()) );
 
 	if (mMatchClient->CallRegistServer() == false)
 	{
