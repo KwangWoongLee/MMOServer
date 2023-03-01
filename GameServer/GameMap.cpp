@@ -28,6 +28,42 @@ bool GameMap::ApplyMove(ActorRef actor, Position dest)
 	return true;
 }
 
+void GameMap::Occupy(short x, short y)
+{
+	mMapCollision[x][y] = 1;
+}
+
+void GameMap::Away(short x, short y)
+{
+	mMapCollision[x][y] = 0;
+}
+
+bool GameMap::IsOccupied(short x, short y)
+{
+	return mMapCollision[x][y] == 1;
+}
+
+Position GameMap::SearchMapPosition(Position pos)
+{	
+	auto [x, y] = pos;
+	auto roundX = std::lroundf(x);
+	auto roundY = std::lroundf(y);
+
+	int retX;
+	int retY;
+	if (roundX % 32 > 16)
+		retX = ((roundX / 32) + 1) * 32;
+	else
+		retX = (roundX / 32) * 32;
+
+	if (roundY % 32 > 16)
+		retY = ((roundY / 32) + 1) * 32;
+	else
+		retY = (roundY / 32) * 32;
+
+	return { static_cast<float>(retX), static_cast<float>(retY) };
+}
+
 bool GameMap::canGo(ActorRef actor, Position dest)
 {
 	auto [x, y] = dest;
@@ -36,6 +72,10 @@ bool GameMap::canGo(ActorRef actor, Position dest)
 
 	if (isInRange(dest) == false)
 		return false;
+
+	//Position shortPos = SearchMapPosition(dest);
+	//if (IsOccupied(shortPos.x, shortPos.y))
+	//	return false;
 
 	if (auto room = mRoom.lock())
 		if (room->IsCollision(actor, dest))

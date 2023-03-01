@@ -5,6 +5,7 @@
 class Actor : public enable_shared_from_this<Actor>
 {
 public:
+
 	Actor() {};
 	Actor(Protocol::ActorType type);
 	virtual ~Actor() {
@@ -33,11 +34,11 @@ public:
 	ActorRef GetActorRef() { return shared_from_this(); };
 
 
-
 public:
 	uint64					mId{};
 	string					mName{};
 	Position				mPos{};
+	State					mState = State::LIVE;
 	weak_ptr<Room>			mRoom;
 	float	mSpeed;
 

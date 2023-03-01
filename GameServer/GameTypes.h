@@ -15,6 +15,11 @@ enum class BlockType
 
 };
 
+enum State {
+	DIE,
+	LIVE
+};
+
 using GameSessionRef = shared_ptr<class GameSession>;
 using ActorRef = shared_ptr<class Actor>;
 using BombRef = shared_ptr<class Bomb>;

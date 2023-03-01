@@ -39,17 +39,19 @@ const char descriptor_table_protodef_enum_2eproto[] PROTOBUF_SECTION_VARIABLE(pr
   "\n\020BLOCK_TYPE_BUSH2\020\004\022\024\n\020BLOCK_TYPE_BUSH3"
   "\020\010\022\024\n\020BLOCK_TYPE_BUSH4\020\t\022\024\n\020BLOCK_TYPE_B"
   "USH5\020\020\022\024\n\020BLOCK_TYPE_BUSH6\020\021\022\024\n\020BLOCK_TY"
-  "PE_BUSH7\020\022*m\n\006Action\022\017\n\013ACTION_NONE\020\000\022\r\n"
-  "\tACTION_UP\020\001\022\017\n\013ACTION_DOWN\020\002\022\017\n\013ACTION_"
-  "LEFT\020\003\022\020\n\014ACTION_RIGHT\020\004\022\017\n\013ACTION_STOP\020"
-  "\005*\200\001\n\rBroadCastType\022\022\n\016BROADCAST_NONE\020\000\022"
-  "\030\n\024BROADCAST_ENTER_GAME\020\001\022\030\n\024BROADCAST_L"
-  "EAVE_GAME\020\002\022\024\n\020BROADCAST_ACTION\020\003\022\021\n\rBRO"
-  "ADCAST_DIE\020\004b\006proto3"
+  "PE_BUSH7\020\022*\253\001\n\006Action\022\017\n\013ACTION_NONE\020\000\022\r"
+  "\n\tACTION_UP\020\001\022\017\n\013ACTION_DOWN\020\002\022\017\n\013ACTION"
+  "_LEFT\020\003\022\020\n\014ACTION_RIGHT\020\004\022\017\n\013ACTION_STOP"
+  "\020\005\022\021\n\rACTION_ATTACK\020\006\022\023\n\017ACTION_TEMP_DIE"
+  "\020\007\022\024\n\020ACTION_RESURRECT\020\010*\200\001\n\rBroadCastTy"
+  "pe\022\022\n\016BROADCAST_NONE\020\000\022\030\n\024BROADCAST_ENTE"
+  "R_GAME\020\001\022\030\n\024BROADCAST_LEAVE_GAME\020\002\022\024\n\020BR"
+  "OADCAST_ACTION\020\003\022\021\n\rBROADCAST_DIE\020\004b\006pro"
+  "to3"
   ;
 static ::_pbi::once_flag descriptor_table_enum_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_enum_2eproto = {
-    false, false, 660, descriptor_table_protodef_enum_2eproto,
+    false, false, 723, descriptor_table_protodef_enum_2eproto,
     "enum.proto",
     &descriptor_table_enum_2eproto_once, nullptr, 0, 0,
     schemas, file_default_instances, TableStruct_enum_2eproto::offsets,
@@ -127,6 +129,9 @@ bool Action_IsValid(int value) {
     case 3:
     case 4:
     case 5:
+    case 6:
+    case 7:
+    case 8:
       return true;
     default:
       return false;

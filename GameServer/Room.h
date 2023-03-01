@@ -16,6 +16,7 @@ public:
 	void ViewUpdate();
 
 	RoomRef			GetRoomRef() { return static_pointer_cast<Room>(shared_from_this()); }
+	GameMap& GetMap() { return mGameMap; }
 
 	void Enter(UserRef user);
 	void Leave(UserRef user);
@@ -34,7 +35,10 @@ public:
 	void ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt);
 	void ApplyPlayerBomb(PlayerRef bombOwner);
 	void ApplyExplodeBomb(uint64 bombId);
+	void CheckDie(ActorRef actor);
+
 	bool IsCollision(ActorRef actor, Position dest);
+	void SetOnPlaceUsers(BombRef bomb);
 
 	std::atomic<uint64> actorId = 1;
 

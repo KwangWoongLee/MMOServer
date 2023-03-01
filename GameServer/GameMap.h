@@ -7,12 +7,18 @@ public:
 
 	bool Init(RoomRef room);
 	bool ApplyMove(ActorRef actor, Position dest);
+	void Occupy(short x, short y);
+	void Away(short x, short y);
+	bool IsOccupied(short x, short y);
+	Position SearchMapPosition(Position pos);
+
+
 
 	Vector<short> mMapRange; // 0 : minX , 1 : maxX, 2 : minY, 3 : maxY
 private:
 	uint8 mId{};
 	weak_ptr<Room> mRoom;
-//
+
 
 	Vector<Vector<short>> mMapCollision;
 	Vector<Vector<short>> mMap;

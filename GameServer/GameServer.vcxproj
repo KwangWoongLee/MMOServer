@@ -162,6 +162,7 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Block.cpp" />
+    <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameMap.cpp" />
     <ClCompile Include="GameRandom.cpp" />
@@ -223,6 +224,7 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Block.h" />
+    <ClInclude Include="Bomb.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameMap.h" />
     <ClInclude Include="GameRandom.h" />

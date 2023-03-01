@@ -6,6 +6,7 @@
 #include "PacketHandler.h"
 #include "Block.h"
 #include "User.h"
+#include "Bomb.h"
 
 Room::Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount)
 	: mId(roomId),
@@ -21,7 +22,7 @@ bool Room::Init()
 	if (mGameMap.Init(GetRoomRef()) == false)
 		return false;
 
-	DoTimer(100, &Room::ViewUpdate);
+	DoTimer(50, &Room::ViewUpdate);
 
 	return true;
 }
@@ -32,9 +33,7 @@ void Room::Update()
 
 void Room::ViewUpdate()
 {
-	//cout << "View Update" << endl;
-
-	DoTimer(100, &Room::ViewUpdate);
+	DoTimer(50, &Room::ViewUpdate);
 
 	for (auto [aidx, userRef] : mUserMap)
 	{
@@ -119,12 +118,29 @@ void Room::Spawn(ActorRef actor)
 {
 	if(mActorMap.find(actor->mId) == mActorMap.end())
 		mActorMap[actor->mId] = actor;
+
+	//Protocol::S_SPAWN spawnPkt;
+
+	//auto spawnActor = spawnPkt.add_actors();
+	//actor->SetActorInfo(spawnActor);
+
+	//cout << "SPAWN : " << actor->mId << endl;
+
+	//BroadcastNear(actor->mPos, 2, spawnPkt);
 }
 
 void Room::Despawn(ActorRef actor)
 {
 	if (mActorMap.find(actor->mId) != mActorMap.end())
 		mActorMap.erase(actor->mId);
+
+
+	//Protocol::S_DESPAWN despawnPkt;
+
+	//auto despawnActor = despawnPkt.add_actors();
+	//actor->SetActorInfo(despawnActor);
+
+	//BroadcastNear(actor->mPos, 3, despawnPkt);
 }
 
 void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
@@ -182,10 +198,10 @@ std::set<ActorRef> Room::GetNearActors(Position src)
 		auto [targetX, targetY] = actorRef->mPos;
 
 		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = 30.f;
+		float fRadCX = 500.f; // CONFIG
 
 		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = 30.f;
+		float fRadCY = 500.f; // CONFIG
 
 		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
 			actors.insert(actorRef);
@@ -208,10 +224,10 @@ std::set<UserRef> Room::GetNearUsers(Position src)
 		auto [targetX, targetY] = userRef->mPlayer->mPos;
 
 		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = 30.f;
+		float fRadCX = 500.f; // CONFIG
 
 		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = 30.f;
+		float fRadCY = 500.f; // CONFIG
 
 		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
 			users.insert(userRef);
@@ -223,6 +239,8 @@ std::set<UserRef> Room::GetNearUsers(Position src)
 void Room::ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt)
 {
 	if (pkt.playeractions_size() <= 0) return;
+	if(player->mState == State::DIE) return;
+
 	auto actorSpeed = player->GetSpeed();
 
 	auto actions = pkt.playeractions();
@@ -245,6 +263,12 @@ void Room::ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACT
 		case Protocol::Action::ACTION_RIGHT:
 			hopeX += actorSpeed * 1.f;
 			break;
+		case Protocol::Action::ACTION_ATTACK:	
+		{
+			ApplyPlayerBomb(player);
+			return;
+		}
+			break;
 		default:
 			break;
 		}
@@ -266,85 +290,87 @@ void Room::ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACT
 
 void Room::ApplyPlayerBomb(PlayerRef bombOwner)
 {
-	//if (bombOwner == nullptr)
-	//	return;
+	if (bombOwner == nullptr)
+		return;
+	Position pos = mGameMap.SearchMapPosition(bombOwner->mPos);
+
+	if (mGameMap.IsOccupied(pos.x/32, pos.y/32)) return;	
+
+	BombRef bombRef = MakeShared<Bomb>(bombOwner);
+	bombRef->mType = Protocol::ActorType::ACTOR_TYPE_BOMB;
+	
+	bombRef->SetPosition({ pos.x, pos.y });
+	bombRef->mId = actorId++;
+	Spawn(bombRef);
 
 
+	SetOnPlaceUsers(bombRef);
+	mActorMap[bombRef->mId] = bombRef;
+	mGameMap.Occupy(pos.x/32, pos.y/32);
 
-	//ActorRef actor = MakeShared<Bomb>(bombOwner->mOwnerSession);
-	////actor->mName = u8"폭탄";
-	//actor->mType = Protocol::ActorType::ACTOR_TYPE_BOMB;
-	//auto startPos = bombOwner->SearchBombPosition();
-	//actor->SetStartPosition(startPos, false);
+	DoTimer(3000, [pos, id = bombRef->mId, room = bombOwner->GetRoom()]() {
+		if (room == nullptr) return;
+		
+		auto bomb = room->findActor(id);
+		if (bomb == nullptr) return;
 
-	//actor->Spawn(GetRoomRef());
+		room->ApplyExplodeBomb(id);
 
-	//mActorMap[actor->mId] = actor;
-
-	//std::cout << "플레이어 (" << bombOwner->mId << ")가 (" << actor->mId << ")로 공격" << std::endl;
-
-	//{
-	//	Protocol::S_SPAWN spawnPkt;
-
-	//	auto spawnActor = spawnPkt.add_actor();
-	//	spawnActor->set_id(actor->mId);
-	//	//spawnActor->set_name(actor->mName);
-	//	spawnActor->set_type(actor->mType);
-	//	actor->SetDetailType(spawnActor);
-
-	//	auto pos = spawnActor->mutable_position();
-	//	pos->set_x(actor->mPos.first);
-	//	pos->set_y(actor->mPos.second);
-
-	//	auto spawnPacketBuffer = ClientPacketHandler::MakeSendBuffer(spawnPkt);
-
-	//	Broadcast(spawnPacketBuffer);
-
-	//	DoTimer(3000, [id = actor->mId, room = actor->mRoom]() {
-	//		if (auto roomRef = room.lock())
-	//		{
-	//			auto actor = roomRef->findActor(id);
-	//			if (actor)
-	//			{
-	//				Protocol::S_DESPAWN broadCastPkt;
-
-	//				auto despawnnActor = broadCastPkt.add_actor();
-	//				despawnnActor->set_id(actor->mId);
-
-	//				auto broadCastBuffer = ClientPacketHandler::MakeSendBuffer(broadCastPkt);
-	//				roomRef->Broadcast(broadCastBuffer);
-	//			}
-	//		}
-	//	});
-	//}
+		room->Despawn(bomb);
+		room->GetMap().Away(static_cast<short>(pos.x/32), static_cast<short>(pos.y/32));
+	});
 }
 
 
 void Room::ApplyExplodeBomb(uint64 bombId)
 {
-	//auto actor = findActor(bombId);
-	//auto bomb = dynamic_pointer_cast<Bomb>(actor);
+	auto actor = findActor(bombId);
+	if (actor == nullptr) return;
+	if (actor->mType != Protocol::ACTOR_TYPE_BOMB)
+		return; // CRASH도 가능
 
-	//if (bomb)
-	//{
-	//	auto [x, y] = bomb->mPos;
+	auto bomb = static_pointer_cast<Bomb>(actor);
+	if (bomb)
+	{
+		auto [x, y] = bomb->mPos;
 
-	//	Vector<ActorRef> toLeaves;
-	//	for (auto [id, mapActor] : mActorMap)
-	//	{
-	//		if (id != bomb->mId && bomb->IsInRange(mapActor))
-	//		{
-	//			toLeaves.push_back(mapActor);
-	//		}
-	//	}
+		Vector<ActorRef> toLeaves;
+		for (auto [id, mapActor] : mActorMap)
+		{
+			if (id != bomb->mId && bomb->IsInRange(mapActor))
+			{
+				toLeaves.push_back(mapActor);
+			}
+		}
 
-	//	for (auto leaveActor : toLeaves)
-	//		Leave(leaveActor);
+		for (auto leaveActor : toLeaves)
+		{
+			if (leaveActor->mType == Protocol::ACTOR_TYPE_PLAYER)
+			{
+				Protocol::S_ACTION  actionPkt;
+				actionPkt.set_tickcount(GetTickCount64());
+				actionPkt.set_actorid(leaveActor->mId);
+				actionPkt.set_playeraction(Protocol::Action::ACTION_TEMP_DIE);
 
-	//	toLeaves.clear();
-	//}
+				leaveActor->mState = State::DIE;
 
-	//mActorMap.erase(bombId);
+				BroadcastNear(leaveActor->mPos, 4, actionPkt);
+				
+				DoTimer(5000, &Room::CheckDie, leaveActor);
+				continue;
+			}
+
+			auto pos = mGameMap.SearchMapPosition(leaveActor->mPos);
+			if (mGameMap.IsOccupied(pos.x/32, pos.y/32)) mGameMap.Away(pos.x/32, pos.y/32);
+
+			DoTimer(60, &Room::Despawn, leaveActor);
+		}
+		
+
+		toLeaves.clear();
+	}
+
+	mActorMap.erase(bombId);
 }
 
 
@@ -355,8 +381,14 @@ bool Room::IsCollision(ActorRef actor, Position dest)
 	{
 		if (id == 0) continue;
 		if (id == myId) continue;
-		if (mapActor->mType == Protocol::ACTOR_TYPE_PLAYER) continue;
-		if (mapActor->mType == Protocol::ACTOR_TYPE_BOMB) continue;
+		if (mapActor->mType == Protocol::ACTOR_TYPE_PLAYER)
+		{
+			if (mapActor->mState == State::DIE)
+			{
+				mapActor->mState = State::LIVE;
+			}
+		}
+
 
 		auto [x, y] = mapActor->mPos;
 		auto [destX, destY] = dest;
@@ -368,11 +400,85 @@ bool Room::IsCollision(ActorRef actor, Position dest)
 		float fDistanceY = fabsf(y - destY);
 		float fRadCY = (mapActor->mHeightSize + actor->mHeightSize) / 2;
 
+		bool collision = false;
 		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
-			return true;
+		{
+			collision = true;
+
+			if (mapActor->mType != Protocol::ACTOR_TYPE_BOMB)
+				return true;
+		}
+
+		if (mapActor->mType == Protocol::ACTOR_TYPE_BOMB)
+		{
+			auto bombRef = static_pointer_cast<Bomb>(mapActor);
+
+			if (actor->mType == Protocol::ACTOR_TYPE_PLAYER)
+			{
+				auto player = static_pointer_cast<Player>(actor);
+				if (bombRef->OnUserIds.size() == 0 && collision == true) return true;
+
+				if (collision == false && bombRef->OnUserIds.find(player->mId) != bombRef->OnUserIds.end())
+				{
+					bombRef->OnUserIds.erase(player->mId);
+				}
+			}
+		}
 	}
 
 	return false;
+}
+
+void Room::CheckDie(ActorRef actor)
+{
+	if (actor->mState == State::DIE)
+	{
+		Despawn(actor);
+
+		//테스트용
+		//actor->mState = State::LIVE;
+		//Protocol::S_ACTION  actionPkt;
+		//actionPkt.set_tickcount(GetTickCount64());
+		//actionPkt.set_actorid(actor->mId);
+		//actionPkt.set_playeraction(Protocol::Action::ACTION_RESURRECT);
+
+		//BroadcastNear(actor->mPos, 4, actionPkt);
+	}
+	
+	else if (actor->mState == State::LIVE)
+	{
+		Protocol::S_ACTION  actionPkt;
+		actionPkt.set_tickcount(GetTickCount64());
+		actionPkt.set_actorid(actor->mId);
+		actionPkt.set_playeraction(Protocol::Action::ACTION_RESURRECT);
+
+		BroadcastNear(actor->mPos, 4, actionPkt);
+	}
+}
+
+void Room::SetOnPlaceUsers(BombRef bomb)
+{
+	Vector<weak_ptr<Player>> ret;
+
+	for (auto [id, user] : mUserMap)
+	{
+		auto player = user->mPlayer;
+		
+		auto [x, y] = player->mPos;
+		auto [destX, destY] = bomb->mPos;
+		//나중에 Position 구조체안에 오버로딩
+
+		float fDistanceX = fabsf(x - destX);
+		float fRadCX = (player->mWidthSize + bomb->mWidthSize) / 2;
+
+		float fDistanceY = fabsf(y - destY);
+		float fRadCY = (player->mHeightSize + bomb->mHeightSize) / 2;
+
+		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
+		{
+			bomb->OnUserIds.insert(player->mId);
+		}	
+	}
 }
 
 void Room::Test(GameSessionRef session)

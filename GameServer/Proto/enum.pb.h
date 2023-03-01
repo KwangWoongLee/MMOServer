@@ -139,12 +139,15 @@ enum Action : int {
   ACTION_LEFT = 3,
   ACTION_RIGHT = 4,
   ACTION_STOP = 5,
+  ACTION_ATTACK = 6,
+  ACTION_TEMP_DIE = 7,
+  ACTION_RESURRECT = 8,
   Action_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   Action_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool Action_IsValid(int value);
 constexpr Action Action_MIN = ACTION_NONE;
-constexpr Action Action_MAX = ACTION_STOP;
+constexpr Action Action_MAX = ACTION_RESURRECT;
 constexpr int Action_ARRAYSIZE = Action_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Action_descriptor();

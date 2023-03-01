@@ -31,19 +31,18 @@ public:
 		mPlayerType = actor->playertype();
 	};
 
+
+
 public:
 	void SetRoom(RoomRef room) { mRoom = room; }
 	RoomRef GetRoom() { return mRoom.lock(); }
 
 	View& GetView() { return mView; }
 
-	//Position SearchBombPosition();
-
 	Protocol::PlayerType    mPlayerType = Protocol::PlayerType::PLAYER_TYPE_NONE;
 	weak_ptr<Room>			mRoom;
 
 	View	mView;
 
-	//Vector<BombRef> mBombs;
-
+	Vector<BombRef> mBombs;
 };
