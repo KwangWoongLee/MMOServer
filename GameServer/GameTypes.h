@@ -1,6 +1,9 @@
 #pragma once
 #include "stdafx.h"
 #include "Proto/struct.pb.h"
+#include <filesystem>
+
+using std::filesystem::current_path;
 
 enum class BlockType
 {

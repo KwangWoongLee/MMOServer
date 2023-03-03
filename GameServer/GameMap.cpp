@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameMap.h"
+#include "ConfigManager.h"
 #include "Actor.h"
 #include "Room.h"
 #include "Block.h"
@@ -106,16 +107,26 @@ bool GameMap::Init(RoomRef room)
 	return true;
 }
 
-bool GameMap::loadData(std::string_view mapFileName, std::string_view collisionFileName)
+bool GameMap::loadData()
 {
-	ifstream mapfile(mapFileName.data());
+	ostringstream oss;
+	oss << gConfigManager->ProjectPath << "\\Config\\Map_" << to_string(mId) << ".csv";
+	
+	std::string mapFileName = oss.str();
+	oss.clear();
+
+	oss << gConfigManager->ProjectPath << "\\Config\\MapCollision_" << to_string(mId) << ".csv";
+	std::string collisionFileName = oss.str();
+	oss.clear();
+
+	ifstream mapfile(mapFileName);
 	if (true == mapfile.fail())
 	{
 		//파일 읽기실패 TODO:로그 예외처리
 		return false;
 	}
 
-	ifstream collisionFile(collisionFileName.data());
+	ifstream collisionFile(collisionFileName);
 	if (true == collisionFile.fail())
 	{
 		//파일 읽기실패 TODO:로그 예외처리

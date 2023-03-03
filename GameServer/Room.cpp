@@ -343,8 +343,15 @@ void Room::ApplyExplodeBomb(uint64 bombId)
 			}
 		}
 
+		auto owner = bomb->GetOwner();
+		
+
 		for (auto leaveActor : toLeaves)
 		{
+			if(leaveActor->mType == Protocol::ACTOR_TYPE_BLOCK && owner)
+				owner->mKillCount += 1;
+
+
 			if (leaveActor->mType == Protocol::ACTOR_TYPE_PLAYER)
 			{
 				Protocol::S_ACTION  actionPkt;
@@ -454,6 +461,13 @@ void Room::CheckDie(ActorRef actor)
 
 		BroadcastNear(actor->mPos, 4, actionPkt);
 	}
+}
+
+void Room::CheckQuit(uint64 playerId)
+{
+	// 종료되었다면 레디스에 게임 결과 업데이트
+	
+
 }
 
 void Room::SetOnPlaceUsers(BombRef bomb)

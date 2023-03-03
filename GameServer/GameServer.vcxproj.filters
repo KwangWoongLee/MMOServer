@@ -28,6 +28,9 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{2c1c1ed5-0deb-4501-be1c-7ae356675360}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DB">
+      <UniqueIdentifier>{64051418-bb1c-4827-b4b7-9cad72acdf84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GRPC.cpp">
@@ -103,6 +106,19 @@
     <ClCompile Include="Bomb.cpp">
       <Filter>Contents\Actor</Filter>
     </ClCompile>
+    <ClCompile Include="..\Libraries\Include\json\jsoncpp.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="RedisManager.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="DBManager.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="Mysql.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GRPC.h">
@@ -175,6 +191,19 @@
     </ClInclude>
     <ClInclude Include="Bomb.h">
       <Filter>Contents\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="RedisManager.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigManager.h" />
+    <ClInclude Include="DBManager.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="Mysql.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="DBInterface.h">
+      <Filter>DB</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

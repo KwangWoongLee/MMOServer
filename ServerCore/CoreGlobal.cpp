@@ -5,7 +5,6 @@
 #include "JobTimer.h"
 #include "Memory.h"
 
-
 ThreadManager* gThreadManager = nullptr;
 GlobalQueue* gGlobalQueue = nullptr;
 JobTimer* gJobTimer = nullptr;

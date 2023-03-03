@@ -39,10 +39,12 @@ public:
 
 	View& GetView() { return mView; }
 
+
+public:
 	Protocol::PlayerType    mPlayerType = Protocol::PlayerType::PLAYER_TYPE_NONE;
 	weak_ptr<Room>			mRoom;
-
 	View	mView;
 
-	Vector<BombRef> mBombs;
+	
+	uint64				mKillCount = 0;
 };

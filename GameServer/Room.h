@@ -35,9 +35,12 @@ public:
 	void ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt);
 	void ApplyPlayerBomb(PlayerRef bombOwner);
 	void ApplyExplodeBomb(uint64 bombId);
-	void CheckDie(ActorRef actor);
 
 	bool IsCollision(ActorRef actor, Position dest);
+
+
+	void CheckDie(ActorRef actor);
+	void CheckQuit(uint64 playerId);
 	void SetOnPlaceUsers(BombRef bomb);
 
 	std::atomic<uint64> actorId = 1;

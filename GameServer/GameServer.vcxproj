@@ -160,9 +160,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Libraries\Include\json\jsoncpp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Bomb.cpp" />
+    <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="DBManager.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameMap.cpp" />
     <ClCompile Include="GameRandom.cpp" />
@@ -172,6 +180,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatchClient.cpp" />
     <ClCompile Include="MatchManager.cpp" />
+    <ClCompile Include="Mysql.cpp" />
     <ClCompile Include="PacketHandler.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Position.cpp" />
@@ -205,6 +214,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RedisManager.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="RoomManager.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -225,6 +235,9 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Bomb.h" />
+    <ClInclude Include="ConfigManager.h" />
+    <ClInclude Include="DBInterface.h" />
+    <ClInclude Include="DBManager.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameMap.h" />
     <ClInclude Include="GameRandom.h" />
@@ -232,6 +245,7 @@
     <ClInclude Include="GameSessionManager.h" />
     <ClInclude Include="GameTypes.h" />
     <ClInclude Include="GRPC.h" />
+    <ClInclude Include="Mysql.h" />
     <ClInclude Include="MatchClient.h" />
     <ClInclude Include="MatchManager.h" />
     <ClInclude Include="PacketHandler.h" />
@@ -242,6 +256,7 @@
     <ClInclude Include="Proto\match.pb.h" />
     <ClInclude Include="Proto\protocol.pb.h" />
     <ClInclude Include="Proto\struct.pb.h" />
+    <ClInclude Include="RedisManager.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="RoomManager.h" />
     <ClInclude Include="stdafx.h" />

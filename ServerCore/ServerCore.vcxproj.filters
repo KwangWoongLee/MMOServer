@@ -7,9 +7,6 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{3299bd67-5cbc-46ad-8a14-0c93107ba19a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Contents">
-      <UniqueIdentifier>{5a9145ba-e4ca-47f5-9ed6-7a3e095762e3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{c40e7ea3-7523-48ca-839e-87c625eb5589}</UniqueIdentifier>
     </Filter>

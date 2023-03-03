@@ -27,7 +27,7 @@ private:
 	
 	bool isInRange(Position dest);
 
-	bool loadData(std::string_view mapFileName = "./Map.csv", std::string_view collisionFileName = "./MapCollision.csv");
+	bool loadData();
 	bool spawnMapActor();
 };
 

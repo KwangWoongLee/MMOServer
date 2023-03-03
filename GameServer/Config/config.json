@@ -1,0 +1,20 @@
+{
+  "db": {
+    "com": {
+      "customName": "com",
+      "type": "mysql",
+      "waitForConnections": false,
+      "connectionLimit": 80,
+      "user": "klove0004",
+      "password": "Klove0004!@#",
+      "host": "localhost",
+      "port": 3306,
+      "database": "portpoliodb"
+    }
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "db": 0
+  }
+}
