@@ -9,7 +9,6 @@ public:
 	Actor() {};
 	Actor(Protocol::ActorType type);
 	virtual ~Actor() {
-		std::cout << "Actor Delete" << std::endl;
 	};
 
 	virtual void Update() = 0;

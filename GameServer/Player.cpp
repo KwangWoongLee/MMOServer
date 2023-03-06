@@ -3,10 +3,13 @@
 
 Player::~Player()
 {
-	if (auto room = GetRoom())
+	cout << "~Player()" << endl;
+	if (auto room = GetRoom(); room != nullptr)
 	{
-		//room->DoAsync(&Room::CheckQuit, );
+		if(room->mPlayers.find(mId) != room->mPlayers.end())
+			room->mPlayers.erase(mId);
 	}
+		
 }
 
 void Player::Update()

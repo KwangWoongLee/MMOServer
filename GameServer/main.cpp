@@ -36,24 +36,26 @@ int main()
 			throw std::exception("Redis Init Failed");
 		}
 
-		//gRedisManager->Exec("set test test");
+		//gRedisManager->Exec("set test1 test");
 
-	//	std::string tcpHost = "127.0.0.1";
-	//	uint16		tcpPort = 7777;
+		//gRedisManager->DoAsync(&RedisManager::Exec, "set test2 test");
 
-	//	std::string grpcHost = "localhost";
-	//	uint16		grpcPort = 5001;
+		std::string tcpHost = "127.0.0.1";
+		uint16		tcpPort = 7777;
 
-	//	ServerEngineRef server = MakeShared<ServerEngine>(tcpHost, tcpPort, std::make_unique<IOCP>(), 5000, []() { return MakeShared<GameSession>(); }
-	//		);
-	//	//	
-	//	if (server->Init() == false)
-	//	{
-	//		server = nullptr;
+		std::string grpcHost = "localhost";
+		uint16		grpcPort = 5001;
 
-	//		throw std::exception("Server Init Failed");
-	//	}
-	//	std::cout << "TCP Server Start !" << std::endl;
+		ServerEngineRef server = MakeShared<ServerEngine>(tcpHost, tcpPort, std::make_unique<IOCP>(), 5000, []() { return MakeShared<GameSession>(); }
+			);
+		//	
+		if (server->Init() == false)
+		{
+			server = nullptr;
+
+			throw std::exception("Server Init Failed");
+		}
+		std::cout << "TCP Server Start !" << std::endl;
 
 	//	//if (gMatchManager->Init(grpcHost, grpcPort) == false)
 	//	//{
@@ -71,35 +73,35 @@ int main()
 	//	//	});
 
 
-		auto newRoom = gRoomManager->Add(1, 1, 10, 1);
+		gRoomManager->Add(1, 1, 10, 1);
 
-	//	int threadCount = 6;
+		int threadCount = 6;
 
-	//	gGameManager->DoTimer(250, &GameManager::Update);
+		gGameManager->DoTimer(250, &GameManager::Update);
 
-	//	for (auto i = 0; i < threadCount; ++i)
-	//	{
-	//		gThreadManager->AddThread([&server]()
-	//			{
-	//				while (true)
-	//				{
-	//					TLS_LastTickCount = ::GetTickCount64() + 64;
+		for (auto i = 0; i < threadCount; ++i)
+		{
+			gThreadManager->AddThread([&server]()
+				{
+					while (true)
+					{
+						TLS_LastTickCount = ::GetTickCount64() + 64;
 
-	//					server->Run(10);
+						server->Run(10);
 
-	//					// 예약된 일감 처리
-	//					ThreadManager::DistributeReservedJobs();
+						// 예약된 일감 처리
+						ThreadManager::DistributeReservedJobs();
 
-	//					// 글로벌 큐
-	//					ThreadManager::DoGlobalQueueWork();
-	//				}
-	//			});
+						// 글로벌 큐
+						ThreadManager::DoGlobalQueueWork();
+					}
+				});
 
-	//}
+	}
 
-	//	gThreadManager->Join();
-	//	
-	//		
+		gThreadManager->Join();
+		
+			
 	}
 	catch (std::exception& e)
 	{

@@ -38,7 +38,7 @@ public:
 	bool Init(Json::Value& redis);
 	
 
-	REDISRETPTR Exec(const char* cmd);
+	REDISRETPTR Exec(std::string query);
 	bool RemoveKey(const char* pKey);
 
 
@@ -64,6 +64,7 @@ private:
 	void replyFree();
 
 	redisReply* command(std::string&& cmd);
+	REDISRETPTR exec(const char* cmd);
 
 
 

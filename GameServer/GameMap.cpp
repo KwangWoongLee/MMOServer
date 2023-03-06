@@ -108,16 +108,9 @@ bool GameMap::Init(RoomRef room)
 }
 
 bool GameMap::loadData()
-{
-	ostringstream oss;
-	oss << gConfigManager->ProjectPath << "\\Config\\Map_" << to_string(mId) << ".csv";
-	
-	std::string mapFileName = oss.str();
-	oss.clear();
-
-	oss << gConfigManager->ProjectPath << "\\Config\\MapCollision_" << to_string(mId) << ".csv";
-	std::string collisionFileName = oss.str();
-	oss.clear();
+{	
+	std::string mapFileName = gConfigManager->ProjectPath + "\\Config\\Map_" + to_string(mId) + ".csv";
+	std::string collisionFileName = gConfigManager->ProjectPath + "\\Config\\MapCollision_" + to_string(mId) + ".csv";
 
 	ifstream mapfile(mapFileName);
 	if (true == mapfile.fail())

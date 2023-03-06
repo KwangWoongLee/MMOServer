@@ -42,6 +42,11 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 	uint32 roomId = pkt.roomid();
 
 	auto roomRef = gRoomManager->Find(roomId);
+	if (roomRef == nullptr)
+	{
+		session->DisConnect("Room Is Empty");
+		return;
+	}
 
 	GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
 

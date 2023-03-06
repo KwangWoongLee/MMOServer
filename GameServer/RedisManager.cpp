@@ -20,8 +20,12 @@ bool RedisManager::Init(Json::Value& redis)
 	return true;
 }
 
+REDISRETPTR RedisManager::Exec(string query)
+{
+	return exec(query.c_str());
+}
 
-REDISRETPTR RedisManager::Exec(const char* cmd)
+REDISRETPTR RedisManager::exec(const char* cmd)
 {
 	REDISRETPTR uPtr;
 

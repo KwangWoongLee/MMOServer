@@ -9,11 +9,15 @@ public:
 	Room() = delete;
 	Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount);
 
-	~Room() = default;
+	~Room() {
+		cout << "~Room" << endl;
+	};
 
 	bool Init();
 	void Update();
 	void ViewUpdate();
+	void PreClose();
+	void Close();
 
 	RoomRef			GetRoomRef() { return static_pointer_cast<Room>(shared_from_this()); }
 	GameMap& GetMap() { return mGameMap; }
@@ -40,22 +44,25 @@ public:
 
 
 	void CheckDie(ActorRef actor);
-	void CheckQuit(uint64 playerId);
 	void SetOnPlaceUsers(BombRef bomb);
 
 	std::atomic<uint64> actorId = 1;
 
 	void Test(GameSessionRef session);
 
+	Set<uint64> mPlayers;
+
 
 private:
-	std::map<uint64, ActorRef> mActorMap;
-	std::map<uint64, UserRef> mUserMap;
+	Map<uint64, ActorRef> mActorMap;
+	Map<uint64, UserRef> mUserMap;
 	GameMap mGameMap;
 	uint64 mId;
 	uint64 mHostAidx;
 	uint32 mMaxMemberCount;
 	uint32 mMinMemberCount;
+	bool	mStart = false;
+	bool	mClose = false;
 
 	
 
