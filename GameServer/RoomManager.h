@@ -3,7 +3,7 @@
 class RoomManager
 {
 public:
-	uint64 Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount, uint32 minMemberCount);
+	uint64 Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay);
 	void Remove(uint64 roomId);
 	RoomRef Find(uint64 roomId);
 

@@ -81,6 +81,9 @@ extern S_PINGDefaultTypeInternal _S_PING_default_instance_;
 class S_SPAWN;
 struct S_SPAWNDefaultTypeInternal;
 extern S_SPAWNDefaultTypeInternal _S_SPAWN_default_instance_;
+class S_TEST;
+struct S_TESTDefaultTypeInternal;
+extern S_TESTDefaultTypeInternal _S_TEST_default_instance_;
 }  // namespace Protocol
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Protocol::C_ACTION* Arena::CreateMaybeMessage<::Protocol::C_ACTION>(Arena*);
@@ -94,6 +97,7 @@ template<> ::Protocol::S_ENTER_GAME* Arena::CreateMaybeMessage<::Protocol::S_ENT
 template<> ::Protocol::S_LEAVE_GAME* Arena::CreateMaybeMessage<::Protocol::S_LEAVE_GAME>(Arena*);
 template<> ::Protocol::S_PING* Arena::CreateMaybeMessage<::Protocol::S_PING>(Arena*);
 template<> ::Protocol::S_SPAWN* Arena::CreateMaybeMessage<::Protocol::S_SPAWN>(Arena*);
+template<> ::Protocol::S_TEST* Arena::CreateMaybeMessage<::Protocol::S_TEST>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Protocol {
 
@@ -524,44 +528,15 @@ class S_ENTER_GAME final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kExisitingActorsFieldNumber = 3,
-    kMyPlayerIdFieldNumber = 2,
-    kSuccessFieldNumber = 1,
+    kMyPlayerIdFieldNumber = 1,
   };
-  // repeated .Protocol.PActor exisitingActors = 3;
-  int exisitingactors_size() const;
-  private:
-  int _internal_exisitingactors_size() const;
-  public:
-  void clear_exisitingactors();
-  ::Protocol::PActor* mutable_exisitingactors(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >*
-      mutable_exisitingactors();
-  private:
-  const ::Protocol::PActor& _internal_exisitingactors(int index) const;
-  ::Protocol::PActor* _internal_add_exisitingactors();
-  public:
-  const ::Protocol::PActor& exisitingactors(int index) const;
-  ::Protocol::PActor* add_exisitingactors();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >&
-      exisitingactors() const;
-
-  // uint64 myPlayerId = 2;
+  // uint64 myPlayerId = 1;
   void clear_myplayerid();
   uint64_t myplayerid() const;
   void set_myplayerid(uint64_t value);
   private:
   uint64_t _internal_myplayerid() const;
   void _internal_set_myplayerid(uint64_t value);
-  public:
-
-  // bool success = 1;
-  void clear_success();
-  bool success() const;
-  void set_success(bool value);
-  private:
-  bool _internal_success() const;
-  void _internal_set_success(bool value);
   public:
 
   // @@protoc_insertion_point(class_scope:Protocol.S_ENTER_GAME)
@@ -572,9 +547,7 @@ class S_ENTER_GAME final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor > exisitingactors_;
     uint64_t myplayerid_;
-    bool success_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1353,9 +1326,10 @@ class S_DESPAWN final :
 // -------------------------------------------------------------------
 
 class S_PING final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:Protocol.S_PING) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.S_PING) */ {
  public:
   inline S_PING() : S_PING(nullptr) {}
+  ~S_PING() override;
   explicit PROTOBUF_CONSTEXPR S_PING(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   S_PING(const S_PING& from);
@@ -1428,15 +1402,29 @@ class S_PING final :
   S_PING* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<S_PING>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const S_PING& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const S_PING& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const S_PING& from) {
+    S_PING::MergeImpl(*this, from);
   }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const S_PING& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
   public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(S_PING* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
@@ -1457,6 +1445,18 @@ class S_PING final :
 
   // accessors -------------------------------------------------------
 
+  enum : int {
+    kTickFieldNumber = 1,
+  };
+  // uint64 tick = 1;
+  void clear_tick();
+  uint64_t tick() const;
+  void set_tick(uint64_t value);
+  private:
+  uint64_t _internal_tick() const;
+  void _internal_set_tick(uint64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.S_PING)
  private:
   class _Internal;
@@ -1465,7 +1465,10 @@ class S_PING final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    uint64_t tick_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
+  union { Impl_ _impl_; };
   friend struct ::TableStruct_protocol_2eproto;
 };
 // -------------------------------------------------------------------
@@ -1743,6 +1746,163 @@ class C_ACTION final :
   union { Impl_ _impl_; };
   friend struct ::TableStruct_protocol_2eproto;
 };
+// -------------------------------------------------------------------
+
+class S_TEST final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.S_TEST) */ {
+ public:
+  inline S_TEST() : S_TEST(nullptr) {}
+  ~S_TEST() override;
+  explicit PROTOBUF_CONSTEXPR S_TEST(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  S_TEST(const S_TEST& from);
+  S_TEST(S_TEST&& from) noexcept
+    : S_TEST() {
+    *this = ::std::move(from);
+  }
+
+  inline S_TEST& operator=(const S_TEST& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline S_TEST& operator=(S_TEST&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const S_TEST& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const S_TEST* internal_default_instance() {
+    return reinterpret_cast<const S_TEST*>(
+               &_S_TEST_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    11;
+
+  friend void swap(S_TEST& a, S_TEST& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(S_TEST* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(S_TEST* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  S_TEST* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<S_TEST>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const S_TEST& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const S_TEST& from) {
+    S_TEST::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(S_TEST* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.S_TEST";
+  }
+  protected:
+  explicit S_TEST(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kActorsFieldNumber = 1,
+  };
+  // repeated .Protocol.PActor actors = 1;
+  int actors_size() const;
+  private:
+  int _internal_actors_size() const;
+  public:
+  void clear_actors();
+  ::Protocol::PActor* mutable_actors(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >*
+      mutable_actors();
+  private:
+  const ::Protocol::PActor& _internal_actors(int index) const;
+  ::Protocol::PActor* _internal_add_actors();
+  public:
+  const ::Protocol::PActor& actors(int index) const;
+  ::Protocol::PActor* add_actors();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >&
+      actors() const;
+
+  // @@protoc_insertion_point(class_scope:Protocol.S_TEST)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor > actors_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_protocol_2eproto;
+};
 // ===================================================================
 
 
@@ -1872,27 +2032,7 @@ inline void C_ENTER_GAME::set_allocated_nickname(std::string* nickname) {
 
 // S_ENTER_GAME
 
-// bool success = 1;
-inline void S_ENTER_GAME::clear_success() {
-  _impl_.success_ = false;
-}
-inline bool S_ENTER_GAME::_internal_success() const {
-  return _impl_.success_;
-}
-inline bool S_ENTER_GAME::success() const {
-  // @@protoc_insertion_point(field_get:Protocol.S_ENTER_GAME.success)
-  return _internal_success();
-}
-inline void S_ENTER_GAME::_internal_set_success(bool value) {
-  
-  _impl_.success_ = value;
-}
-inline void S_ENTER_GAME::set_success(bool value) {
-  _internal_set_success(value);
-  // @@protoc_insertion_point(field_set:Protocol.S_ENTER_GAME.success)
-}
-
-// uint64 myPlayerId = 2;
+// uint64 myPlayerId = 1;
 inline void S_ENTER_GAME::clear_myplayerid() {
   _impl_.myplayerid_ = uint64_t{0u};
 }
@@ -1910,43 +2050,6 @@ inline void S_ENTER_GAME::_internal_set_myplayerid(uint64_t value) {
 inline void S_ENTER_GAME::set_myplayerid(uint64_t value) {
   _internal_set_myplayerid(value);
   // @@protoc_insertion_point(field_set:Protocol.S_ENTER_GAME.myPlayerId)
-}
-
-// repeated .Protocol.PActor exisitingActors = 3;
-inline int S_ENTER_GAME::_internal_exisitingactors_size() const {
-  return _impl_.exisitingactors_.size();
-}
-inline int S_ENTER_GAME::exisitingactors_size() const {
-  return _internal_exisitingactors_size();
-}
-inline ::Protocol::PActor* S_ENTER_GAME::mutable_exisitingactors(int index) {
-  // @@protoc_insertion_point(field_mutable:Protocol.S_ENTER_GAME.exisitingActors)
-  return _impl_.exisitingactors_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >*
-S_ENTER_GAME::mutable_exisitingactors() {
-  // @@protoc_insertion_point(field_mutable_list:Protocol.S_ENTER_GAME.exisitingActors)
-  return &_impl_.exisitingactors_;
-}
-inline const ::Protocol::PActor& S_ENTER_GAME::_internal_exisitingactors(int index) const {
-  return _impl_.exisitingactors_.Get(index);
-}
-inline const ::Protocol::PActor& S_ENTER_GAME::exisitingactors(int index) const {
-  // @@protoc_insertion_point(field_get:Protocol.S_ENTER_GAME.exisitingActors)
-  return _internal_exisitingactors(index);
-}
-inline ::Protocol::PActor* S_ENTER_GAME::_internal_add_exisitingactors() {
-  return _impl_.exisitingactors_.Add();
-}
-inline ::Protocol::PActor* S_ENTER_GAME::add_exisitingactors() {
-  ::Protocol::PActor* _add = _internal_add_exisitingactors();
-  // @@protoc_insertion_point(field_add:Protocol.S_ENTER_GAME.exisitingActors)
-  return _add;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >&
-S_ENTER_GAME::exisitingactors() const {
-  // @@protoc_insertion_point(field_list:Protocol.S_ENTER_GAME.exisitingActors)
-  return _impl_.exisitingactors_;
 }
 
 // -------------------------------------------------------------------
@@ -2212,6 +2315,26 @@ S_DESPAWN::actors() const {
 
 // S_PING
 
+// uint64 tick = 1;
+inline void S_PING::clear_tick() {
+  _impl_.tick_ = uint64_t{0u};
+}
+inline uint64_t S_PING::_internal_tick() const {
+  return _impl_.tick_;
+}
+inline uint64_t S_PING::tick() const {
+  // @@protoc_insertion_point(field_get:Protocol.S_PING.tick)
+  return _internal_tick();
+}
+inline void S_PING::_internal_set_tick(uint64_t value) {
+  
+  _impl_.tick_ = value;
+}
+inline void S_PING::set_tick(uint64_t value) {
+  _internal_set_tick(value);
+  // @@protoc_insertion_point(field_set:Protocol.S_PING.tick)
+}
+
 // -------------------------------------------------------------------
 
 // C_PONG
@@ -2263,9 +2386,52 @@ C_ACTION::mutable_playeractions() {
   return _internal_mutable_playeractions();
 }
 
+// -------------------------------------------------------------------
+
+// S_TEST
+
+// repeated .Protocol.PActor actors = 1;
+inline int S_TEST::_internal_actors_size() const {
+  return _impl_.actors_.size();
+}
+inline int S_TEST::actors_size() const {
+  return _internal_actors_size();
+}
+inline ::Protocol::PActor* S_TEST::mutable_actors(int index) {
+  // @@protoc_insertion_point(field_mutable:Protocol.S_TEST.actors)
+  return _impl_.actors_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >*
+S_TEST::mutable_actors() {
+  // @@protoc_insertion_point(field_mutable_list:Protocol.S_TEST.actors)
+  return &_impl_.actors_;
+}
+inline const ::Protocol::PActor& S_TEST::_internal_actors(int index) const {
+  return _impl_.actors_.Get(index);
+}
+inline const ::Protocol::PActor& S_TEST::actors(int index) const {
+  // @@protoc_insertion_point(field_get:Protocol.S_TEST.actors)
+  return _internal_actors(index);
+}
+inline ::Protocol::PActor* S_TEST::_internal_add_actors() {
+  return _impl_.actors_.Add();
+}
+inline ::Protocol::PActor* S_TEST::add_actors() {
+  ::Protocol::PActor* _add = _internal_add_actors();
+  // @@protoc_insertion_point(field_add:Protocol.S_TEST.actors)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::PActor >&
+S_TEST::actors() const {
+  // @@protoc_insertion_point(field_list:Protocol.S_TEST.actors)
+  return _impl_.actors_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

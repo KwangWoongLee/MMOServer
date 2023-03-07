@@ -18,6 +18,7 @@ public:
 	UserRef GetUser() { return mUser; }
 	void SetUser(UserRef user) { mUser = user; }
 
+	bool Test = false;
 
 private:
 	UserRef mUser = nullptr;

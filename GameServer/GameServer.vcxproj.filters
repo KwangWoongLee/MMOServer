@@ -119,6 +119,9 @@
     <ClCompile Include="Mysql.cpp">
       <Filter>DB</Filter>
     </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>Contents\Actor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GRPC.h">
@@ -204,6 +207,9 @@
     </ClInclude>
     <ClInclude Include="DBInterface.h">
       <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>Contents\Actor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

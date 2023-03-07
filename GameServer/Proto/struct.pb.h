@@ -347,6 +347,7 @@ class PActor final :
     kActionFieldNumber = 4,
     kPlayerTypeFieldNumber = 5,
     kBlockTypeFieldNumber = 6,
+    kMonsterTypeFieldNumber = 7,
   };
   // .Protocol.Pos position = 3;
   bool has_position() const;
@@ -419,6 +420,19 @@ class PActor final :
   void _internal_set_blocktype(::Protocol::BlockType value);
   public:
 
+  // optional .Protocol.MonsterType monsterType = 7;
+  bool has_monstertype() const;
+  private:
+  bool _internal_has_monstertype() const;
+  public:
+  void clear_monstertype();
+  ::Protocol::MonsterType monstertype() const;
+  void set_monstertype(::Protocol::MonsterType value);
+  private:
+  ::Protocol::MonsterType _internal_monstertype() const;
+  void _internal_set_monstertype(::Protocol::MonsterType value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.PActor)
  private:
   class _Internal;
@@ -435,6 +449,7 @@ class PActor final :
     int action_;
     int playertype_;
     int blocktype_;
+    int monstertype_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_struct_2eproto;
@@ -698,6 +713,34 @@ inline void PActor::_internal_set_blocktype(::Protocol::BlockType value) {
 inline void PActor::set_blocktype(::Protocol::BlockType value) {
   _internal_set_blocktype(value);
   // @@protoc_insertion_point(field_set:Protocol.PActor.blockType)
+}
+
+// optional .Protocol.MonsterType monsterType = 7;
+inline bool PActor::_internal_has_monstertype() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline bool PActor::has_monstertype() const {
+  return _internal_has_monstertype();
+}
+inline void PActor::clear_monstertype() {
+  _impl_.monstertype_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline ::Protocol::MonsterType PActor::_internal_monstertype() const {
+  return static_cast< ::Protocol::MonsterType >(_impl_.monstertype_);
+}
+inline ::Protocol::MonsterType PActor::monstertype() const {
+  // @@protoc_insertion_point(field_get:Protocol.PActor.monsterType)
+  return _internal_monstertype();
+}
+inline void PActor::_internal_set_monstertype(::Protocol::MonsterType value) {
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.monstertype_ = value;
+}
+inline void PActor::set_monstertype(::Protocol::MonsterType value) {
+  _internal_set_monstertype(value);
+  // @@protoc_insertion_point(field_set:Protocol.PActor.monsterType)
 }
 
 #ifdef __GNUC__

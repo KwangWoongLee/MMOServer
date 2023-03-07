@@ -13,9 +13,9 @@
 #include "ConfigManager.h"
 
 
+
 int main()
 {
-
 	gConfigManager->Init(current_path().string(), "Config\\config.json");
 
 	try {
@@ -26,6 +26,7 @@ int main()
 		{
 			throw std::exception("DB Init Failed");
 		}
+		cout << ("DB Ready ! ") << endl;
 
 		//auto result = gDBManager->Exec<u_int>("com", "select unix_timestamp(now()) as dbtime;");
 		//cout << *result.begin() << endl;
@@ -35,18 +36,28 @@ int main()
 		{
 			throw std::exception("Redis Init Failed");
 		}
+		cout << ("Redis Ready ! ") << endl;
 
 		//gRedisManager->Exec("set test1 test");
 
 		//gRedisManager->DoAsync(&RedisManager::Exec, "set test2 test");
 
-		std::string tcpHost = "127.0.0.1";
-		uint16		tcpPort = 7777;
+		string configName = "server";
+#ifdef TEST
+		configName = "test";
+#endif // TEST
 
-		std::string grpcHost = "localhost";
-		uint16		grpcPort = 5001;
 
-		ServerEngineRef server = MakeShared<ServerEngine>(tcpHost, tcpPort, std::make_unique<IOCP>(), 5000, []() { return MakeShared<GameSession>(); }
+		std::string tcpHost = gConfigManager->Configs[configName]["host"].asString();
+		uint16		tcpPort = gConfigManager->Configs[configName]["port"].asInt();
+		uint32		maxSession = gConfigManager->Configs[configName]["maxSession"].asInt();
+		float		viewSize = gConfigManager->Configs[configName]["viewSize"].asFloat();
+		uint32		viewDelay = gConfigManager->Configs[configName]["viewDelay"].asInt();
+
+		std::string grpcHost = gConfigManager->Configs["grpc"]["host"].asString();
+		uint16		grpcPort = gConfigManager->Configs["grpc"]["port"].asInt();
+
+		ServerEngineRef server = MakeShared<ServerEngine>(tcpHost, tcpPort, std::make_unique<IOCP>(), maxSession, []() { return MakeShared<GameSession>(); }
 			);
 		//	
 		if (server->Init() == false)
@@ -55,13 +66,12 @@ int main()
 
 			throw std::exception("Server Init Failed");
 		}
-		std::cout << "TCP Server Start !" << std::endl;
+		std::cout << "TCP Server Ready !" << std::endl;
 
-	//	//if (gMatchManager->Init(grpcHost, grpcPort) == false)
-	//	//{
-	//	//		throw std::exception("Match Server Add Failed");
-	//	//}
-	//	//std::cout << "Regist At Match Server !" << std::endl;
+		//if (gMatchManager->Init(grpcHost, grpcPort) == false)
+		//{
+		//		throw std::exception("Match Server Add Failed");
+		//}
 
 
 	//	//gThreadManager->AddThread([]()
@@ -71,11 +81,12 @@ int main()
 	//	//			MatchClient::CreateRoomJobBi();
 	//	//		}
 	//	//	});
+		std::cout << "Match Server Ready !" << std::endl;
 
 
-		gRoomManager->Add(1, 1, 10, 1);
+		gRoomManager->Add(1, 1, 10, 1, viewSize, viewDelay);
 
-		int threadCount = 6;
+		int threadCount = 10;
 
 		gGameManager->DoTimer(250, &GameManager::Update);
 
@@ -89,10 +100,8 @@ int main()
 
 						server->Run(10);
 
-						// 예약된 일감 처리
 						ThreadManager::DistributeReservedJobs();
 
-						// 글로벌 큐
 						ThreadManager::DoGlobalQueueWork();
 					}
 				});

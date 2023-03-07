@@ -10,12 +10,14 @@
 #include "RoomManager.h"
 #include "RedisManager.h"
 
-Room::Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount)
+Room::Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay)
 	: mId(roomId),
 	mGameMap(map),
 	mHostAidx(hostAidx),
 	mMaxMemberCount(maxMemberCount),
-	mMinMemberCount(mMinMemberCount)
+	mMinMemberCount(mMinMemberCount),
+	mViewSize(viewSize),
+	mViewDelay(viewDelay)
 {
 }
 
@@ -24,24 +26,27 @@ bool Room::Init()
 	if (mGameMap.Init(GetRoomRef()) == false)
 		return false;
 
-	DoTimer(50, &Room::ViewUpdate);
+	DoTimer(mViewDelay, &Room::ViewUpdate);
 
 	return true;
 }
 
 void Room::Update()
 {
-	if (mClose == true) return;
+#ifndef TEST
+	//if (mClose == true) return;
 
-	if (mStart == true && mPlayers.size() == 0)
-		PreClose();
+	//if (mStart == true && mPlayers.size() == 0)
+	//	PreClose();
+#endif // !TEST
+
 }
 
 void Room::ViewUpdate()
 {
 	if (mClose == true) return;
 
-	DoTimer(50, &Room::ViewUpdate);
+	DoTimer(mViewDelay, &Room::ViewUpdate);
 
 	for (auto [aidx, userRef] : mUserMap)
 	{
@@ -105,13 +110,6 @@ void Room::Enter(UserRef user)
 		Protocol::S_ENTER_GAME enterGamePkt;
 		enterGamePkt.set_myplayerid(actorId);
 		
-
-		for (auto [id, actor] : mActorMap)
-		{
-			auto spawnActor = enterGamePkt.add_exisitingactors();
-			actor->SetActorInfo(spawnActor);
-		}
-
 		if (auto session = user->GetSession(); session == nullptr)
 			return;
 		else
@@ -229,10 +227,10 @@ std::set<ActorRef> Room::GetNearActors(Position src)
 		auto [targetX, targetY] = actorRef->mPos;
 
 		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = 500.f; // CONFIG
+		float fRadCX = mViewSize; // CONFIG
 
 		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = 500.f; // CONFIG
+		float fRadCY = mViewSize; // CONFIG
 
 		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
 			actors.insert(actorRef);
@@ -255,10 +253,10 @@ std::set<UserRef> Room::GetNearUsers(Position src)
 		auto [targetX, targetY] = userRef->mPlayer->mPos;
 
 		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = 500.f; // CONFIG
+		float fRadCX = mViewSize; // CONFIG
 
 		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = 500.f; // CONFIG
+		float fRadCY = mViewSize; // CONFIG
 
 		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
 			users.insert(userRef);
@@ -476,16 +474,7 @@ void Room::CheckDie(ActorRef actor)
 
 	if (actor->mState == State::DIE)
 	{
-		//플레이어 일 때만 들어옴
-
-		Despawn(actor);
-
-		mPlayers.erase(actor->mId);
-		if (mPlayers.size() == 0) // 게임종료
-		{
-			PreClose();
-		}
-
+#ifdef TEST
 		//테스트용
 		//actor->mState = State::LIVE;
 		//Protocol::S_ACTION  actionPkt;
@@ -494,6 +483,18 @@ void Room::CheckDie(ActorRef actor)
 		//actionPkt.set_playeraction(Protocol::Action::ACTION_RESURRECT);
 
 		//BroadcastNear(actor->mPos, 4, actionPkt);
+#else
+		//플레이어 일 때만 들어옴
+		Despawn(actor);
+
+		mPlayers.erase(actor->mId);
+		if (mPlayers.size() == 0) // 게임종료
+		{
+			PreClose();
+		}
+#endif // TEST
+
+		
 	}
 	
 	else if (actor->mState == State::LIVE)
@@ -560,18 +561,17 @@ void Room::SetOnPlaceUsers(BombRef bomb)
 
 void Room::Test(GameSessionRef session)
 {
-	DoTimer(1000, &Room::Test, session);
-	// 기존 패킷 활용
+	DoTimer(200, &Room::Test, session);
 
-	Protocol::S_ENTER_GAME enterGamePkt;
+	Protocol::S_TEST testPkt;
 
-	for (auto [id, actor] : mActorMap)
+	for (auto [id, actorRef] : mActorMap)
 	{
-		auto spawnActor = enterGamePkt.add_exisitingactors();
-		actor->SetActorInfo(spawnActor);
+		auto actor = testPkt.add_actors();
+		actorRef->SetActorInfo(actor);
 	}
 
-	session->Send(1, enterGamePkt);
+	session->Send(1, testPkt);
 }
 
 

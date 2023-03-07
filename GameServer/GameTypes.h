@@ -29,3 +29,6 @@ using BombRef = shared_ptr<class Bomb>;
 using PlayerRef = shared_ptr<class Player>;
 using UserRef = shared_ptr<class User>;
 using RoomRef = shared_ptr<class Room>;
+
+
+#define TEST

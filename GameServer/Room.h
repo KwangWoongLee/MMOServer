@@ -7,7 +7,7 @@ class Room : public JobQueue
 {
 public:
 	Room() = delete;
-	Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount);
+	Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay);
 
 	~Room() {
 		cout << "~Room" << endl;
@@ -21,6 +21,7 @@ public:
 
 	RoomRef			GetRoomRef() { return static_pointer_cast<Room>(shared_from_this()); }
 	GameMap& GetMap() { return mGameMap; }
+	float			GetViewSize() const { return mViewSize; }
 
 	void Enter(UserRef user);
 	void Leave(UserRef user);
@@ -61,6 +62,8 @@ private:
 	uint64 mHostAidx;
 	uint32 mMaxMemberCount;
 	uint32 mMinMemberCount;
+	uint32	mViewDelay;
+	float	mViewSize = 0.f;
 	bool	mStart = false;
 	bool	mClose = false;
 

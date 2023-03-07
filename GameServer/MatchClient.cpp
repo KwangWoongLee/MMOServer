@@ -134,17 +134,14 @@ void MatchClient::CreateRoomJobBi()
 
     CreateRoomTCPResponse response;
     while (sBiStreamRW->Read(&response)) {
-
-        
-
-        uint64 newRoomId = gRoomManager->Add(response.hostaidx(), response.mapid(), response.maxmembercount(), response.minmembercount());
-        cout << "货肺款 规 积己 : " << newRoomId << endl;
+        //uint64 newRoomId = gRoomManager->Add(response.hostaidx(), response.mapid(), response.maxmembercount(), response.minmembercount());
+        //cout << "货肺款 规 积己 : " << newRoomId << endl;
 
         CreateRoomTCPRequest request;
-        request.set_region("kor");
-        request.set_serverid(sMatchServerId);
-        request.set_roomid(response.roomid());
-        request.set_tcproomid(newRoomId);
+        //request.set_region("kor");
+        //request.set_serverid(sMatchServerId);
+        //request.set_roomid(response.roomid());
+        //request.set_tcproomid(newRoomId);
 
         sBiStreamRW->Write(request);
     }

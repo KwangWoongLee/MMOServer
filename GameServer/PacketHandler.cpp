@@ -52,7 +52,8 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 
 	if (aidx == 9999)
 	{
-		roomRef->DoTimer(500, &Room::Test, gameSession);
+		gameSession->Test = true;
+		roomRef->DoTimer(200, &Room::Test, gameSession);
 		return;
 	}
 
@@ -63,16 +64,14 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 	newPlayer->mView.SetOwner(newPlayer);
 
 	Position pos = {};
-	//{
-	//  //·£´ý Æ÷Áö¼Ç
-	//	std::random_device rd;
-	//	std::mt19937 gen(rd());
-	//	std::uniform_int_distribution<int> dis(1, 11);
+#ifdef TEST
+		//·£´ý Æ÷Áö¼Ç
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> dis(1, 30);
 
-	//	pos = { dis(gen) * 32.f,dis(gen) * 32.f };
-	//}
-
-	{
+		pos = { dis(gen) * 32.f,dis(gen) * 32.f };
+#else
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dis(0, 3);
@@ -80,8 +79,8 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 		std::vector<Position> startPos = { {1 * 32.f,11 * 32.f}, {1 * 32.f,1 * 32.f}, {11 * 32.f,1 * 32.f}, {11 * 32.f,12 * 32.f} };
 
 		pos = startPos[dis(gen)];
-	}
-	
+
+#endif // TEST
 	newPlayer->SetPosition(pos, false);
 	newPlayer->SetRoom(roomRef);
 	
@@ -103,6 +102,12 @@ void PacketHandler::C_ACTION(PacketSessionRef session, PacketHeader header, goog
 	}
 
 	GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
+
+	if (gameSession->Test == true)
+	{
+		Protocol::S_PING ping;
+		session->Send(0, ping);
+	}
 
 	if (gameSession->GetUser() == nullptr)
 		return;

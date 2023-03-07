@@ -74,6 +74,7 @@ bool GameMap::canGo(ActorRef actor, Position dest)
 	if (isInRange(dest) == false)
 		return false;
 
+#ifndef TEST
 	//Position shortPos = SearchMapPosition(dest);
 	//if (IsOccupied(shortPos.x, shortPos.y))
 	//	return false;
@@ -81,6 +82,7 @@ bool GameMap::canGo(ActorRef actor, Position dest)
 	if (auto room = mRoom.lock())
 		if (room->IsCollision(actor, dest))
 			return false;
+#endif // !TEST
 
 	return true;
 }
@@ -101,16 +103,25 @@ bool GameMap::Init(RoomRef room)
 
 	if(loadData() == false) 
 		return false;
+
+#ifndef TEST
 	if(spawnMapActor() == false) 
 		return false;
+#endif // TEST
 
 	return true;
 }
 
 bool GameMap::loadData()
 {	
+
+#ifdef TEST
+	std::string mapFileName = gConfigManager->ProjectPath + "\\Config\\Map_Test.csv";
+	std::string collisionFileName = gConfigManager->ProjectPath + "\\Config\\MapCollision_Test.csv";
+#else
 	std::string mapFileName = gConfigManager->ProjectPath + "\\Config\\Map_" + to_string(mId) + ".csv";
 	std::string collisionFileName = gConfigManager->ProjectPath + "\\Config\\MapCollision_" + to_string(mId) + ".csv";
+#endif // TEST
 
 	ifstream mapfile(mapFileName);
 	if (true == mapfile.fail())

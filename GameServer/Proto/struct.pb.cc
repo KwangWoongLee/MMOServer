@@ -44,7 +44,8 @@ PROTOBUF_CONSTEXPR PActor::PActor(
   , /*decltype(_impl_.type_)*/0
   , /*decltype(_impl_.action_)*/0
   , /*decltype(_impl_.playertype_)*/0
-  , /*decltype(_impl_.blocktype_)*/0} {}
+  , /*decltype(_impl_.blocktype_)*/0
+  , /*decltype(_impl_.monstertype_)*/0} {}
 struct PActorDefaultTypeInternal {
   PROTOBUF_CONSTEXPR PActorDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -80,16 +81,18 @@ const uint32_t TableStruct_struct_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(p
   PROTOBUF_FIELD_OFFSET(::Protocol::PActor, _impl_.action_),
   PROTOBUF_FIELD_OFFSET(::Protocol::PActor, _impl_.playertype_),
   PROTOBUF_FIELD_OFFSET(::Protocol::PActor, _impl_.blocktype_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::PActor, _impl_.monstertype_),
   ~0u,
   ~0u,
   ~0u,
   ~0u,
   0,
   1,
+  2,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::Protocol::Pos)},
-  { 8, 20, -1, sizeof(::Protocol::PActor)},
+  { 8, 21, -1, sizeof(::Protocol::PActor)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -99,20 +102,22 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_struct_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014struct.proto\022\010Protocol\032\nenum.proto\"\033\n\003"
-  "Pos\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\"\363\001\n\006PActor\022\n\n\002"
+  "Pos\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\"\264\002\n\006PActor\022\n\n\002"
   "id\030\001 \001(\004\022!\n\004type\030\002 \001(\0162\023.Protocol.ActorT"
   "ype\022\037\n\010position\030\003 \001(\0132\r.Protocol.Pos\022 \n\006"
   "action\030\004 \001(\0162\020.Protocol.Action\022-\n\nplayer"
   "Type\030\005 \001(\0162\024.Protocol.PlayerTypeH\000\210\001\001\022+\n"
   "\tblockType\030\006 \001(\0162\023.Protocol.BlockTypeH\001\210"
-  "\001\001B\r\n\013_playerTypeB\014\n\n_blockTypeb\006proto3"
+  "\001\001\022/\n\013monsterType\030\007 \001(\0162\025.Protocol.Monst"
+  "erTypeH\002\210\001\001B\r\n\013_playerTypeB\014\n\n_blockType"
+  "B\016\n\014_monsterTypeb\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_struct_2eproto_deps[1] = {
   &::descriptor_table_enum_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_struct_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_struct_2eproto = {
-    false, false, 319, descriptor_table_protodef_struct_2eproto,
+    false, false, 384, descriptor_table_protodef_struct_2eproto,
     "struct.proto",
     &descriptor_table_struct_2eproto_once, descriptor_table_struct_2eproto_deps, 1, 2,
     schemas, file_default_instances, TableStruct_struct_2eproto::offsets,
@@ -374,6 +379,9 @@ class PActor::_Internal {
   static void set_has_blocktype(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
+  static void set_has_monstertype(HasBits* has_bits) {
+    (*has_bits)[0] |= 4u;
+  }
 };
 
 const ::Protocol::Pos&
@@ -397,15 +405,16 @@ PActor::PActor(const PActor& from)
     , decltype(_impl_.type_){}
     , decltype(_impl_.action_){}
     , decltype(_impl_.playertype_){}
-    , decltype(_impl_.blocktype_){}};
+    , decltype(_impl_.blocktype_){}
+    , decltype(_impl_.monstertype_){}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_position()) {
     _this->_impl_.position_ = new ::Protocol::Pos(*from._impl_.position_);
   }
   ::memcpy(&_impl_.id_, &from._impl_.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.blocktype_) -
-    reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.blocktype_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.monstertype_) -
+    reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.monstertype_));
   // @@protoc_insertion_point(copy_constructor:Protocol.PActor)
 }
 
@@ -422,6 +431,7 @@ inline void PActor::SharedCtor(
     , decltype(_impl_.action_){0}
     , decltype(_impl_.playertype_){0}
     , decltype(_impl_.blocktype_){0}
+    , decltype(_impl_.monstertype_){0}
   };
 }
 
@@ -457,10 +467,10 @@ void PActor::Clear() {
       reinterpret_cast<char*>(&_impl_.action_) -
       reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.action_));
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     ::memset(&_impl_.playertype_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&_impl_.blocktype_) -
-        reinterpret_cast<char*>(&_impl_.playertype_)) + sizeof(_impl_.blocktype_));
+        reinterpret_cast<char*>(&_impl_.monstertype_) -
+        reinterpret_cast<char*>(&_impl_.playertype_)) + sizeof(_impl_.monstertype_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -522,6 +532,15 @@ const char* PActor::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_blocktype(static_cast<::Protocol::BlockType>(val));
+        } else
+          goto handle_unusual;
+        continue;
+      // optional .Protocol.MonsterType monsterType = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          _internal_set_monstertype(static_cast<::Protocol::MonsterType>(val));
         } else
           goto handle_unusual;
         continue;
@@ -596,6 +615,13 @@ uint8_t* PActor::_InternalSerialize(
       6, this->_internal_blocktype(), target);
   }
 
+  // optional .Protocol.MonsterType monsterType = 7;
+  if (_internal_has_monstertype()) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
+      7, this->_internal_monstertype(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -637,7 +663,7 @@ size_t PActor::ByteSizeLong() const {
   }
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     // optional .Protocol.PlayerType playerType = 5;
     if (cached_has_bits & 0x00000001u) {
       total_size += 1 +
@@ -648,6 +674,12 @@ size_t PActor::ByteSizeLong() const {
     if (cached_has_bits & 0x00000002u) {
       total_size += 1 +
         ::_pbi::WireFormatLite::EnumSize(this->_internal_blocktype());
+    }
+
+    // optional .Protocol.MonsterType monsterType = 7;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::EnumSize(this->_internal_monstertype());
     }
 
   }
@@ -683,12 +715,15 @@ void PActor::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBU
     _this->_internal_set_action(from._internal_action());
   }
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     if (cached_has_bits & 0x00000001u) {
       _this->_impl_.playertype_ = from._impl_.playertype_;
     }
     if (cached_has_bits & 0x00000002u) {
       _this->_impl_.blocktype_ = from._impl_.blocktype_;
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_impl_.monstertype_ = from._impl_.monstertype_;
     }
     _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
@@ -711,8 +746,8 @@ void PActor::InternalSwap(PActor* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(PActor, _impl_.blocktype_)
-      + sizeof(PActor::_impl_.blocktype_)
+      PROTOBUF_FIELD_OFFSET(PActor, _impl_.monstertype_)
+      + sizeof(PActor::_impl_.monstertype_)
       - PROTOBUF_FIELD_OFFSET(PActor, _impl_.position_)>(
           reinterpret_cast<char*>(&_impl_.position_),
           reinterpret_cast<char*>(&other->_impl_.position_));

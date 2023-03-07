@@ -10,10 +10,10 @@
 std::atomic<uint64> RoomManager::smRoomId = 1;
 shared_ptr<RoomManager> gRoomManager = make_shared<RoomManager>();
 
-uint64 RoomManager::Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount, uint32 minMemberCount)
+uint64 RoomManager::Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay)
 {
 	uint64 roomId = smRoomId++;
-	auto roomRef = MakeShared<Room>(roomId, GameMap(gameMapId), hostAidx, maxMemberCount, minMemberCount);
+	auto roomRef = MakeShared<Room>(roomId, GameMap(gameMapId), hostAidx, maxMemberCount, minMemberCount, viewSize, viewDelay);
 	if (roomRef->Init() == false)
 	{
 		roomRef = nullptr;

@@ -1,4 +1,22 @@
 {
+  "server": {
+    "host": "127.0.0.1",
+    "port": 7777,
+    "maxSession": 5000,
+    "viewSize": 500,
+    "viewDelay": 50
+  },
+  "test": {
+    "host": "127.0.0.1",
+    "port": 7777,
+    "maxSession": 5000,
+    "viewSize": 10,
+    "viewDelay": 200
+  },
+  "grpc": {
+    "host": "localhost",
+    "port": 5001
+  },
   "db": {
     "com": {
       "customName": "com",

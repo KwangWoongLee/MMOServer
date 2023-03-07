@@ -25,6 +25,9 @@ bool ConfigManager::Init(std::string_view projectPath, std::string_view fileName
 		return false;
 	}
 
+	Configs["server"] = root["server"];
+	Configs["test"] = root["test"];
+	Configs["grpc"] = root["grpc"];
 	Configs["db"] = root["db"];
 	Configs["redis"] = root["redis"];
 

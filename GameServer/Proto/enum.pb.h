@@ -53,12 +53,13 @@ enum ActorType : int {
   ACTOR_TYPE_PLAYER = 2,
   ACTOR_TYPE_BLOCK = 3,
   ACTOR_TYPE_BOMB = 4,
+  ACTOR_TYPE_MONSTER = 5,
   ActorType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   ActorType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool ActorType_IsValid(int value);
 constexpr ActorType ActorType_MIN = ACTOR_TYPE_NONE;
-constexpr ActorType ActorType_MAX = ACTOR_TYPE_BOMB;
+constexpr ActorType ActorType_MAX = ACTOR_TYPE_MONSTER;
 constexpr int ActorType_ARRAYSIZE = ActorType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ActorType_descriptor();
@@ -100,6 +101,31 @@ inline bool PlayerType_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, PlayerType* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<PlayerType>(
     PlayerType_descriptor(), name, value);
+}
+enum MonsterType : int {
+  MONSTER_TYPE_NONE = 0,
+  MONSTER_TYPE_GGOMUL = 1,
+  MonsterType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  MonsterType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
+};
+bool MonsterType_IsValid(int value);
+constexpr MonsterType MonsterType_MIN = MONSTER_TYPE_NONE;
+constexpr MonsterType MonsterType_MAX = MONSTER_TYPE_GGOMUL;
+constexpr int MonsterType_ARRAYSIZE = MonsterType_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MonsterType_descriptor();
+template<typename T>
+inline const std::string& MonsterType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, MonsterType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function MonsterType_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    MonsterType_descriptor(), enum_t_value);
+}
+inline bool MonsterType_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MonsterType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MonsterType>(
+    MonsterType_descriptor(), name, value);
 }
 enum BlockType : int {
   BLOCK_TYPE_NONE = 0,
@@ -223,6 +249,11 @@ template <> struct is_proto_enum< ::Protocol::PlayerType> : ::std::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::PlayerType>() {
   return ::Protocol::PlayerType_descriptor();
+}
+template <> struct is_proto_enum< ::Protocol::MonsterType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::MonsterType>() {
+  return ::Protocol::MonsterType_descriptor();
 }
 template <> struct is_proto_enum< ::Protocol::BlockType> : ::std::true_type {};
 template <>
