@@ -37,12 +37,17 @@ public:
 	void SetRoom(RoomRef room) { mRoom = room; }
 	RoomRef GetRoom() { return mRoom.lock(); }
 
+	void SetUser(UserRef user) { mUser = user; }
+	UserRef GetUser() { return mUser.lock(); }
+
+
 	View& GetView() { return mView; }
 
 
 public:
 	Protocol::PlayerType    mPlayerType = Protocol::PlayerType::PLAYER_TYPE_NONE;
 	weak_ptr<Room>			mRoom;
+	weak_ptr<User>			mUser;
 	View	mView;
 
 	

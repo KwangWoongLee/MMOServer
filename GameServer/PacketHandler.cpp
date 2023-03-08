@@ -87,6 +87,7 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 
 	UserRef newUser = MakeShared<User>(gameSession, aidx, name, roomId, newPlayer);
 	gameSession->SetUser(newUser);
+	newPlayer->SetUser(newUser);
 
 	roomRef->DoAsync(&Room::Enter, newUser);
 }

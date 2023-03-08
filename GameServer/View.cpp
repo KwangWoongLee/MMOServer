@@ -43,6 +43,8 @@ void View::Update(GameSessionRef session)
 
 	for (auto actorRef : toDeletedActorSet)
 	{
+		if (actorRef->mId == 0) continue; // 배경제외
+
 		Protocol::S_DESPAWN despawnPkt;
 
 		auto despawnActor = despawnPkt.add_actors();

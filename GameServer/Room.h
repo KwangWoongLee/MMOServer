@@ -37,11 +37,16 @@ public:
 	std::set<ActorRef> GetNearActors(Position src);
 	std::set<UserRef> GetNearUsers(Position src);
 
+	Vector<ZoneRef> GetNearZones(Position src);
+
 	void ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt);
 	void ApplyPlayerBomb(PlayerRef bombOwner);
 	void ApplyExplodeBomb(uint64 bombId);
 
 	bool IsCollision(ActorRef actor, Position dest);
+	ZoneRef GetZone(Position pos);
+	std::pair<short, short> GetZoneIndexByPosition(Position pos);
+	std::pair<short, short> GetZoneIndexByMapIndex(short mapX, short mapY);
 
 
 	void CheckDie(ActorRef actor);
@@ -57,6 +62,8 @@ public:
 private:
 	Map<uint64, ActorRef> mActorMap;
 	Map<uint64, UserRef> mUserMap;
+	Vector<Vector<ZoneRef>> mZones;
+	uint32  mZoneSize;
 	GameMap mGameMap;
 	uint64 mId;
 	uint64 mHostAidx;
@@ -67,7 +74,8 @@ private:
 	bool	mStart = false;
 	bool	mClose = false;
 
-	
+
+
 
 	ActorRef findActor(uint64 id);
 };

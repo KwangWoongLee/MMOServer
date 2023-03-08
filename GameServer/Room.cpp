@@ -9,6 +9,7 @@
 #include "Bomb.h"
 #include "RoomManager.h"
 #include "RedisManager.h"
+#include "Zone.h"
 
 Room::Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay)
 	: mId(roomId),
@@ -23,8 +24,33 @@ Room::Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount,
 
 bool Room::Init()
 {
+	mZoneSize = 4;
+
 	if (mGameMap.Init(GetRoomRef()) == false)
 		return false;
+
+	auto zoneXCount = mGameMap.GetMaxX() / mZoneSize;
+	auto zoneYCount = mGameMap.GetMaxY() / mZoneSize;
+
+	auto roomRef = static_pointer_cast<Room>(shared_from_this());
+	for (short x{}; x < zoneXCount; ++x)
+	{
+		Vector<ZoneRef> yZones;
+
+		for (short y{}; y < zoneYCount; ++y)
+		{
+			yZones.push_back(MakeShared<Zone>(x, y, roomRef));
+		}
+
+		mZones.push_back(yZones);
+	}
+	
+
+#ifndef TEST
+	if (mGameMap.SpawnMapActor() == false)
+		return false;
+#endif // TEST
+
 
 	DoTimer(mViewDelay, &Room::ViewUpdate);
 
@@ -121,7 +147,12 @@ void Room::Enter(UserRef user)
 
 	mActorMap[actorId] = playerRef;
 	mUserMap[user->mAidx] = user;
+
 	mPlayers.insert(actorId);
+
+	auto zone = GetZone(playerRef->mPos);
+	zone->AddActor(playerRef);
+	zone->AddUser(user);
 	
 	mStart = true;
 	actorId++;
@@ -135,6 +166,9 @@ void Room::Leave(UserRef user)
 	mActorMap.erase(user->mPlayer->mId);
 	mUserMap.erase(user->mAidx);
 
+	auto zone = GetZone(user->mPlayer->mPos);
+	//zone->RemoveActor(user->mPlayer); // 디스폰에서 
+	zone->RemoveUser(user);
 
 	user->mPlayer->GetView().Destroy();
 	user->mPlayer = nullptr;
@@ -164,12 +198,19 @@ void Room::Spawn(ActorRef actor)
 {
 	if(mActorMap.find(actor->mId) == mActorMap.end())
 		mActorMap[actor->mId] = actor;
+	
+	auto zone = GetZone(actor->mPos);
+	zone->AddActor(actor);
 }
 
 void Room::Despawn(ActorRef actor)
 {
 	if (mActorMap.find(actor->mId) != mActorMap.end())
 		mActorMap.erase(actor->mId);
+
+
+	auto zone = GetZone(actor->mPos);
+	zone->RemoveActor(actor);
 }
 
 void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
@@ -219,50 +260,60 @@ void Room::BroadcastNear(Position src, uint16 packetId, google::protobuf::Messag
 
 std::set<ActorRef> Room::GetNearActors(Position src)
 {
-	// 최적화 필요
-	std::set<ActorRef> actors;
+	std::set<ActorRef> ret;
 
-	for (auto [id, actorRef] : mActorMap)
+	auto zones = GetNearZones(src);
+	for (auto zoneRef : zones) // 최대 4개 이내로 되도록 view 설정해야 함
 	{
-		auto [targetX, targetY] = actorRef->mPos;
+		auto actors = zoneRef->GetActors();
 
-		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = mViewSize; // CONFIG
+		for (auto actorRef : actors)
+		{
+			auto [targetX, targetY] = actorRef->mPos;
 
-		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = mViewSize; // CONFIG
+			float fDistanceX = fabsf(src.x - targetX);
+			float fRadCX = mViewSize; // CONFIG
 
-		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
-			actors.insert(actorRef);
+			float fDistanceY = fabsf(src.y - targetY);
+			float fRadCY = mViewSize; // CONFIG
 
+			if (fDistanceX < fRadCX && fDistanceY < fRadCY)
+				ret.insert(actorRef);
+		}
 	}
 
-	return actors;
+	return ret;
 }
 
 std::set<UserRef> Room::GetNearUsers(Position src)
 {
 	// 최적화 필요
-	std::set<UserRef> users;
+	std::set<UserRef> ret;
 
-	for (auto [aidx, userRef] : mUserMap)
+
+	auto zones = GetNearZones(src);
+	for (auto zoneRef : zones) // 최대 4개 이내로 되도록 view 설정해야 함
 	{
-		if (userRef->mPlayer == nullptr) 
-			continue;
+		auto users = zoneRef->GetUsers();
+		for (auto userRef : users)
+		{
+			if (userRef->mPlayer == nullptr)
+				continue;
 
-		auto [targetX, targetY] = userRef->mPlayer->mPos;
+			auto [targetX, targetY] = userRef->mPlayer->mPos;
 
-		float fDistanceX = fabsf(src.x - targetX);
-		float fRadCX = mViewSize; // CONFIG
+			float fDistanceX = fabsf(src.x - targetX);
+			float fRadCX = mViewSize; // CONFIG
 
-		float fDistanceY = fabsf(src.y - targetY);
-		float fRadCY = mViewSize; // CONFIG
+			float fDistanceY = fabsf(src.y - targetY);
+			float fRadCY = mViewSize; // CONFIG
 
-		if (fDistanceX < fRadCX && fDistanceY < fRadCY)
-			users.insert(userRef);
+			if (fDistanceX < fRadCX && fDistanceY < fRadCY)
+				ret.insert(userRef);
+		}
 	}
 
-	return users;
+	return ret;
 }
 
 void Room::ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt)
@@ -557,6 +608,54 @@ void Room::SetOnPlaceUsers(BombRef bomb)
 			bomb->OnUserIds.insert(player->mId);
 		}	
 	}
+}
+ZoneRef Room::GetZone(Position pos)
+{
+	auto pair = GetZoneIndexByPosition(pos);
+	return mZones[pair.first][pair.second];
+}
+
+
+std::pair<short, short> Room::GetZoneIndexByPosition(Position pos)
+{
+	auto pair = mGameMap.SearchMapIndex(pos);
+	return GetZoneIndexByMapIndex(pair.first, pair.second);
+}
+
+
+std::pair<short, short> Room::GetZoneIndexByMapIndex(short mapX, short mapY)
+{
+	short zoneX = mapX / mZoneSize > mZones.size()-1 ? mZones.size() - 1 : mapX / mZoneSize;
+	short zoneY = mapY / mZoneSize > mZones[0].size() - 1 ? mZones[0].size() - 1 : mapY / mZoneSize;
+
+	return std::pair<short, short>(zoneX, zoneY);
+}
+
+Vector<ZoneRef> Room::GetNearZones(Position src)
+{
+	Vector<ZoneRef> ret;
+
+	auto minX = src.x - mViewSize  <= 0 ? 0 : src.x - mViewSize;
+	auto maxX = src.x + mViewSize < mGameMap.GetMaxX() * 32 ? src.x + mViewSize : mGameMap.GetMaxX() * 32;
+	auto minY = src.y - mViewSize <= 0 ? 0 : src.y - mViewSize;
+	auto maxY = src.y + mViewSize < mGameMap.GetMaxY() * 32 ? src.y + mViewSize : mGameMap.GetMaxY() * 32;
+
+	auto pairMinXMinY = GetZoneIndexByPosition({ minX, minY }); 
+	auto pairMaxXMaxY = GetZoneIndexByPosition({ maxX, maxY });
+
+	auto zoneXStart = pairMinXMinY.first;
+	auto zoneXEnd = pairMaxXMaxY.first;
+	auto zoneYStart = pairMinXMinY.second;
+	auto zoneYEnd = pairMaxXMaxY.second;
+
+	ret.reserve((zoneXEnd - zoneXStart + 1) * (zoneYEnd - zoneYStart + 1));
+
+	// 2중 for문..
+	for (auto x = zoneXStart; x <= zoneXEnd; ++x)
+		for (auto y = zoneYStart; y <= zoneYEnd; ++y)
+			ret.push_back(mZones[x][y]);
+
+	return ret;
 }
 
 void Room::Test(GameSessionRef session)

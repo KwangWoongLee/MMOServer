@@ -271,6 +271,7 @@ void Session::DisConnect(const char* reason)
 	}
 
 	//TODO : reason으로 기록 남기기
+	cout << reason << endl;
 
 	asyncDisconnect();
 }

@@ -226,6 +226,7 @@
     </ClCompile>
     <ClCompile Include="User.cpp" />
     <ClCompile Include="View.cpp" />
+    <ClCompile Include="Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">
@@ -264,6 +265,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="View.h" />
+    <ClInclude Include="Zone.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

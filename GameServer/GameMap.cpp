@@ -4,7 +4,8 @@
 #include "Actor.h"
 #include "Room.h"
 #include "Block.h"
-
+#include "Player.h"
+#include "Zone.h"
 
 #include <fstream>
 #include <sstream>
@@ -24,6 +25,30 @@ bool GameMap::ApplyMove(ActorRef actor, Position dest)
 
 	if (canGo(actor, dest) == false)
 		return false;
+
+
+	// Zone Add
+	auto roomRef = mRoom.lock();
+	if (roomRef == nullptr) return false;
+
+	auto srcZone = roomRef->GetZone(actor->mPos);
+	auto destZone = roomRef->GetZone(dest);
+	if (srcZone != destZone)
+	{
+		srcZone->RemoveActor(actor);
+		destZone->AddActor(actor);
+
+		if (actor->mType == Protocol::ACTOR_TYPE_PLAYER)
+		{
+			auto playerRef = static_pointer_cast<Player>(actor);
+
+			auto userRef = playerRef->GetUser();
+			if (userRef == nullptr) return false;
+
+			srcZone->RemoveUser(userRef);
+			destZone->AddUser(userRef);
+		}
+	}
 
 	actor->mPos = dest;
 	return true;
@@ -65,6 +90,27 @@ Position GameMap::SearchMapPosition(Position pos)
 	return { static_cast<float>(retX), static_cast<float>(retY) };
 }
 
+std::pair<short, short> GameMap::SearchMapIndex(Position pos)
+{
+	auto [x, y] = pos;
+	auto roundX = std::lroundf(x);
+	auto roundY = std::lroundf(y);
+
+	short retX;
+	short retY;
+	if (roundX % 32 > 16)
+		retX = ((roundX / 32) + 1);
+	else
+		retX = (roundX / 32);
+
+	if (roundY % 32 > 16)
+		retY = ((roundY / 32) + 1);
+	else
+		retY = (roundY / 32);
+
+	return { retX, retY };
+}
+
 bool GameMap::canGo(ActorRef actor, Position dest)
 {
 	auto [x, y] = dest;
@@ -103,11 +149,6 @@ bool GameMap::Init(RoomRef room)
 
 	if(loadData() == false) 
 		return false;
-
-#ifndef TEST
-	if(spawnMapActor() == false) 
-		return false;
-#endif // TEST
 
 	return true;
 }
@@ -188,7 +229,7 @@ bool GameMap::loadData()
 	return true;
 }
 
-bool GameMap::spawnMapActor()
+bool GameMap::SpawnMapActor()
 {
 	uint8 gameScale = 2;
 	Position BGPos(mMapRange[1] * 32 * gameScale / 2, (mMapRange[3] - 1) * 32 * gameScale / 2);

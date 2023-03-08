@@ -31,6 +31,9 @@
     <Filter Include="DB">
       <UniqueIdentifier>{64051418-bb1c-4827-b4b7-9cad72acdf84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Contents\Room">
+      <UniqueIdentifier>{e5da7f03-c5a0-4a61-b4f8-1c72a65b2124}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GRPC.cpp">
@@ -46,14 +49,8 @@
     <ClCompile Include="PacketHandler.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="RoomManager.cpp">
-      <Filter>Contents</Filter>
-    </ClCompile>
     <ClCompile Include="Actor.cpp">
       <Filter>Contents\Actor</Filter>
-    </ClCompile>
-    <ClCompile Include="Room.cpp">
-      <Filter>Contents</Filter>
     </ClCompile>
     <ClCompile Include="GameMap.cpp">
       <Filter>Logic</Filter>
@@ -100,9 +97,6 @@
     <ClCompile Include="MatchManager.cpp">
       <Filter>Network\Grpc</Filter>
     </ClCompile>
-    <ClCompile Include="View.cpp">
-      <Filter>Contents</Filter>
-    </ClCompile>
     <ClCompile Include="Bomb.cpp">
       <Filter>Contents\Actor</Filter>
     </ClCompile>
@@ -122,6 +116,18 @@
     <ClCompile Include="Monster.cpp">
       <Filter>Contents\Actor</Filter>
     </ClCompile>
+    <ClCompile Include="Room.cpp">
+      <Filter>Contents\Room</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomManager.cpp">
+      <Filter>Contents\Room</Filter>
+    </ClCompile>
+    <ClCompile Include="View.cpp">
+      <Filter>Contents\Room</Filter>
+    </ClCompile>
+    <ClCompile Include="Zone.cpp">
+      <Filter>Contents\Room</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GRPC.h">
@@ -135,14 +141,8 @@
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="GameTypes.h" />
-    <ClInclude Include="RoomManager.h">
-      <Filter>Contents</Filter>
-    </ClInclude>
     <ClInclude Include="Actor.h">
       <Filter>Contents\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="Room.h">
-      <Filter>Contents</Filter>
     </ClInclude>
     <ClInclude Include="GameMap.h">
       <Filter>Logic</Filter>
@@ -189,9 +189,6 @@
     <ClInclude Include="MatchManager.h">
       <Filter>Network\Grpc</Filter>
     </ClInclude>
-    <ClInclude Include="View.h">
-      <Filter>Contents</Filter>
-    </ClInclude>
     <ClInclude Include="Bomb.h">
       <Filter>Contents\Actor</Filter>
     </ClInclude>
@@ -210,6 +207,18 @@
     </ClInclude>
     <ClInclude Include="Monster.h">
       <Filter>Contents\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="View.h">
+      <Filter>Contents\Room</Filter>
+    </ClInclude>
+    <ClInclude Include="Room.h">
+      <Filter>Contents\Room</Filter>
+    </ClInclude>
+    <ClInclude Include="RoomManager.h">
+      <Filter>Contents\Room</Filter>
+    </ClInclude>
+    <ClInclude Include="Zone.h">
+      <Filter>Contents\Room</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

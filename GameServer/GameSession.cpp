@@ -20,7 +20,7 @@ void GameSession::OnRecvPacket(PacketHeader header, google::protobuf::io::CodedI
 {
 	if (header.id >= MAX_PACKET_ID || header.id < 0)
 	{
-		DisConnect("");
+		DisConnect("Error Packet ID");
 		return;
 	}
 	auto packetSessionRef = static_pointer_cast<PacketSession>(shared_from_this());
