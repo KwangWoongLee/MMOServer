@@ -10,7 +10,7 @@
 
 #define CRASH(cause)						\
 {											\
-	uint32* crash = nullptr;				\
+	uint32_t* crash = nullptr;				\
 	__analysis_assume(crash != nullptr);	\
 	*crash = 0xDEADBEEF;					\
 }

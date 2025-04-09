@@ -18,7 +18,7 @@ struct TimerItem
 		return executeTick > other.executeTick;
 	}
 
-	uint64 executeTick = 0;
+	uint64_t executeTick = 0;
 	JobData* jobData = nullptr;
 };
 
@@ -29,8 +29,8 @@ struct TimerItem
 class JobTimer
 {
 public:
-	void			Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job);
-	void			Distribute(uint64 now);
+	void			Reserve(uint64_t tickAfter, weak_ptr<JobQueue> owner, JobRef job);
+	void			Distribute(uint64_t now);
 	void			Clear();
 
 private:

@@ -49,13 +49,13 @@ int main()
 
 
 		std::string tcpHost = gConfigManager->Configs[configName]["host"].asString();
-		uint16		tcpPort = gConfigManager->Configs[configName]["port"].asInt();
-		uint32		maxSession = gConfigManager->Configs[configName]["maxSession"].asInt();
+		uint16_t		tcpPort = gConfigManager->Configs[configName]["port"].asInt();
+		uint32_t		maxSession = gConfigManager->Configs[configName]["maxSession"].asInt();
 		float		viewSize = gConfigManager->Configs[configName]["viewSize"].asFloat();
-		uint32		viewDelay = gConfigManager->Configs[configName]["viewDelay"].asInt();
+		uint32_t		viewDelay = gConfigManager->Configs[configName]["viewDelay"].asInt();
 
 		std::string grpcHost = gConfigManager->Configs["grpc"]["host"].asString();
-		uint16		grpcPort = gConfigManager->Configs["grpc"]["port"].asInt();
+		uint16_t		grpcPort = gConfigManager->Configs["grpc"]["port"].asInt();
 
 		ServerEngineRef server = MakeShared<ServerEngine>(tcpHost, tcpPort, std::make_unique<IOCP>(), maxSession, []() { return MakeShared<GameSession>(); }
 			);

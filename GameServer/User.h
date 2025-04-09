@@ -2,15 +2,15 @@
 class User
 {
 public:
-	User(GameSessionRef session, uint64 aidx, string name, uint32 roomId, PlayerRef player);
+	User(GameSessionRef session, uint64_t aidx, string name, uint32_t roomId, PlayerRef player);
 	virtual ~User();
 
 	GameSessionRef GetSession() { return mSession.lock(); }
 
 //private:
-	uint64	mAidx;
+	uint64_t	mAidx;
 	string	mName;
-	uint32	mRoomId;
+	uint32_t	mRoomId;
 
 	bool PingCheck()
 	{
@@ -23,7 +23,7 @@ public:
 		return true;
 	};
 
-	uint64 mPing = 0;
+	uint64_t mPing = 0;
 
 	weak_ptr<GameSession> mSession;
 	PlayerRef mPlayer = nullptr;

@@ -15,7 +15,7 @@ REDIS_REPLY_ERROR 6 */
 struct RedisReply
 {
 	int type = 0;
-	__int64 integer = -1;
+	__int64_t integer = -1;
 	std::string str;
 	int len = 0;
 	std::list<RedisReply> element_list;

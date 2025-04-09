@@ -12,7 +12,7 @@
 
 //#include "Block.h"
 
-GameMap::GameMap(uint8 id)
+GameMap::GameMap(uint8_t id)
 	: mId(id)
 {
 }
@@ -231,7 +231,7 @@ bool GameMap::loadData()
 
 bool GameMap::SpawnMapActor()
 {
-	uint8 gameScale = 2;
+	uint8_t gameScale = 2;
 	Position BGPos(mMapRange[1] * 32 * gameScale / 2, (mMapRange[3] - 1) * 32 * gameScale / 2);
 
 	auto bgActor = MakeShared<BG>();

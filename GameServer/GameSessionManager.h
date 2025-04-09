@@ -9,7 +9,7 @@ class GameSessionManager
 public:
 	void Add(GameSessionRef session);
 	void Remove(GameSessionRef session);
-	void Broadcast(uint16 packetId, google::protobuf::MessageLite& packet);
+	void Broadcast(uint16_t packetId, google::protobuf::MessageLite& packet);
 
 private:
 	USE_LOCK;

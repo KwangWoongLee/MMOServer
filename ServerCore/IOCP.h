@@ -6,7 +6,7 @@ class IOCPObject : public EnableShared<IOCPObject>
 	// 추상클래스
 public:
 	virtual HANDLE GetHandle() = 0;
-	virtual void Dispatch(class Overlapped* iocpEvent, uint32 numOfBytes = 0) = 0;
+	virtual void Dispatch(class Overlapped* iocpEvent, uint32_t numOfBytes = 0) = 0;
 };
 
 
@@ -19,11 +19,11 @@ public:
 	bool RegistForCompletionPort(IOCPObjectRef iocpObject);
 
 	bool Init();
-	void Run(uint32 timeout = INFINITE);
+	void Run(uint32_t timeout = INFINITE);
 	void Stop();
 
 	// IOWorker 쓰레드 함수
-	void IOWorkerFunc(uint32 timeout = INFINITE);
+	void IOWorkerFunc(uint32_t timeout = INFINITE);
 	
 private:
 	HANDLE mCompletionPort = INVALID_HANDLE_VALUE;

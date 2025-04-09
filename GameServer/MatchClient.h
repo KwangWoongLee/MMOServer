@@ -28,7 +28,7 @@ public:
 	bool StartBiStream();
 	static void CreateRoomJobBi();
 	static std::unique_ptr<grpc::ClientReaderWriter<CreateRoomTCPRequest, CreateRoomTCPResponse>> sBiStreamRW;
-	static uint32		sMatchServerId;
+	static uint32_t		sMatchServerId;
 
 
 

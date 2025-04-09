@@ -51,5 +51,5 @@ public:
 	View	mView;
 
 	
-	uint64				mKillCount = 0;
+	uint64_t				mKillCount = 0;
 };

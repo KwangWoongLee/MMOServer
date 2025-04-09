@@ -6,8 +6,8 @@ public:
 	SocketAddress();
 	virtual ~SocketAddress() = default;
 
-	SocketAddress(uint16 port);
-	SocketAddress(std::string_view ip, uint16 port);
+	SocketAddress(uint16_t port);
+	SocketAddress(std::string_view ip, uint16_t port);
 
 public:
 	SOCKADDR_IN& GetSockAddr() { return mSockAddr; }
@@ -38,10 +38,10 @@ public:
 	SOCKET			CreateSocket();
 
 	// Socket ¿É¼Ç
-	bool	SetLinger(SOCKET socket, uint16 onoff, uint16 linger);
+	bool	SetLinger(SOCKET socket, uint16_t onoff, uint16_t linger);
 	bool	SetReuseAddress(SOCKET socket, bool flag);
-	bool	SetRecvBufferSize(SOCKET socket, int32 size);
-	bool	SetSendBufferSize(SOCKET socket, int32 size);
+	bool	SetRecvBufferSize(SOCKET socket, int32_t size);
+	bool	SetSendBufferSize(SOCKET socket, int32_t size);
 	bool	SetTcpNoDelay(SOCKET socket, bool flag);
 	bool	SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket);
 

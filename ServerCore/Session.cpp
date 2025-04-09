@@ -4,7 +4,7 @@
 
 #pragma region Session Virtual
 
-void Session::Dispatch(Overlapped* iocpEvent, uint32 numOfBytes)
+void Session::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
 {
 	auto type = iocpEvent->ioType;
 	switch (type)
@@ -207,7 +207,7 @@ void Session::OnDisConnectCompleted()
 	GetEngine()->DisConnectSession(static_pointer_cast<Session>(shared_from_this()));
 }
 
-void Session::OnRecvCompleted(uint32 transferred)
+void Session::OnRecvCompleted(uint32_t transferred)
 {
 	// WSARecv가 종료 되었으므로 Ref Count를 풀어줌
 	mRecvEvent.owner = nullptr;
@@ -220,7 +220,7 @@ void Session::OnRecvCompleted(uint32 transferred)
 	}
 
 	// WSARecv 등록 시, 최대 Freespace만큼 받을 수 있도록 등록했는데 초과됨, 더 받음
-	uint32 freeSize = mRecvBuff->GetFreeSpaceSize();
+	uint32_t freeSize = mRecvBuff->GetFreeSpaceSize();
 	if (transferred > freeSize)
 	{
 		DisConnect("Recv Buffer Over Write");
@@ -235,7 +235,7 @@ void Session::OnRecvCompleted(uint32 transferred)
 	AsyncRecv();
 }
 
-void Session::OnSendCompleted(uint32 transferred)
+void Session::OnSendCompleted(uint32_t transferred)
 {
 	mSendEvent.owner = nullptr;
 
@@ -276,7 +276,7 @@ void Session::DisConnect(const char* reason)
 	asyncDisconnect();
 }
 
-void Session::Send(const char* buffer, uint32 contentSize)
+void Session::Send(const char* buffer, uint32_t contentSize)
 {
 	if (!mConnected.load())
 		return;
@@ -303,7 +303,7 @@ void Session::Send(const char* buffer, uint32 contentSize)
 		AsyncSend();
 }
 
-void PacketSession::Send(uint16 packetId, google::protobuf::MessageLite& packet)
+void PacketSession::Send(uint16_t packetId, google::protobuf::MessageLite& packet)
 {
 	if (mConnected.load() == false)
 		return;

@@ -5,8 +5,8 @@
 
 Memory::Memory()
 {
-	int32 size = 0;
-	int32 tableIndex = 0;
+	int32_t size = 0;
+	int32_t tableIndex = 0;
 
 	// 해당 사이즈의 MemoryPool을 생성하여 MemoryPool Vector를 생성
 	// mPoolTable은 빠른 조회를 위할 뿐, 그 해당 사이즈 외엔 의미없음
@@ -60,10 +60,10 @@ Memory::~Memory()
 	mPools.clear();
 }
 
-void* Memory::Allocate(int32 size)
+void* Memory::Allocate(int32_t size)
 {
 	MemoryHeader* header = nullptr;
-	const int32 allocSize = size + sizeof(MemoryHeader);
+	const int32_t allocSize = size + sizeof(MemoryHeader);
 
 #ifdef _STOMP
 	header = reinterpret_cast<MemoryHeader*>(StompAllocator::Alloc(allocSize));
@@ -87,7 +87,7 @@ void Memory::Release(void* ptr)
 {
 	MemoryHeader* header = MemoryHeader::DetachHeader(ptr);
 
-	const int32 allocSize = header->allocSize;
+	const int32_t allocSize = header->allocSize;
 	ASSERT_CRASH(allocSize > 0);
 
 #ifdef _STOMP

@@ -6,7 +6,7 @@
 #include "User.h"
 #include "RoomManager.h"
 
- uint16 MAX_PACKET_ID = 10;
+ uint16_t MAX_PACKET_ID = 10;
 
 GameSession::GameSession()
 {
@@ -28,7 +28,7 @@ void GameSession::OnRecvPacket(PacketHeader header, google::protobuf::io::CodedI
 	HandleFuncs[header.id](packetSessionRef, header, payloadInputStream);
 }
 
-void GameSession::OnSend(uint32 transferred)
+void GameSession::OnSend(uint32_t transferred)
 {
 }
 

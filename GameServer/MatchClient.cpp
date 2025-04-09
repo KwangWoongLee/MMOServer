@@ -4,7 +4,7 @@
 
 std::unique_ptr<grpc::ClientReader<CreateRoomTCPResponse>> MatchClient::sServerStreamReader = nullptr;
 std::unique_ptr<grpc::ClientReaderWriter<CreateRoomTCPRequest, CreateRoomTCPResponse>> MatchClient::sBiStreamRW = nullptr;
-uint32		MatchClient::sMatchServerId = 0;
+uint32_t		MatchClient::sMatchServerId = 0;
 
 bool MatchClient::CallRegistServer()
 {
@@ -14,7 +14,7 @@ bool MatchClient::CallRegistServer()
 	if (auto pos = mServerAddress.find_first_of(":"))
 	{
 		auto host = mServerAddress.substr(0, pos);
-		auto port = static_cast<uint16>(stoi(mServerAddress.substr(pos + 1, mServerAddress.size() - pos - 1)));
+		auto port = static_cast<uint16_t>(stoi(mServerAddress.substr(pos + 1, mServerAddress.size() - pos - 1)));
         mServerStreamRequest.set_region("kor");
 
         ServerInfo* serverInfo = request.mutable_serverinfo();
@@ -134,7 +134,7 @@ void MatchClient::CreateRoomJobBi()
 
     CreateRoomTCPResponse response;
     while (sBiStreamRW->Read(&response)) {
-        //uint64 newRoomId = gRoomManager->Add(response.hostaidx(), response.mapid(), response.maxmembercount(), response.minmembercount());
+        //uint64_t newRoomId = gRoomManager->Add(response.hostaidx(), response.mapid(), response.maxmembercount(), response.minmembercount());
         //cout << "货肺款 规 积己 : " << newRoomId << endl;
 
         CreateRoomTCPRequest request;

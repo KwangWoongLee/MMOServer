@@ -7,7 +7,7 @@ public:
 	MatchManager();
 	~MatchManager();
 
-	bool Init(std::string host, uint16 port);
+	bool Init(std::string host, uint16_t port);
 
 	bool TestCreate();
 	bool TestRemove();

@@ -11,7 +11,7 @@
 #include "RedisManager.h"
 #include "Zone.h"
 
-Room::Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay)
+Room::Room(uint64_t roomId, GameMap&& map, uint64_t hostAidx, uint32_t maxMemberCount, uint32_t minMemberCount, float viewSize, uint32_t viewDelay)
 	: mId(roomId),
 	mGameMap(map),
 	mHostAidx(hostAidx),
@@ -213,7 +213,7 @@ void Room::Despawn(ActorRef actor)
 	zone->RemoveActor(actor);
 }
 
-void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
+void Room::Broadcast(uint16_t packetId, google::protobuf::MessageLite& packet)
 {
 	for (auto [aidx, userRef] : mUserMap)
 	{
@@ -228,7 +228,7 @@ void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
 	}
 }
 
-void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet, uint64 ignore)
+void Room::Broadcast(uint16_t packetId, google::protobuf::MessageLite& packet, uint64_t ignore)
 {
 	for (auto [aidx, userRef] : mUserMap)
 	{
@@ -243,7 +243,7 @@ void Room::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet, uin
 	}
 }
 
-void Room::BroadcastNear(Position src, uint16 packetId, google::protobuf::MessageLite& packet)
+void Room::BroadcastNear(Position src, uint16_t packetId, google::protobuf::MessageLite& packet)
 {
 	auto nearUser = GetNearUsers(src);
 
@@ -405,7 +405,7 @@ void Room::ApplyPlayerBomb(PlayerRef bombOwner)
 }
 
 
-void Room::ApplyExplodeBomb(uint64 bombId)
+void Room::ApplyExplodeBomb(uint64_t bombId)
 {
 	auto actor = findActor(bombId);
 	if (actor == nullptr) return;
@@ -674,7 +674,7 @@ void Room::Test(GameSessionRef session)
 }
 
 
-ActorRef Room::findActor(uint64 id)
+ActorRef Room::findActor(uint64_t id)
 {
 	if (mActorMap.find(id) == mActorMap.end())
 		return nullptr;

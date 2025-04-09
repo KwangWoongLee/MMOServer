@@ -11,7 +11,7 @@
 #include <random>
 
 std::vector<function<void(PacketSessionRef, PacketHeader, google::protobuf::io::CodedInputStream&)>> HandleFuncs(UINT16_MAX);
-uint64 aidx = 1;
+uint64_t aidx = 1;
 
 void PacketHandler::Init()
 {
@@ -37,9 +37,9 @@ void PacketHandler::C_ENTER_GAME(PacketSessionRef session, PacketHeader header, 
 		return;
 	}
 
-	uint64 aidx = pkt.aidx();
+	uint64_t aidx = pkt.aidx();
 	string name = pkt.nickname();
-	uint32 roomId = pkt.roomid();
+	uint32_t roomId = pkt.roomid();
 
 	auto roomRef = gRoomManager->Find(roomId);
 	if (roomRef == nullptr)

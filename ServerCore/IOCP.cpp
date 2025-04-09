@@ -40,7 +40,7 @@ bool IOCP::Init()
 	return createCompletionPort();
 }
 
-void IOCP::Run(uint32 timeout)
+void IOCP::Run(uint32_t timeout)
 {
 	IOWorkerFunc(timeout);
 }
@@ -51,7 +51,7 @@ void IOCP::Stop()
 	BOOL ret = ::PostQueuedCompletionStatus(mCompletionPort, 0, THREAD_DIE, NULL);
 }
 
-void IOCP::IOWorkerFunc(uint32 timeout)
+void IOCP::IOWorkerFunc(uint32_t timeout)
 {
 	Overlapped* iocpEvent = nullptr;
 	ULONG_PTR key = 0;

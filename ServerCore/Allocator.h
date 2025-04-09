@@ -5,7 +5,7 @@ class StompAllocator
 	enum { PAGE_SIZE = 0x1000 };
 
 public:
-	static void* Alloc(int32 size);
+	static void* Alloc(int32_t size);
 	static void		Release(void* ptr);
 };
 
@@ -13,7 +13,7 @@ public:
 class PoolAllocator
 {
 public:
-	static void* Alloc(int32 size);
+	static void* Alloc(int32_t size);
 	static void		Release(void* ptr);
 };
 
@@ -32,7 +32,7 @@ public:
 
 	T* allocate(size_t count)
 	{
-		const int32 size = static_cast<int32>(count * sizeof(T));
+		const int32_t size = static_cast<int32_t>(count * sizeof(T));
 		return static_cast<T*>(PoolAllocator::Alloc(size));
 	}
 

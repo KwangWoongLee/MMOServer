@@ -68,12 +68,12 @@ struct MySqlResultColumnValue
 		svalue = std::stoi((*p)[col]);
 	}
 
-	void operator()(int64_t &i64value, MySqlResult *p, int col)
+	void operator()(int64_t_t &i64value, MySqlResult *p, int col)
 	{
 		i64value = std::stoll((*p)[col]);
 	}
 
-	void operator()(uint64_t &i64value, MySqlResult *p, int col)
+	void operator()(uint64_t_t &i64value, MySqlResult *p, int col)
 	{
 		i64value = std::stoll((*p)[col]);
 	}

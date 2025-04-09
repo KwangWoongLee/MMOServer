@@ -3,7 +3,7 @@ class GameMap
 {
 public:
 	GameMap() = delete;
-	GameMap(uint8 id);
+	GameMap(uint8_t id);
 
 	bool Init(RoomRef room);
 	bool SpawnMapActor();
@@ -20,7 +20,7 @@ public:
 	
 	
 private:
-	uint8 mId{};
+	uint8_t mId{};
 	weak_ptr<Room> mRoom;
 
 

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "JobQueue.h"
 
-void JobTimer::Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job)
+void JobTimer::Reserve(uint64_t tickAfter, weak_ptr<JobQueue> owner, JobRef job)
 {
-	const uint64 executeTick = ::GetTickCount64() + tickAfter;
+	const uint64_t executeTick = ::GetTickCount64() + tickAfter;
 	JobData* jobData = ObjectPool<JobData>::Pop(owner, job);
 
 	WRITE_LOCK;
@@ -11,7 +11,7 @@ void JobTimer::Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job)
 	mItems.push(TimerItem{ executeTick, jobData });
 }
 
-void JobTimer::Distribute(uint64 now)
+void JobTimer::Distribute(uint64_t now)
 {
 	// 한 번에 1 쓰레드만 통과
 	if (mDistributing.exchange(true) == true)

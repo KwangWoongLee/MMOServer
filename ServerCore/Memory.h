@@ -16,7 +16,7 @@ public:
 	Memory();
 	~Memory();
 
-	void* Allocate(int32 size);
+	void* Allocate(int32_t size);
 	void	Release(void* ptr);
 
 private:

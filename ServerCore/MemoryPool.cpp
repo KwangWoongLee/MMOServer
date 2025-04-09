@@ -2,7 +2,7 @@
 #include "MemoryPool.h"
 
 
-MemoryPool::MemoryPool(int32 allocSize) : mAllocSize(allocSize)
+MemoryPool::MemoryPool(int32_t allocSize) : mAllocSize(allocSize)
 {
 	::InitializeSListHead(&mHeader);
 }

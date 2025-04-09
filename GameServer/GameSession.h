@@ -12,7 +12,7 @@ public:
 
 	virtual void OnConnected() override;
 	virtual void OnRecvPacket(PacketHeader header, google::protobuf::io::CodedInputStream& payloadInputStream) override;
-	virtual void OnSend(uint32 numOfBytes) override;
+	virtual void OnSend(uint32_t numOfBytes) override;
 	virtual void OnDisconnected() override;
 
 	UserRef GetUser() { return mUser; }

@@ -24,7 +24,7 @@ public:
 	virtual void SetDetailType(Protocol::PActor* actor) {};
 
 
-	void SetId(uint64 id) { mId = id; }
+	void SetId(uint64_t id) { mId = id; }
 	void SetPosition(Position pos, bool randPos = false);
 
 	float	GetSpeed() const { return mSpeed; }
@@ -34,15 +34,15 @@ public:
 
 
 public:
-	uint64					mId{};
+	uint64_t					mId{};
 	string					mName{};
 	Position				mPos{};
 	State					mState = State::LIVE;
 	weak_ptr<Room>			mRoom;
 	float	mSpeed;
 
-	uint16					mHeightSize = 0;
-	uint16					mWidthSize = 0;
+	uint16_t					mHeightSize = 0;
+	uint16_t					mWidthSize = 0;
 
 	Protocol::ActorType		mType = Protocol::ActorType::ACTOR_TYPE_NONE;
 

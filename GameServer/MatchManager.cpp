@@ -17,7 +17,7 @@ MatchManager::~MatchManager()
 	
 }
 
-bool MatchManager::Init(std::string host, uint16 port)
+bool MatchManager::Init(std::string host, uint16_t port)
 {
 	std::string sPort = to_string(port);
 	auto serverAddress = host.append(":").append(sPort);

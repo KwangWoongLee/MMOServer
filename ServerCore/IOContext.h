@@ -3,7 +3,7 @@
 #include "IOCP.h"
 #include "Session.h"
 
-enum class eIOType : uint8
+enum class eIOType : uint8_t
 {
 	SEND,
 	RECV,

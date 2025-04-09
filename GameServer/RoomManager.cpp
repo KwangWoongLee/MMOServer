@@ -7,12 +7,12 @@
 #include "GameSession.h"
 #include "User.h"
 
-std::atomic<uint64> RoomManager::smRoomId = 1;
+std::atomic<uint64_t> RoomManager::smRoomId = 1;
 shared_ptr<RoomManager> gRoomManager = make_shared<RoomManager>();
 
-uint64 RoomManager::Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay)
+uint64_t RoomManager::Add(uint64_t hostAidx, uint32_t gameMapId, uint32_t maxMemberCount, uint32_t minMemberCount, float viewSize, uint32_t viewDelay)
 {
-	uint64 roomId = smRoomId++;
+	uint64_t roomId = smRoomId++;
 	auto roomRef = MakeShared<Room>(roomId, GameMap(gameMapId), hostAidx, maxMemberCount, minMemberCount, viewSize, viewDelay);
 	if (roomRef->Init() == false)
 	{
@@ -30,7 +30,7 @@ uint64 RoomManager::Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount
 	
 }
 
-void RoomManager::Remove(uint64 roomId)
+void RoomManager::Remove(uint64_t roomId)
 {
 	WRITE_LOCK;
 	auto iter = mId2Room.find(roomId);
@@ -41,7 +41,7 @@ void RoomManager::Remove(uint64 roomId)
 }
 
 
-RoomRef RoomManager::Find(uint64 roomId)
+RoomRef RoomManager::Find(uint64_t roomId)
 {
 	WRITE_LOCK;
 	auto iter = mId2Room.find(roomId);

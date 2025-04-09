@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ClientEngine.h"
 
-ClientEngine::ClientEngine(std::string_view serverIP, uint16 serverPort, IOCPRef iocp, uint16 maxSessionCount, SessionFactory sessionFactory)
+ClientEngine::ClientEngine(std::string_view serverIP, uint16_t serverPort, IOCPRef iocp, uint16_t maxSessionCount, SessionFactory sessionFactory)
     : Engine(iocp, maxSessionCount, sessionFactory),
 	mServerSockAddr(SocketAddress(serverIP, serverPort)),
 	//mServerIP(serverIP),
@@ -14,8 +14,8 @@ bool ClientEngine::Init()
 	if (Engine::Init() == false)
 		return false;
 
-	const int32 sessionCount = GetMaxSessionCount();
-	for (int32 i = 0; i < sessionCount; i++)
+	const int32_t sessionCount = GetMaxSessionCount();
+	for (int32_t i = 0; i < sessionCount; i++)
 	{
 		SessionRef session = CreateSession();
 		if (session->Connect() == false)
@@ -25,7 +25,7 @@ bool ClientEngine::Init()
 	return true;
 }
 
-void ClientEngine::Run(uint32 timeout)
+void ClientEngine::Run(uint32_t timeout)
 {
 	Engine::Run(timeout);
 }

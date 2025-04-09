@@ -7,7 +7,7 @@ class Room : public JobQueue
 {
 public:
 	Room() = delete;
-	Room(uint64 roomId, GameMap&& map, uint64 hostAidx, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay);
+	Room(uint64_t roomId, GameMap&& map, uint64_t hostAidx, uint32_t maxMemberCount, uint32_t minMemberCount, float viewSize, uint32_t viewDelay);
 
 	~Room() {
 		cout << "~Room" << endl;
@@ -29,9 +29,9 @@ public:
 
 	void Spawn(ActorRef actor);
 	void Despawn(ActorRef actor);
-	void Broadcast(uint16 packetId, google::protobuf::MessageLite& packet);
-	void Broadcast(uint16 packetId, google::protobuf::MessageLite& packet, uint64 ignore);
-	void BroadcastNear(Position pos, uint16 packetId, google::protobuf::MessageLite& packet);
+	void Broadcast(uint16_t packetId, google::protobuf::MessageLite& packet);
+	void Broadcast(uint16_t packetId, google::protobuf::MessageLite& packet, uint64_t ignore);
+	void BroadcastNear(Position pos, uint16_t packetId, google::protobuf::MessageLite& packet);
 
 
 	std::set<ActorRef> GetNearActors(Position src);
@@ -41,7 +41,7 @@ public:
 
 	void ApplyAction(GameSessionRef session, PlayerRef player, Protocol::C_ACTION pkt);
 	void ApplyPlayerBomb(PlayerRef bombOwner);
-	void ApplyExplodeBomb(uint64 bombId);
+	void ApplyExplodeBomb(uint64_t bombId);
 
 	bool IsCollision(ActorRef actor, Position dest);
 	ZoneRef GetZone(Position pos);
@@ -52,24 +52,24 @@ public:
 	void CheckDie(ActorRef actor);
 	void SetOnPlaceUsers(BombRef bomb);
 
-	std::atomic<uint64> actorId = 1;
+	std::atomic<uint64_t> actorId = 1;
 
 	void Test(GameSessionRef session);
 
-	Set<uint64> mPlayers;
+	Set<uint64_t> mPlayers;
 
 
 private:
-	Map<uint64, ActorRef> mActorMap;
-	Map<uint64, UserRef> mUserMap;
+	Map<uint64_t, ActorRef> mActorMap;
+	Map<uint64_t, UserRef> mUserMap;
 	Vector<Vector<ZoneRef>> mZones;
-	uint32  mZoneSize;
+	uint32_t  mZoneSize;
 	GameMap mGameMap;
-	uint64 mId;
-	uint64 mHostAidx;
-	uint32 mMaxMemberCount;
-	uint32 mMinMemberCount;
-	uint32	mViewDelay;
+	uint64_t mId;
+	uint64_t mHostAidx;
+	uint32_t mMaxMemberCount;
+	uint32_t mMinMemberCount;
+	uint32_t	mViewDelay;
 	float	mViewSize = 0.f;
 	bool	mStart = false;
 	bool	mClose = false;
@@ -77,5 +77,5 @@ private:
 
 
 
-	ActorRef findActor(uint64 id);
+	ActorRef findActor(uint64_t id);
 };

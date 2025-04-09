@@ -3,17 +3,17 @@
 class RoomManager
 {
 public:
-	uint64 Add(uint64 hostAidx, uint32 gameMapId, uint32 maxMemberCount, uint32 minMemberCount, float viewSize, uint32 viewDelay);
-	void Remove(uint64 roomId);
-	RoomRef Find(uint64 roomId);
+	uint64_t Add(uint64_t hostAidx, uint32_t gameMapId, uint32_t maxMemberCount, uint32_t minMemberCount, float viewSize, uint32_t viewDelay);
+	void Remove(uint64_t roomId);
+	RoomRef Find(uint64_t roomId);
 
 	void Update();
 
-	static std::atomic<uint64> smRoomId;
+	static std::atomic<uint64_t> smRoomId;
 private:
 	USE_LOCK;
 
-	std::map<uint64, RoomRef> mId2Room;
+	std::map<uint64_t, RoomRef> mId2Room;
 };
 
 extern shared_ptr<RoomManager> gRoomManager;

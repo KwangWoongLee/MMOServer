@@ -13,7 +13,7 @@ class Session : public IOCPObject
 	//추상클래스 IOCPObject 순수가상함수 오버라이딩
 public:
 	virtual HANDLE GetHandle() override { return reinterpret_cast<HANDLE>(mSocket); }
-	virtual void Dispatch(class Overlapped* iocpEvent, uint32 numOfBytes = 0) override;
+	virtual void Dispatch(class Overlapped* iocpEvent, uint32_t numOfBytes = 0) override;
 
 public:
 	Session();
@@ -30,17 +30,17 @@ public:
 	void OnAcceptCompleted();
 	void OnConnectCompleted();
 	void OnDisConnectCompleted();
-	void OnRecvCompleted(uint32 transferred);
-	void OnSendCompleted(uint32 transferred);
+	void OnRecvCompleted(uint32_t transferred);
+	void OnSendCompleted(uint32_t transferred);
 
 	bool Connect();
 	void DisConnect(const char* reason);
-	void Send(const char* buffer, uint32 contentSize);
+	void Send(const char* buffer, uint32_t contentSize);
 
 	EngineRef GetEngine() { return mEngine.lock(); };
 	void SetEngine(EngineRef engine) { mEngine = engine; };
 
-	inline void HandleError(int32 errorCode)
+	inline void HandleError(int32_t errorCode)
 	{
 		switch (errorCode)
 		{
@@ -58,7 +58,7 @@ public:
 	// 자식클래스에서 수행할 작업
 	virtual void OnConnected() = 0;
 	virtual bool OnRecv() = 0;
-	virtual void OnSend(uint32 transferred) = 0;
+	virtual void OnSend(uint32_t transferred) = 0;
 	virtual void OnDisconnected() = 0;
 
 	char	mAcceptBuf[64] = {};
@@ -70,7 +70,7 @@ public:
 	CircularBufferRef	mRecvBuff;
 	CircularBufferRef	mSendBuffer;
 
-	uint16			mSendPendingCount = 0;
+	uint16_t			mSendPendingCount = 0;
 private:
 	
 	SOCKET mSocket = INVALID_SOCKET;
@@ -97,7 +97,7 @@ public:
 
 	PacketSessionRef GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); };
 
-	void Send(uint16 packetId, google::protobuf::MessageLite& packet);
+	void Send(uint16_t packetId, google::protobuf::MessageLite& packet);
 
 protected:
 	virtual bool OnRecv() final override;

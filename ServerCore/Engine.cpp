@@ -2,7 +2,7 @@
 #include "Engine.h"
 #include "IOCP.h"
 
-Engine::Engine(IOCPRef iocp, uint16 maxSessionCount, SessionFactory sessionFactory)
+Engine::Engine(IOCPRef iocp, uint16_t maxSessionCount, SessionFactory sessionFactory)
 	:mIOCP(iocp),
 	mMaxSessionCount(maxSessionCount),
 	mSessionFactory(sessionFactory)
@@ -27,7 +27,7 @@ bool Engine::Init()
 	return true;
 }
 
-void Engine::Run(uint32 timeout)
+void Engine::Run(uint32_t timeout)
 {
 	mIOCP->Run(timeout);
 }

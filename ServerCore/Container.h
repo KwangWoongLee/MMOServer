@@ -12,7 +12,7 @@
 #include <unordered_set>
 using namespace std;
 
-template<typename Type, uint32 Size>
+template<typename Type, uint32_t Size>
 using Array = array<Type, Size>;
 
 template<typename Type>

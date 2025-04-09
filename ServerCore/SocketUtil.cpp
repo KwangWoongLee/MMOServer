@@ -13,7 +13,7 @@ SocketAddress::SocketAddress()
 }
 
 
-SocketAddress::SocketAddress(uint16 port)
+SocketAddress::SocketAddress(uint16_t port)
 {
 	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
 
@@ -22,7 +22,7 @@ SocketAddress::SocketAddress(uint16 port)
 	mSockAddr.sin_port = htons((SHORT)port);
 }
 
-SocketAddress::SocketAddress(std::string_view ip, uint16 port)
+SocketAddress::SocketAddress(std::string_view ip, uint16_t port)
 {
 	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
 
@@ -54,7 +54,7 @@ SOCKET SocketUtil::CreateSocket()
 }
 
 
-bool SocketUtil::SetLinger(SOCKET socket, uint16 onoff, uint16 linger)
+bool SocketUtil::SetLinger(SOCKET socket, uint16_t onoff, uint16_t linger)
 {
 	LINGER option;
 	option.l_onoff = onoff;
@@ -67,12 +67,12 @@ bool SocketUtil::SetReuseAddress(SOCKET socket, bool flag)
 	return SetSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, flag);
 }
 
-bool SocketUtil::SetRecvBufferSize(SOCKET socket, int32 size)
+bool SocketUtil::SetRecvBufferSize(SOCKET socket, int32_t size)
 {
 	return SetSockOpt(socket, SOL_SOCKET, SO_RCVBUF, size);
 }
 
-bool SocketUtil::SetSendBufferSize(SOCKET socket, int32 size)
+bool SocketUtil::SetSendBufferSize(SOCKET socket, int32_t size)
 {
 	return SetSockOpt(socket, SOL_SOCKET, SO_SNDBUF, size);
 }

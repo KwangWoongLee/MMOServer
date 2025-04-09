@@ -10,11 +10,11 @@ public:
 
 public:
 	//가상함수 선언
-	Engine(IOCPRef iocp, uint16 maxSessionCount, SessionFactory sessionFactory);
+	Engine(IOCPRef iocp, uint16_t maxSessionCount, SessionFactory sessionFactory);
 	virtual ~Engine();
 
 	virtual bool Init();
-	virtual void Run(uint32 timeout = INFINITE);
+	virtual void Run(uint32_t timeout = INFINITE);
 	virtual void Stop();
 
 	SessionRef CreateSession();
@@ -22,14 +22,14 @@ public:
 	bool RegistForCompletionPort(IOCPObjectRef iocpObject);
 
 public:
-	uint16 GetMaxSessionCount() const { return mMaxSessionCount; }
+	uint16_t GetMaxSessionCount() const { return mMaxSessionCount; }
 
 
 protected:
 	USE_LOCK;
 
 	IOCPRef					mIOCP = nullptr;
-	uint16					mMaxSessionCount = 0;
+	uint16_t					mMaxSessionCount = 0;
 	SessionFactory			mSessionFactory;
 	std::vector<SessionRef>	mSessions;
 

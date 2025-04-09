@@ -24,9 +24,9 @@ public:
 	PlayerRef GetOwner() { return mOwner.lock(); }
 	bool IsInRange(ActorRef actor);
 
-	Set<uint64> OnUserIds;
+	Set<uint64_t> OnUserIds;
 
 private:
 	std::weak_ptr<Player> mOwner;
-	uint8 mPower = 1;
+	uint8_t mPower = 1;
 };

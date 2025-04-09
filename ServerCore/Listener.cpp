@@ -6,7 +6,7 @@
 
 #pragma region Listener Virtual
 
-void Listener::Dispatch(Overlapped* iocpEvent, uint32 numOfBytes)
+void Listener::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
 {
 	// dynamic_cast로 다운캐스팅 해야하지만, Listener IOCP Object는 Accept 이벤트만 처리하기때문에
 	// 그냥 이상한게 들어오면 프로그램 뻗어버리기
@@ -95,7 +95,7 @@ bool Listener::bind()
 	return true;
 }
 
-bool Listener::listen(int32 backlog)
+bool Listener::listen(int32_t backlog)
 {
 	if (::listen(mListenSocket, backlog) == SOCKET_ERROR)
 		return false;
@@ -107,10 +107,10 @@ bool Listener::listen(int32 backlog)
 
 void Listener::prepareAccepts()
 {
-	uint16 maxSessionCount = mServer->GetMaxSessionCount();
+	uint16_t maxSessionCount = mServer->GetMaxSessionCount();
 	mAcceptEvents.reserve(maxSessionCount);
 
-	for (uint16 i{}; i < maxSessionCount; ++i)
+	for (uint16_t i{}; i < maxSessionCount; ++i)
 	{
 		auto acceptEvent = new AcceptEvent();
 		acceptEvent->owner = shared_from_this();

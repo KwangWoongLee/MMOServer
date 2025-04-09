@@ -2,7 +2,7 @@
 #include "ServerEngine.h"
 #include "IOCP.h"
 
-ServerEngine::ServerEngine(std::string_view ip, uint16 port, std::shared_ptr<IOCP> iocp, uint16 maxSessionCount, SessionFactory sessionFactory)
+ServerEngine::ServerEngine(std::string_view ip, uint16_t port, std::shared_ptr<IOCP> iocp, uint16_t maxSessionCount, SessionFactory sessionFactory)
 	: Engine(iocp, maxSessionCount, sessionFactory), 
 	mSockAddr(SocketAddress(port)),
 	mIP(ip),
@@ -26,7 +26,7 @@ bool ServerEngine::Init()
 	return true;
 }
 
-void ServerEngine::Run(uint32 timeout)
+void ServerEngine::Run(uint32_t timeout)
 {
 
 	Engine::Run(timeout);

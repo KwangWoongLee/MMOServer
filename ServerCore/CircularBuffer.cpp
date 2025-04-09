@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CircularBuffer.h"
 
-CircularBuffer::CircularBuffer(uint32 capacity) 
+CircularBuffer::CircularBuffer(uint32_t capacity) 
 	: mCapacity(capacity), mARegionPos(0), mBRegionPos(mCapacity + 1), mARegionSize(0), mBRegionSize(0)
 {
 	mBuffer = Vector<char>(mCapacity);
@@ -20,15 +20,15 @@ void CircularBuffer::BufferReset()
 }
 
 
-void CircularBuffer::Remove(uint32 len)
+void CircularBuffer::Remove(uint32_t len)
 {
-	uint32 cnt = len;
+	uint32_t cnt = len;
 
 	/// Read와 마찬가지로 A가 있다면 A영역에서 먼저 삭제
 
 	if (mARegionSize > 0)
 	{
-		uint32 aRemove = (cnt > mARegionSize) ? mARegionSize : cnt;
+		uint32_t aRemove = (cnt > mARegionSize) ? mARegionSize : cnt;
 		mARegionSize -= aRemove;
 		mARegionPos += aRemove;
 		cnt -= aRemove;
@@ -37,7 +37,7 @@ void CircularBuffer::Remove(uint32 len)
 	// 제거할 용량이 더 남은경우 B에서 제거 
 	if (cnt > 0 && mBRegionSize > 0)
 	{
-		uint32 bRemove = (cnt > mBRegionSize) ? mBRegionSize : cnt;
+		uint32_t bRemove = (cnt > mBRegionSize) ? mBRegionSize : cnt;
 		mBRegionSize -= bRemove;
 		mBRegionPos += bRemove;
 		cnt -= bRemove;
@@ -68,7 +68,7 @@ void CircularBuffer::Remove(uint32 len)
 }
 
 
-uint32 CircularBuffer::GetFreeSpaceSize()
+uint32_t CircularBuffer::GetFreeSpaceSize()
 {
 	if (mBRegionPos != mCapacity + 1)
 		return GetBFreeSpace();
@@ -85,12 +85,12 @@ uint32 CircularBuffer::GetFreeSpaceSize()
 	}
 }
 
-uint32 CircularBuffer::GetStoredSize() const
+uint32_t CircularBuffer::GetStoredSize() const
 {
 	return mARegionSize + mBRegionSize;
 }
 
-uint32 CircularBuffer::GetContiguiousBytes() const
+uint32_t CircularBuffer::GetContiguiousBytes() const
 {
 	if (mARegionSize > 0)
 		return mARegionSize;
@@ -102,16 +102,16 @@ uint32 CircularBuffer::GetContiguiousBytes() const
 char* CircularBuffer::GetBuffer()
 {
 	if (mBRegionPos != mCapacity + 1)
-		return &mBuffer[static_cast<uint64>(mBRegionPos + mBRegionSize)];
+		return &mBuffer[static_cast<uint64_t>(mBRegionPos + mBRegionSize)];
 	else
-		return &mBuffer[static_cast<uint64>(mARegionPos + mARegionSize)];
+		return &mBuffer[static_cast<uint64_t>(mARegionPos + mARegionSize)];
 }
 
 
 
 
 /// 커밋(aka. IncrementWritten)
-void CircularBuffer::Commit(uint32 len)
+void CircularBuffer::Commit(uint32_t len)
 {
 	if (mBRegionPos != mCapacity + 1)
 		mBRegionSize += len;
@@ -133,18 +133,18 @@ void CircularBuffer::AllocateB()
 	mBRegionPos = 0;
 }
 
-uint32 CircularBuffer::GetAFreeSpace() const
+uint32_t CircularBuffer::GetAFreeSpace() const
 {
 	return (mBuffer.size() - mARegionPos - mARegionSize);
 }
 
-uint32 CircularBuffer::GetSpaceBeforeA() const
+uint32_t CircularBuffer::GetSpaceBeforeA() const
 {
 	return mARegionPos;
 }
 
 
-uint32 CircularBuffer::GetBFreeSpace() const
+uint32_t CircularBuffer::GetBFreeSpace() const
 {
 	if (mBRegionPos == mCapacity + 1)
 		return 0;

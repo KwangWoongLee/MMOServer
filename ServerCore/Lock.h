@@ -11,7 +11,7 @@ R : ReadFlag (Shared Lock Count)
 
 class Lock
 {
-    enum : uint32
+    enum : uint32_t
     {
         ACQUIRE_TIMEOUT_TICK = 10000,
         MAX_SPIN_COUNT = 5000,
@@ -27,8 +27,8 @@ public:
     void ReadUnlock(const char* name);
 
 private:
-    std::atomic<uint32> mLockFlag = EMPTY_FLAG;
-    uint16 mWriteCount = 0;
+    std::atomic<uint32_t> mLockFlag = EMPTY_FLAG;
+    uint16_t mWriteCount = 0;
 };
 
 

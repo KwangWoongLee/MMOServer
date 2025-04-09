@@ -4,7 +4,7 @@
 
 void JobQueue::Push(JobRef job, bool pushOnly)
 {
-	const int32 prevCount = mJobCount.fetch_add(1);
+	const int32_t prevCount = mJobCount.fetch_add(1);
 	mJobQueue.Push(job); // WRITE_LOCK
 
 	// 첫번째 Job을 넣은 쓰레드가 실행까지 담당
@@ -33,8 +33,8 @@ void JobQueue::Execute()
 		std::vector<JobRef> jobs;
 		mJobQueue.PopAll(OUT jobs);
 
-		const int32 jobCount = static_cast<int32>(jobs.size());
-		for (int32 i = 0; i < jobCount; i++)
+		const int32_t jobCount = static_cast<int32_t>(jobs.size());
+		for (int32_t i = 0; i < jobCount; i++)
 			jobs[i]->Execute();
 
 		// 남은 일감이 0개라면 종료
@@ -44,7 +44,7 @@ void JobQueue::Execute()
 			return;
 		}
 
-		const uint64 now = ::GetTickCount64();
+		const uint64_t now = ::GetTickCount64();
 		if (now >= TLS_LastTickCount)
 		{
 			TLS_JobQueue = nullptr;

@@ -43,7 +43,7 @@ void ThreadManager::DoGlobalQueueWork()
 {
 	while (true)
 	{
-		uint64 now = ::GetTickCount64();
+		uint64_t now = ::GetTickCount64();
 		if (now > TLS_LastTickCount)
 			break;
 
@@ -57,14 +57,14 @@ void ThreadManager::DoGlobalQueueWork()
 
 void ThreadManager::DistributeReservedJobs()
 {
-	const uint64 now = ::GetTickCount64();
+	const uint64_t now = ::GetTickCount64();
 
 	gJobTimer->Distribute(now);
 }
 
 void ThreadManager::initTLS()
 {
-	static std::atomic<uint32> SThreadId = 1;
+	static std::atomic<uint32_t> SThreadId = 1;
 	TLS_ThreadId = SThreadId++;
 }
 

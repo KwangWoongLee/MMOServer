@@ -17,7 +17,7 @@ void GameSessionManager::Remove(GameSessionRef session)
 	mSessions.erase(session);
 }
 
-void GameSessionManager::Broadcast(uint16 packetId, google::protobuf::MessageLite& packet)
+void GameSessionManager::Broadcast(uint16_t packetId, google::protobuf::MessageLite& packet)
 {
 	WRITE_LOCK;
 	for (GameSessionRef session : mSessions)
