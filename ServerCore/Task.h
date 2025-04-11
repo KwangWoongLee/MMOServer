@@ -7,5 +7,5 @@ public:
 	virtual ~ITask() = default;
 
 public:
-	virtual void Excute() = 0;
+	virtual void const Excute() = 0;
 };

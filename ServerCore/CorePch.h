@@ -33,6 +33,7 @@ using namespace std;
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/message_lite.h>
 
+#include "Singleton.h"
 
 #include "Types.h"
 

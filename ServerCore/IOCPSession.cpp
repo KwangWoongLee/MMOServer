@@ -1,27 +1,27 @@
 #include "stdafx.h"
-#include "ClientEngine.h"
-#include "GlobalQueue.h"
+#include "IOCP.h"
+
+#include "IOCPSession.h"
 
 #pragma region Session Virtual
 
-void Session::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
+void IOCPSession::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
 {
-	auto type = iocpEvent->ioType;
-	switch (type)
+	switch (iocpEvent->ioType)
 	{
-	case eIOType::ACCEPT:
+	case EIOType::ACCEPT:
 		OnAcceptCompleted();
 		break;
-	case eIOType::CONNECT:
+	case EIOType::CONNECT:
 		OnConnectCompleted();
 		break;
-	case eIOType::DISCONNECT:
+	case EIOType::DISCONNECT:
 		OnDisConnectCompleted();
 		break;
-	case eIOType::SEND:
+	case EIOType::SEND:
 		OnSendCompleted(numOfBytes);
 		break;
-	case eIOType::RECV:
+	case EIOType::RECV:
 		OnRecvCompleted(numOfBytes);
 		break;
 	
@@ -29,22 +29,20 @@ void Session::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
 		break;
 	}
 }
-Session::Session()
+IOCPSession::IOCPSession()
 {
-	mSocket = SocketUtil::GetInstance().CreateSocket();
-
 	mSendBuffer = ObjectPool<CircularBuffer>::MakeShared(65535);
 	mRecvBuff = ObjectPool<CircularBuffer>::MakeShared(65535);
 }
 
-Session::~Session()
+IOCPSession::~IOCPSession()
 {
 	mSendBuffer = nullptr;
 	mRecvBuff = nullptr;
 }
 
 
-bool Session::SetSockAddr()
+bool IOCPSession::SetSockAddr()
 {
 	SocketAddress sockAddress;
 	auto name = reinterpret_cast<SOCKADDR*>(&sockAddress.GetSockAddr());
@@ -58,7 +56,7 @@ bool Session::SetSockAddr()
 	return true;
 }
 
-bool Session::asyncConnect()
+bool IOCPSession::asyncConnect()
 {
 	if (mConnected.load() == true)
 		return false;
@@ -95,7 +93,7 @@ bool Session::asyncConnect()
 	return true;
 }
 
-void Session::asyncDisconnect()
+void IOCPSession::asyncDisconnect()
 {
 	mDisconnectEvent.Init();
 	mDisconnectEvent.owner = shared_from_this();
@@ -110,7 +108,7 @@ void Session::asyncDisconnect()
 	}
 }
 
-void Session::AsyncRecv()
+void IOCPSession::AsyncRecv()
 {
 	if (mConnected == false)
 		return;
@@ -141,7 +139,7 @@ void Session::AsyncRecv()
 	}
 }
 
-void Session::AsyncSend()
+void IOCPSession::AsyncSend()
 {
 	if (mConnected == false)
 		return;
@@ -177,7 +175,7 @@ void Session::AsyncSend()
 	}
 }
 
-void Session::OnAcceptCompleted()
+void IOCPSession::OnAcceptCompleted()
 {
 	mConnectEvent.owner = nullptr;
 	mConnected = true;
@@ -187,7 +185,7 @@ void Session::OnAcceptCompleted()
 	AsyncRecv();
 }
 
-void Session::OnConnectCompleted()
+void IOCPSession::OnConnectCompleted()
 {
 	mConnectEvent.owner = nullptr;
 	mConnected = true;
@@ -197,7 +195,7 @@ void Session::OnConnectCompleted()
 	AsyncRecv();
 }
 
-void Session::OnDisConnectCompleted()
+void IOCPSession::OnDisConnectCompleted()
 {
 	mDisconnectEvent.owner = nullptr;
 	mConnected = false;
@@ -207,7 +205,7 @@ void Session::OnDisConnectCompleted()
 	GetEngine()->DisConnectSession(static_pointer_cast<Session>(shared_from_this()));
 }
 
-void Session::OnRecvCompleted(uint32_t transferred)
+void IOCPSession::OnRecvCompleted(uint32_t transferred)
 {
 	// WSARecv가 종료 되었으므로 Ref Count를 풀어줌
 	mRecvEvent.owner = nullptr;
@@ -235,7 +233,7 @@ void Session::OnRecvCompleted(uint32_t transferred)
 	AsyncRecv();
 }
 
-void Session::OnSendCompleted(uint32_t transferred)
+void IOCPSession::OnSendCompleted(uint32_t transferred)
 {
 	mSendEvent.owner = nullptr;
 
@@ -257,12 +255,12 @@ void Session::OnSendCompleted(uint32_t transferred)
 	}
 }
 
-bool Session::Connect()
+bool IOCPSession::Connect()
 {
 	return asyncConnect();
 }
 
-void Session::DisConnect(const char* reason)
+void IOCPSession::DisConnect(const char* reason)
 {
 	// 이미 Disconnect 상태면 그냥 리턴
 	if (mConnected.exchange(false) == false)
@@ -276,7 +274,7 @@ void Session::DisConnect(const char* reason)
 	asyncDisconnect();
 }
 
-void Session::Send(const char* buffer, uint32_t contentSize)
+void IOCPSession::Send(const char* buffer, uint32_t contentSize)
 {
 	if (!mConnected.load())
 		return;
@@ -303,7 +301,7 @@ void Session::Send(const char* buffer, uint32_t contentSize)
 		AsyncSend();
 }
 
-void PacketSession::Send(uint16_t packetId, google::protobuf::MessageLite& packet)
+void PacketIOCPSession::Send(uint16_t packetId, google::protobuf::MessageLite& packet)
 {
 	if (mConnected.load() == false)
 		return;
@@ -345,7 +343,7 @@ void PacketSession::Send(uint16_t packetId, google::protobuf::MessageLite& packe
 		AsyncSend();
 }
 
-bool PacketSession::OnRecv()
+bool PacketIOCPSession::OnRecv()
 {
 	//패킷분석
 	//완료 안되면 다시

@@ -19,6 +19,9 @@
     <Filter Include="Memory">
       <UniqueIdentifier>{c89113db-bce7-415d-8cd5-80b7fcae8877}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Task">
+      <UniqueIdentifier>{3a291d40-3996-4bee-8a5b-9c7f552798f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Listener.cpp">
@@ -27,7 +30,7 @@
     <ClCompile Include="IOCP.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="Session.cpp">
+    <ClCompile Include="IOCPSession.cpp">
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="ServerEngine.cpp">
@@ -99,7 +102,7 @@
     <ClInclude Include="Listener.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Session.h">
+    <ClInclude Include="IOCPSession.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
@@ -174,6 +177,22 @@
     </ClInclude>
     <ClInclude Include="ObjectPool.h">
       <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\StreamParser.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Stream.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskQueue.h" />
+    <ClInclude Include="Task.h">
+      <Filter>Task</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskConsumer.h">
+      <Filter>Task</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskManager.h">
+      <Filter>Task</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

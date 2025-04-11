@@ -24,8 +24,11 @@ extern LPFN_CONNECTEX		FnConnectEx;
 extern LPFN_DISCONNECTEX	FnDisconnectEx;
 extern LPFN_ACCEPTEX		FnAcceptEx;
 
-class SocketUtil : public Singleton<SocketUtil>
+class SocketUtil
 {
+public:
+    using Singleton = Singleton<SocketUtil>;
+
 public:
 	SocketUtil() = default;
 	virtual ~SocketUtil() {
@@ -35,7 +38,7 @@ public:
 public:
 	bool Init();
 
-	SOCKET			CreateSocket();
+	SOCKET CreateSocket();
 
 	// Socket ¿É¼Ç
 	bool	SetLinger(SOCKET socket, uint16_t onoff, uint16_t linger);

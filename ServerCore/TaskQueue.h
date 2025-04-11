@@ -14,19 +14,15 @@ public:
 		_tasks.emplace(task);
 	};
 
-	ITask&& Dequeue()
+	ITask&& DequeueBySwap(std::queue<ITask>& swapTargetQueue)
 	{
 		//TODO : atomic<bool> isEmpty 최적화 ?
 
 
 		std::scoped_lock lock(_taskMutex);
 
-		//TODO : 하나씩 빼는게 나을지..?
-		auto task = _tasks.front(); // TODO: 복사 ?
-		_tasks.pop();
-
-		return std::move(task);
-	};
+        _tasks.swap(swapTargetQueue);
+	}
 
 private:
 	std::mutex _taskMutex;

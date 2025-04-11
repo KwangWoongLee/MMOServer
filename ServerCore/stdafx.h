@@ -5,6 +5,4 @@
 
 #define NOMINMAX
 
-#include "Singleton.h"
-
 #include "CorePch.h"

@@ -1,34 +1,71 @@
 #pragma once
+#include "stdafx.h"
 
-// Completion Port를 통해 들어온 I/O 작업을 하는 주체가 상속받을 클래스
-class IOCPObject : public EnableShared<IOCPObject>
+#include "SocketUtil.h"
+
+
+enum class EIOType : uint8_t
 {
-	// 추상클래스
-public:
-	virtual HANDLE GetHandle() = 0;
-	virtual void Dispatch(class Overlapped* iocpEvent, uint32_t numOfBytes = 0) = 0;
+	SEND,
+	RECV,
+	ACCEPT,
+	CONNECT,
+	DISCONNECT
 };
 
-
-class IOCP
+class IIOCPObject;
+class Overlapped : public OVERLAPPED
 {
 public:
-	IOCP();
-	virtual ~IOCP();
+	Overlapped(EIOType const type)
+		: _ioType(type)
+	{
+	};
 
-	bool RegistForCompletionPort(IOCPObjectRef iocpObject);
+public:
+	EIOType _ioType{};
+	std::shared_ptr<IIOCPObject> _iocpObj;
+};
 
-	bool Init();
+class IIOCPObject
+{
+public:
+	explicit IIOCPObject()
+	{
+		_handel = reinterpret_cast<HANDLE>(SocketUtil::Singleton::Instance().CreateSocket());
+	}
+	virtual ~IIOCPObject() = default;
+
+public:
+	HANDLE GetHandle() const { return _handel; }
+
+	virtual void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) = 0;
+
+private:
+	HANDLE _handel;
+};
+
+class IOCP final
+{
+public:
+	explicit IOCP()
+	{
+		_completionPort = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+
+		if (_completionPort == nullptr)
+		{
+			std::abort();
+		}
+	}
+
+	bool RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObject);
+
 	void Run(uint32_t timeout = INFINITE);
 	void Stop();
 
 	// IOWorker 쓰레드 함수
-	void IOWorkerFunc(uint32_t timeout = INFINITE);
-	
-private:
-	HANDLE mCompletionPort = INVALID_HANDLE_VALUE;
+	void IOWorkerFunc(uint32_t const timeout = INFINITE);
 
 private:
-	bool createCompletionPort();
-
+	HANDLE _completionPort{ INVALID_HANDLE_VALUE };
 };

@@ -1,23 +1,71 @@
 #pragma once
 #include "stdafx.h"
 #include "SocketUtil.h"
-#include "CircularBuffer.h"
-#include "IOContext.h"
 #include "IOCP.h"
-#include "Engine.h"
 
-class Session : public IOCPObject
+
+class AcceptEvent
+    : public Overlapped
 {
-	friend class Engine;
-
-	//추상클래스 IOCPObject 순수가상함수 오버라이딩
 public:
-	virtual HANDLE GetHandle() override { return reinterpret_cast<HANDLE>(mSocket); }
-	virtual void Dispatch(class Overlapped* iocpEvent, uint32_t numOfBytes = 0) override;
+	AcceptEvent() : Overlapped(EIOType::ACCEPT)
+	{
+	};
+
+	SessionRef GetSession() { return mSession; };
+	void SetSession(SessionRef session) { mSession = session; }
+
+private:
+	SessionRef mSession = nullptr;
+};
+
+class ConnectEvent
+    : public Overlapped
+{
+public:
+	ConnectEvent() : Overlapped(EIOType::CONNECT)
+	{
+	};
+};
+
+
+class DisconnectEvent
+    : public Overlapped
+{
+public:
+	DisconnectEvent() : Overlapped(EIOType::DISCONNECT)
+	{
+	};
+};
+
+class RecvEvent
+    : public Overlapped
+{
+public:
+	RecvEvent() :Overlapped(EIOType::RECV)
+	{
+	};
+};
+
+class SendEvent
+    : public Overlapped
+{
+public:
+	SendEvent() : Overlapped(eIOType::SEND)
+	{
+	};
+};
+
+
+class IOCPSession
+    : public IIOCPObject
+{
+public:
+	void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) override;
 
 public:
-	Session();
-	virtual ~Session();
+	IOCPSession();
+	virtual ~IOCPSession();
 
 public:
 	bool SetSockAddr();
@@ -36,9 +84,6 @@ public:
 	bool Connect();
 	void DisConnect(const char* reason);
 	void Send(const char* buffer, uint32_t contentSize);
-
-	EngineRef GetEngine() { return mEngine.lock(); };
-	void SetEngine(EngineRef engine) { mEngine = engine; };
 
 	inline void HandleError(int32_t errorCode)
 	{
@@ -72,8 +117,6 @@ public:
 
 	uint16_t			mSendPendingCount = 0;
 private:
-	
-	SOCKET mSocket = INVALID_SOCKET;
 	SocketAddress mSockAddress;
 
 	RecvEvent				mRecvEvent;

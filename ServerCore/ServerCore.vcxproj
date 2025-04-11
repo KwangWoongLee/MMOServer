@@ -182,7 +182,7 @@
     <ClCompile Include="MemoryPool.cpp" />
     <ClCompile Include="ObjectPool.cpp" />
     <ClCompile Include="ServerEngine.cpp" />
-    <ClCompile Include="Session.cpp" />
+    <ClCompile Include="IOCPSession.cpp" />
     <ClCompile Include="SocketUtil.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -213,12 +213,18 @@
     <ClInclude Include="LockQueue.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryPool.h" />
+    <ClInclude Include="Network\Stream.h" />
+    <ClInclude Include="Network\StreamParser.h" />
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="ServerEngine.h" />
-    <ClInclude Include="Session.h" />
+    <ClInclude Include="IOCPSession.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SocketUtil.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Task.h" />
+    <ClInclude Include="TaskConsumer.h" />
+    <ClInclude Include="TaskManager.h" />
+    <ClInclude Include="TaskQueue.h" />
     <ClInclude Include="ThreadLocalStorage.h" />
     <ClInclude Include="ThreadManager.h" />
     <ClInclude Include="Types.h" />
