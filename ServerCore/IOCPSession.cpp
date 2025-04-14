@@ -1,13 +1,12 @@
 #include "stdafx.h"
-#include "IOCP.h"
 
 #include "IOCPSession.h"
+#include "IOCP.h"
 
-#pragma region Session Virtual
 
-void IOCPSession::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
+void IOCPSession::Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes)
 {
-	switch (iocpEvent->ioType)
+	switch (iocpEvent->GetIOType())
 	{
 	case EIOType::ACCEPT:
 		OnAcceptCompleted();
@@ -29,6 +28,7 @@ void IOCPSession::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
 		break;
 	}
 }
+
 IOCPSession::IOCPSession()
 {
 	mSendBuffer = ObjectPool<CircularBuffer>::MakeShared(65535);
@@ -113,7 +113,6 @@ void IOCPSession::AsyncRecv()
 	if (mConnected == false)
 		return;
 
-	// WSARecv에 등록 후 Complete 될 때까지 Session 유지를 위해, Ref Count 증가
 	mRecvEvent.Init();
 	mRecvEvent.owner = shared_from_this(); 
 	
@@ -130,10 +129,7 @@ void IOCPSession::AsyncRecv()
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
 			auto error = WSAGetLastError();
-			// Pending 외에 다른 오류라면 잘못된것
-			// TODO :: 에러처리
 
-			//실패했기 때문에 Ref Count 해제
 			mRecvEvent.owner = nullptr;
 		}
 	}
@@ -147,7 +143,6 @@ void IOCPSession::AsyncSend()
 	{
 		WRITE_LOCK;
 
-		/// 보낼 데이터가 없는 경우
 		if (0 == mSendBuffer->GetContiguiousBytes())
 		{
 			mSendEvent.owner = nullptr;
@@ -207,17 +202,14 @@ void IOCPSession::OnDisConnectCompleted()
 
 void IOCPSession::OnRecvCompleted(uint32_t transferred)
 {
-	// WSARecv가 종료 되었으므로 Ref Count를 풀어줌
 	mRecvEvent.owner = nullptr;
 
-	// 클라이언트가 강제종료 시, 0바이트 전송
 	if (transferred == 0)
 	{
 		DisConnect("Transfered Byte Zero By Client");
 		return;
 	}
 
-	// WSARecv 등록 시, 최대 Freespace만큼 받을 수 있도록 등록했는데 초과됨, 더 받음
 	uint32_t freeSize = mRecvBuff->GetFreeSpaceSize();
 	if (transferred > freeSize)
 	{
@@ -229,7 +221,6 @@ void IOCPSession::OnRecvCompleted(uint32_t transferred)
 
 	OnRecv();
 
-	// 한번에 비동기 Recv 한번만, 끝났으니 다시 걸어주기
 	AsyncRecv();
 }
 
@@ -243,7 +234,6 @@ void IOCPSession::OnSendCompleted(uint32_t transferred)
 		return;
 	}
 
-	// 자식 session 클래스에서 할 작업
 	OnSend(transferred);
 
 	{
@@ -262,13 +252,11 @@ bool IOCPSession::Connect()
 
 void IOCPSession::DisConnect(const char* reason)
 {
-	// 이미 Disconnect 상태면 그냥 리턴
 	if (mConnected.exchange(false) == false)
 	{
 		return;
 	}
 
-	//TODO : reason으로 기록 남기기
 	cout << reason << endl;
 
 	asyncDisconnect();
@@ -345,8 +333,6 @@ void PacketIOCPSession::Send(uint16_t packetId, google::protobuf::MessageLite& p
 
 bool PacketIOCPSession::OnRecv()
 {
-	//패킷분석
-	//완료 안되면 다시
 	google::protobuf::io::ArrayInputStream arrayInputStream(mRecvBuff->GetBufferStart(), mRecvBuff->GetContiguiousBytes());
 	google::protobuf::io::CodedInputStream codedInputStream(&arrayInputStream);
 
@@ -359,18 +345,16 @@ bool PacketIOCPSession::OnRecv()
 
 		codedInputStream.GetDirectBufferPointer(&payloadPos, &payloadSize);
 
-		if (payloadSize < packetheader.size) ///< 패킷 본체 사이즈 체크
+		if (payloadSize < packetheader.size)
 			return false;
 
-		/// payload 읽기
 		google::protobuf::io::ArrayInputStream payloadArrayStream(payloadPos, packetheader.size);
 		google::protobuf::io::CodedInputStream payloadInputStream(&payloadArrayStream);
 
 
 		OnRecvPacket(packetheader, payloadInputStream);
 
-		/// 읽은 만큼 전진 및 버퍼에서 제거
-		codedInputStream.Skip(packetheader.size); ///< readraw에서 헤더 크기만큼 미리 전진했기때문
+		codedInputStream.Skip(packetheader.size); 
 		mRecvBuff->Remove(sizeof(PacketHeader) + packetheader.size);
 	}
 

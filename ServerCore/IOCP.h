@@ -3,46 +3,27 @@
 
 #include "SocketUtil.h"
 
-
-enum class EIOType : uint8_t
-{
-	SEND,
-	RECV,
-	ACCEPT,
-	CONNECT,
-	DISCONNECT
-};
-
-class IIOCPObject;
-class Overlapped : public OVERLAPPED
-{
-public:
-	Overlapped(EIOType const type)
-		: _ioType(type)
-	{
-	};
-
-public:
-	EIOType _ioType{};
-	std::shared_ptr<IIOCPObject> _iocpObj;
-};
-
+class Overlapped;
 class IIOCPObject
 {
 public:
-	explicit IIOCPObject()
-	{
-		_handel = reinterpret_cast<HANDLE>(SocketUtil::Singleton::Instance().CreateSocket());
-	}
-	virtual ~IIOCPObject() = default;
+    IIOCPObject() = default;
+    virtual ~IIOCPObject() = default;
 
-public:
-	HANDLE GetHandle() const { return _handel; }
+    HANDLE* GetHandle() const
+    {
+        return _handle.get();
+    }
 
-	virtual void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) = 0;
+    void SetHandle(std::unique_ptr<HANDLE> handle)
+    {
+        _handle = std::move(handle);
+    }
+
+    virtual void Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes = 0) = 0;
 
 private:
-	HANDLE _handel;
+    std::unique_ptr<HANDLE> _handle;
 };
 
 class IOCP final
@@ -63,7 +44,6 @@ public:
 	void Run(uint32_t timeout = INFINITE);
 	void Stop();
 
-	// IOWorker 쓰레드 함수
 	void IOWorkerFunc(uint32_t const timeout = INFINITE);
 
 private:

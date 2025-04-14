@@ -1,48 +1,51 @@
 #pragma once
-#include "Types.h"
-#include "MemoryPool.h"
+#include "stdafx.h"
 
-template<typename Type>
+template <typename T>
 class ObjectPool
 {
 public:
-	template<typename... Args>
-	static Type* Pop(Args&&... args)
-	{
-#ifdef _STOMP
-		MemoryHeader* ptr = reinterpret_cast<MemoryHeader*>(StompAllocator::Alloc(s_allocSize));
-		Type* memory = static_cast<Type*>(MemoryHeader::AttachHeader(ptr, s_allocSize));
-#else
-		Type* memory = static_cast<Type*>(MemoryHeader::AttachHeader(s_pool.Pop(), s_allocSize));
-#endif		
-		new(memory)Type(forward<Args>(args)...); // placement new
-		return memory;
-	}
+    using SPtr = std::shared_ptr<T>;
+    using Singleton = Singleton<ObjectPool<T>>;
 
-	static void Push(Type* obj)
-	{
-		obj->~Type();
-#ifdef _STOMP
-		StompAllocator::Release(MemoryHeader::DetachHeader(obj));
-#else
-		s_pool.Push(MemoryHeader::DetachHeader(obj));
-#endif
-	}
+public:
+    explicit ObjectPool(size_t const initialCapacity = 0)
+    {
+        for (size_t i = 0; i < initialCapacity; ++i)
+        {
+            _pool.emplace_back(std::make_shared<T>());
+        }
+    }
 
-	template<typename... Args>
-	static shared_ptr<Type> MakeShared(Args&&... args)
-	{
-		shared_ptr<Type> ptr = { Pop(forward<Args>(args)...), Push };
-		return ptr;
-	}
+    SPtr Acquire()
+    {
+        std::scoped_lock lock(_mutex);
+
+        if (!_pool.empty())
+        {
+            SPtr obj = _pool.back();
+            _pool.pop_back();
+            return obj;
+        }
+        else
+        {
+            return createNew();
+        }
+    }
+
+    void Release(SPtr const& obj)
+    {
+        std::scoped_lock lock(_mutex);
+        _pool.emplace_back(obj);
+    }
 
 private:
-	static int32_t		s_allocSize;
-	static MemoryPool	s_pool;
+    SPtr createNew() const
+    {
+        return std::make_shared<T>();
+    }
+
+private:
+    std::deque<SPtr> _pool;
+    std::mutex _mutex;
 };
-
-template<typename Type>
-int32_t ObjectPool<Type>::s_allocSize = sizeof(Type) + sizeof(MemoryHeader);
-
-template<typename Type>
-MemoryPool ObjectPool<Type>::s_pool{ s_allocSize };

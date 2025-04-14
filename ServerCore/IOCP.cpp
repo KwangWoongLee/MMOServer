@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "IOCP.h"
-#include "IOContext.h"
+#include "IOEvent.h"
 
 bool IOCP::RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObject)
 {
@@ -29,23 +29,48 @@ void IOCP::IOWorkerFunc(uint32_t const timeout)
 	ULONG_PTR key = 0;
 	DWORD dwTransferred = 0;
 
-	bool ret = ::GetQueuedCompletionStatus(_completionPort, &dwTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeout);
+	auto const result = ::GetQueuedCompletionStatus(_completionPort, &dwTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeout);
+	if (result)
+	{// 정상적인 io event 발생
+		auto const iocpEventSptr = std::make_shared<Overlapped>(iocpEvent);
 
-	if (ret == true)
-	{	
- 		auto owner = iocpEvent->owner;
-		owner->Dispatch(iocpEvent, dwTransferred);
-
-	}
-	else {
-		auto err = WSAGetLastError();
-		if (err == WAIT_TIMEOUT)
+		auto const iocpObject = iocpEventSptr->GetIOCPObject();
+		if (not iocpObject)
+		{
 			return;
+		}
+		iocpObject->Dispatch(iocpEventSptr, dwTransferred);
+	}
+	else 
+	{
+		// case 1. pending
+		// case 2. timeout
+		// case 3. error
 
+		auto const err = WSAGetLastError();
+		if (WSA_IO_PENDING == err)
+		{
+			return;
+		}
+		else if (not iocpEvent)
+		{ // timeout
+			return;
+		}
 		else
 		{
-			auto owner = iocpEvent->owner;
-			owner->Dispatch(iocpEvent, dwTransferred);
+			if (ERROR_NETNAME_DELETED == err || ERROR_CONNECTION_ABORTED == err)
+			{ // 
+				
+			}
+
+			auto const iocpEventSptr = std::make_shared<Overlapped>(iocpEvent);
+
+			auto const iocpObject = iocpEventSptr->GetIOCPObject();
+			if (not iocpObject)
+			{
+				return;
+			}
+			iocpObject->Dispatch(iocpEventSptr, dwTransferred);
 		}
 	}
 	

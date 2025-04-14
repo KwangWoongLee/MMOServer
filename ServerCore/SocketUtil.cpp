@@ -32,7 +32,6 @@ SocketAddress::SocketAddress(std::string_view ip, uint16_t port)
 	mSockAddr.sin_family = AF_INET;
 	mSockAddr.sin_addr = addr;
 	mSockAddr.sin_port = htons(port);
-
 }
 
 bool SocketUtil::Init()
@@ -48,48 +47,67 @@ bool SocketUtil::Init()
 	return true;
 }
 
-SOCKET SocketUtil::CreateSocket()
+SOCKET SocketUtil::CreateSocket() const
 {
 	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 }
 
+bool SocketUtil::Bind(SOCKET const& socket) const
+{
+	auto serverSocketAddr = mServer->GetSockAddress().GetSockAddr();
 
-bool SocketUtil::SetLinger(SOCKET socket, uint16_t onoff, uint16_t linger)
+	if (::bind(socket, (struct sockaddr*)&serverSocketAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
+		return false;
+
+	return true;
+}
+
+bool SocketUtil::Listen(SOCKET const& socket, int32_t const backlog) const
+{
+	if (::listen(socket, backlog) == SOCKET_ERROR)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+bool SocketUtil::SetLinger(SOCKET const& socket, uint16_t const onoff, uint16_t const linger) const
 {
 	LINGER option;
 	option.l_onoff = onoff;
 	option.l_linger = linger;
-	return SetSockOpt(socket, SOL_SOCKET, SO_LINGER, option);
+	return setSockOpt(socket, SOL_SOCKET, SO_LINGER, option);
 }
 
-bool SocketUtil::SetReuseAddress(SOCKET socket, bool flag)
+bool SocketUtil::SetReuseAddress(SOCKET const& socket, bool const flag) const
 {
-	return SetSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, flag);
+	return setSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, flag);
 }
 
-bool SocketUtil::SetRecvBufferSize(SOCKET socket, int32_t size)
+bool SocketUtil::SetRecvBufferSize(SOCKET const& socket, int32_t const size) const
 {
-	return SetSockOpt(socket, SOL_SOCKET, SO_RCVBUF, size);
+	return setSockOpt(socket, SOL_SOCKET, SO_RCVBUF, size);
 }
 
-bool SocketUtil::SetSendBufferSize(SOCKET socket, int32_t size)
+bool SocketUtil::SetSendBufferSize(SOCKET const& socket, int32_t const size) const
 {
-	return SetSockOpt(socket, SOL_SOCKET, SO_SNDBUF, size);
+	return setSockOpt(socket, SOL_SOCKET, SO_SNDBUF, size);
 }
 
-bool SocketUtil::SetTcpNoDelay(SOCKET socket, bool flag)
+bool SocketUtil::SetTcpNoDelay(SOCKET const& socket, bool const flag) const
 {
-	return SetSockOpt(socket, SOL_SOCKET, TCP_NODELAY, flag);
+	return setSockOpt(socket, SOL_SOCKET, TCP_NODELAY, flag);
 }
 
-// ListenSocket의 특성을 ClientSocket에 그대로 적용
-bool SocketUtil::SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket)
+bool SocketUtil::SetUpdateAcceptSocket(SOCKET const& socket, SOCKET const listenSocket) const
 {
-	return SetSockOpt(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
+	return setSockOpt(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
 }
 
 bool SocketUtil::setExFunction()
-{	//AcceptEx Register
+{
 	DWORD bytes = 0;
 	SOCKET tmpSocket = this->CreateSocket();
 

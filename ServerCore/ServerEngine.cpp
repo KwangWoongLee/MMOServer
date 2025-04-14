@@ -16,7 +16,7 @@ bool ServerEngine::Init()
 	if (Engine::Init() == false)
 		return false;
 
-	//´Ù¿î Ä³½ºÆÃÀÌÁö¸¸ shared_ptr¸¸ ¾ò´Â °ÍÀÌ¹Ç·Î static_pointer_cast·Î »ç¿ë
+	//ï¿½Ù¿ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ shared_ptrï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¹Ç·ï¿½ static_pointer_castï¿½ï¿½ ï¿½ï¿½ï¿½
 	auto serverEngineRef = static_pointer_cast<ServerEngine>(shared_from_this());
 	mListener = MakeShared<Listener>(serverEngineRef);
 

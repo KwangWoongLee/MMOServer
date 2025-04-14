@@ -22,7 +22,6 @@ using namespace std;
 #include <string>
 #include <string_view>
 
-//자료구조
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -43,6 +42,6 @@ using namespace std;
 #include "Memory.h"
 #include "ObjectPool.h"
 #include "ThreadLocalStorage.h"
-#include "Lock.h"
+#include "LockQueue.h"
 #include "Session.h"
 #include "JobQueue.h"

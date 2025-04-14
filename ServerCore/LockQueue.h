@@ -1,41 +1,36 @@
 #pragma once
+
 #include "stdafx.h"
 
-template<typename T>
-class LockQueue
+template <typename T>
+class LockQueue final
 {
 public:
-	void Push(T item)
+	void Enqueue(T const& value)
 	{
-		WRITE_LOCK;
-		_items.push(item);
-	}
+		std::scoped_lock lock(_mutex);
 
-	T Pop()
+		_elements.emplace(value);
+	};
+
+	void Enqueue(T&& value)
 	{
-		WRITE_LOCK;
-		if (_items.empty())
-			return T();
+		std::scoped_lock lock(_mutex);
 
-		T ret = _items.front();
-		_items.pop();
-		return ret;
-	}
+		_elements.emplace(std::move(value));
+	};
 
-	void PopAll(OUT std::vector<T>& items)
+	bool DequeueBySwap(std::queue<T>& swapTargetQueue)
 	{
-		WRITE_LOCK;
-		while (T item = Pop())
-			items.push_back(item);
-	}
+		//TODO : atomic<bool> isEmpty 최적화 ?
 
-	void Clear()
-	{
-		WRITE_LOCK;
-		_items = std::queue<T>();
+
+		std::scoped_lock lock(_mutex);
+
+		_elements.swap(swapTargetQueue);
 	}
 
 private:
-	USE_LOCK;
-	std::queue<T> _items;
+	std::mutex _mutex;
+	std::queue<T> _elements;
 };

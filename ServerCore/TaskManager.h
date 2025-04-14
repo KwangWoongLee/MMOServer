@@ -1,8 +1,25 @@
 #pragma once
 
 #include "stdafx.h"
+#include "Task.h"
 
-#include "TaskQueue.h"
+enum class ETaskProduceType : uint8_t
+{
+	BASIC,
+	MAX
+};
+
+size_t constexpr TaskProduceTypeMax = static_cast<size_t>(ETaskProduceType::MAX);
+
+namespace
+{
+	struct TaskBufferSet
+	{
+		LockQueue<ITask> _tasks;
+		std::queue<ITask> _tasksBackBuffer;
+	};
+
+}
 
 class TaskManager final
 {
@@ -10,31 +27,32 @@ public:
     using Singleton = Singleton<TaskManager>;
 
 public:
-	void Produce(uint8_t const targetQueueIndex, ITask const& task)
+	void Produce(ETaskProduceType const taskProduceType, ITask const& task)
 	{
+		auto const producerIndex = static_cast<size_t>(taskProduceType);
 		//TODO : index 검사
-		auto& targetTaskQueue = _taskQueuesByProduceType[targetQueueIndex];
-
-		targetTaskQueue.Enqueue(task);
+		
+		auto& tasks = _taskBufferSetsByProduceType.at(producerIndex)._tasks;
+		tasks.Enqueue(task);
 	}
 
-	void Consume(uint8_t const targetQueueIndex)
+	void Consume(ETaskProduceType const taskProduceType)
 	{
+		auto const producerIndex = static_cast<size_t>(taskProduceType);
 		//TODO : index 검사
-		auto& targetTaskQueue = _taskQueuesByProduceType[targetQueueIndex];
 
-		auto& taskQueueBackBuffer = _taskQueueBackBuffersByProduce[targetQueueIndex];
-		targetTaskQueue.DequeueBySwap(taskQueueBackBuffer);
+		auto& tasks = _taskBufferSetsByProduceType.at(producerIndex)._tasks;
+		auto& tasksBackBuffer = _taskBufferSetsByProduceType.at(producerIndex)._tasksBackBuffer;
+		tasks.DequeueBySwap(tasksBackBuffer);
 
-        while (not taskQueueBackBuffer.empty())
+        while (not tasksBackBuffer.empty())
         {
-			auto const& task = taskQueueBackBuffer.front();
+			auto& task = tasksBackBuffer.front();
             task.Excute();
-            taskQueueBackBuffer.pop();
+			tasksBackBuffer.pop();
         }
 	}
 	
 private:
-	std::array<TaskLockQueue, 10> _taskQueuesByProduceType; // TODO : task 타입을 특정하자
-    std::array<std::queue<ITask>, 10> _taskQueueBackBuffersByProduce; // TODO : task 타입을 특정하자
+	std::array<TaskBufferSet, TaskProduceTypeMax> _taskBufferSetsByProduceType;
 };

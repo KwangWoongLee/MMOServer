@@ -38,18 +38,23 @@ public:
 public:
 	bool Init();
 
-	SOCKET CreateSocket();
+	SOCKET CreateSocket() const;
+	bool Bind(SOCKET const& socket) const;
+	bool Listen(SOCKET const& socket, int32_t const backlog = SOMAXCONN) const;
 
-	// Socket 옵션
-	bool	SetLinger(SOCKET socket, uint16_t onoff, uint16_t linger);
-	bool	SetReuseAddress(SOCKET socket, bool flag);
-	bool	SetRecvBufferSize(SOCKET socket, int32_t size);
-	bool	SetSendBufferSize(SOCKET socket, int32_t size);
-	bool	SetTcpNoDelay(SOCKET socket, bool flag);
-	bool	SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket);
+	bool	SetLinger(SOCKET const& socket, uint16_t const onoff, uint16_t const linger) const;
+	bool	SetReuseAddress(SOCKET const& socket, bool const flag) const;
+	bool	SetRecvBufferSize(SOCKET const& socket, int32_t const size) const;
+	bool	SetSendBufferSize(SOCKET const& socket, int32_t const size) const;
+	bool	SetTcpNoDelay(SOCKET const& socket, bool const flag) const;
+	bool	SetUpdateAcceptSocket(SOCKET const& socket, SOCKET const listenSocket) const;
 
 private:
-	// Ex 함수 Set
 	bool	setExFunction();
 
+	template<typename T>
+	static inline bool setSockOpt(SOCKET const& socket, int32_t const level, int32_t const optName, T const& optVal)
+	{
+		return SOCKET_ERROR != ::setSockOpt(socket, level, optName, reinterpret_cast<char*>(&optVal), sizeof(T));
+	}
 };

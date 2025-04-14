@@ -1,139 +1,97 @@
 #include "stdafx.h"
 #include "Listener.h"
 #include "IOCP.h"
-#include "IOContext.h"
-#include "ServerEngine.h"
+#include "IOCPSessionManager.h"
 
-#pragma region Listener Virtual
-
-void Listener::Dispatch(Overlapped* iocpEvent, uint32_t numOfBytes)
+void Listener::Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes)
 {
-	// dynamic_cast로 다운캐스팅 해야하지만, Listener IOCP Object는 Accept 이벤트만 처리하기때문에
-	// 그냥 이상한게 들어오면 프로그램 뻗어버리기
-	// ASSERT
-	ASSERT_CRASH(iocpEvent->ioType == eIOType::ACCEPT)
-
-	AcceptEvent* acceptEvent = static_cast<AcceptEvent*>(iocpEvent);
-	auto session = static_pointer_cast<Session>(acceptEvent->GetSession());
-
-	SOCKET sessionSock = reinterpret_cast<SOCKET>(session->GetHandle());
-
-	// Listen Socket이 가진 옵션 그대로 가져가기
-	if (SocketUtil::GetInstance().SetUpdateAcceptSocket(sessionSock, mListenSocket) == false)
+	auto acceptEvent = std::dynamic_pointer_cast<AcceptEvent>(iocpEvent);
+	if (!acceptEvent)
 	{
-		auto error = WSAGetLastError();
-		
-		// 실패했더라도 Accept는 다시 걸어주기
+		return;
+	}
+
+	auto const iocpSession = acceptEvent->GetIOCPSession();
+	if (not SocketUtil::Singleton::Instance().SetUpdateAcceptSocket(reinterpret_cast<SOCKET>(iocpSession->GetHandle()), reinterpret_cast<SOCKET>(*GetHandle())))
+	{
 		asyncAccept(acceptEvent);
 		return;
 	}
 
-	// Accept 소켓의 접속 정보 가져오기
-	if (session->SetSockAddr() == false)
+	if (not iocpSession->SetSockAddr())
 	{
-		// 실패했더라도 Accept는 다시 걸어주기
 		asyncAccept(acceptEvent);
 		return;
 	}
 
-	session->OnAcceptCompleted();
-	asyncAccept(acceptEvent);
-}
-#pragma endregion
+	iocpSession->OnAcceptCompleted();
 
-
-Listener::Listener(ServerEngineRef server)
-	: mServer(server)
-{
+	asyncAccept(acceptEvent); 
 }
 
 Listener::~Listener()
 {
-	::closesocket(mListenSocket);
-	mListenSocket = INVALID_SOCKET;
-	mServer = nullptr;
-
-	mAcceptEvents.clear();
 }
 
 bool Listener::Init()
 {
-	mListenSocket = SocketUtil::GetInstance().CreateSocket();
-
-	if (mListenSocket == INVALID_SOCKET)
+	auto const listenSocket = SocketUtil::Singleton::Instance().CreateSocket();
+	if (not SocketUtil::Singleton::Instance().SetReuseAddress(listenSocket, true))
+	{
 		return false;
+	}
 
-	if (mServer->RegistForCompletionPort(shared_from_this()) == false)
+	if (not SocketUtil::Singleton::Instance().SetLinger(listenSocket, 0, 0))
+	{
 		return false;
+	}
 
-	if (SocketUtil::GetInstance().SetReuseAddress(mListenSocket, true) == false)
+	if (not SocketUtil::Singleton::Instance().Bind(listenSocket))
+	{
 		return false;
-
-	if (SocketUtil::GetInstance().SetLinger(mListenSocket, 0, 0) == false)
-		return false;
-
-	if (bind() == false)
-		return false;
+	}
 	
-
-	if (listen() == false)
+	if (not SocketUtil::Singleton::Instance().Listen(listenSocket))
+	{
 		return false;
+	}
 
-	// 최대 세션 갯수만큼 AcceptEx 해놓기
+	SetHandle(std::make_unique<HANDLE>(listenSocket));
+
+	if (IOCPSessionManager::Singleton::Instance().RegistListener(shared_from_this()))
+	{
+		return false;
+	}
+
 	prepareAccepts();
 
 	return true;
 }
 
-bool Listener::bind()
-{
-	auto serverSocketAddr = mServer->GetSockAddress().GetSockAddr();
-
-	if ( ::bind(mListenSocket, (struct sockaddr*)&serverSocketAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
-		return false;
-
-	return true;
-}
-
-bool Listener::listen(int32_t backlog)
-{
-	if (::listen(mListenSocket, backlog) == SOCKET_ERROR)
-		return false;
-
-	return true;
-}
-
-
 
 void Listener::prepareAccepts()
 {
-	uint16_t maxSessionCount = mServer->GetMaxSessionCount();
-	mAcceptEvents.reserve(maxSessionCount);
-
+	auto const maxSessionCount = mServer->GetMaxSessionCount();
 	for (uint16_t i{}; i < maxSessionCount; ++i)
 	{
-		auto acceptEvent = new AcceptEvent();
-		acceptEvent->owner = shared_from_this();
-
-		mAcceptEvents.push_back(acceptEvent);
+		auto const acceptEvent = ObjectPool<AcceptEvent>::Singleton::Instance().Acquire();
 		asyncAccept(acceptEvent);
 	}
-	
 }
 
-void Listener::asyncAccept(AcceptEvent* acceptEvent)
+void Listener::asyncAccept(std::shared_ptr<AcceptEvent> acceptEvent)
 {
-	SessionRef session = mServer->CreateSession(); 
-
 	acceptEvent->Init();
-	acceptEvent->SetSession(session);
+
+	auto const iocpSession = IOCPSessionManager::Singleton::Instance().CreateSession();
+	acceptEvent->SetSession(iocpSession);
 
 	DWORD bytesReceived = 0;
-	if (false == FnAcceptEx(mListenSocket, reinterpret_cast<SOCKET>(session->GetHandle()), session->mAcceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, OUT & bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent)))
+	if (not FnAcceptEx(reinterpret_cast<SOCKET>(*GetHandle()), reinterpret_cast<SOCKET>(*iocpSession->GetHandle()), iocpSession->mAcceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent)))
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
-			asyncAccept(acceptEvent);
+			ObjectPool<AcceptEvent>::Singleton::Instance().Release(acceptEvent);
 		}
 	}
 }

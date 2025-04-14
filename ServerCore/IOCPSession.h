@@ -4,64 +4,13 @@
 #include "IOCP.h"
 
 
-class AcceptEvent
-    : public Overlapped
-{
-public:
-	AcceptEvent() : Overlapped(EIOType::ACCEPT)
-	{
-	};
-
-	SessionRef GetSession() { return mSession; };
-	void SetSession(SessionRef session) { mSession = session; }
-
-private:
-	SessionRef mSession = nullptr;
-};
-
-class ConnectEvent
-    : public Overlapped
-{
-public:
-	ConnectEvent() : Overlapped(EIOType::CONNECT)
-	{
-	};
-};
-
-
-class DisconnectEvent
-    : public Overlapped
-{
-public:
-	DisconnectEvent() : Overlapped(EIOType::DISCONNECT)
-	{
-	};
-};
-
-class RecvEvent
-    : public Overlapped
-{
-public:
-	RecvEvent() :Overlapped(EIOType::RECV)
-	{
-	};
-};
-
-class SendEvent
-    : public Overlapped
-{
-public:
-	SendEvent() : Overlapped(eIOType::SEND)
-	{
-	};
-};
 
 
 class IOCPSession
     : public IIOCPObject
 {
 public:
-	void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) override;
+	void Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes = 0) override;
 
 public:
 	IOCPSession();
@@ -73,8 +22,6 @@ public:
 	void AsyncRecv();
 	void AsyncSend();
 	
-	// 두 함수는 하는 동작은 유사하나, 서버에서 Accept가 되었을 때와, 클라이언트 쪽에서 Connect 되었을 때 각각 호출된다.
-	// 서버가 클라이언트가 될 때도 있으므로 ConnectEx를 정의해서 사용
 	void OnAcceptCompleted();
 	void OnConnectCompleted();
 	void OnDisConnectCompleted();
@@ -100,7 +47,6 @@ public:
 	}
 
 
-	// 자식클래스에서 수행할 작업
 	virtual void OnConnected() = 0;
 	virtual bool OnRecv() = 0;
 	virtual void OnSend(uint32_t transferred) = 0;
@@ -123,8 +69,6 @@ private:
 	SendEvent				mSendEvent;
 	ConnectEvent			mConnectEvent;
 	DisconnectEvent			mDisconnectEvent;
-
-	std::weak_ptr<Engine>	mEngine;
 
 	bool asyncConnect();
 	void asyncDisconnect();
