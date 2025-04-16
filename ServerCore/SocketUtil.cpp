@@ -52,12 +52,22 @@ SOCKET SocketUtil::CreateSocket() const
 	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 }
 
+void SocketUtil::CloseSocket(SOCKET const& socket) const
+{
+	::closesocket(socket);
+}
+
 bool SocketUtil::Bind(SOCKET const& socket) const
 {
-	auto serverSocketAddr = mServer->GetSockAddress().GetSockAddr();
+	SOCKADDR_IN myAddress;
+	myAddress.sin_family = AF_INET;
+	myAddress.sin_addr.s_addr = ::htonl(INADDR_ANY);
+	myAddress.sin_port = ::htons(0);
 
-	if (::bind(socket, (struct sockaddr*)&serverSocketAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
+	if (SOCKET_ERROR == ::bind(socket, (struct sockaddr*)&myAddress, sizeof(SOCKADDR_IN)))
+	{
 		return false;
+	}
 
 	return true;
 }

@@ -5,28 +5,35 @@
 
 void Listener::Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes)
 {
-	auto acceptEvent = std::dynamic_pointer_cast<AcceptEvent>(iocpEvent);
-	if (!acceptEvent)
+	if (EIOType::ACCEPT != iocpEvent->GetIOType())
+		return;
+
+	auto const iocpObject = iocpEvent->GetIOCPObject();
+	auto const iocpSession = std::dynamic_pointer_cast<IOCPSession>(iocpObject);
+	if (not iocpSession)
 	{
+		asyncAccept(); // 새 세션 + 새 Overlapped로
 		return;
 	}
 
-	auto const iocpSession = acceptEvent->GetIOCPSession();
-	if (not SocketUtil::Singleton::Instance().SetUpdateAcceptSocket(reinterpret_cast<SOCKET>(iocpSession->GetHandle()), reinterpret_cast<SOCKET>(*GetHandle())))
+	SOCKET acceptedSocket = reinterpret_cast<SOCKET>(iocpSession->GetHandle());
+	SOCKET listenSocket = reinterpret_cast<SOCKET>(*GetHandle());
+
+	if (not SocketUtil::Singleton::Instance().SetUpdateAcceptSocket(acceptedSocket, listenSocket))
 	{
-		asyncAccept(acceptEvent);
+		asyncAccept(); // 실패 시에도 재시도
 		return;
 	}
 
 	if (not iocpSession->SetSockAddr())
 	{
-		asyncAccept(acceptEvent);
+		asyncAccept(); // 실패 시에도 재시도
 		return;
 	}
 
-	iocpSession->OnAcceptCompleted();
+	iocpSession->OnAcceptCompleted(); // 연결 완료 처리
 
-	asyncAccept(acceptEvent); 
+	asyncAccept(); // 다음 AcceptEx 등록 (새 Overlapped, 새 소켓)
 }
 
 Listener::~Listener()
@@ -74,24 +81,25 @@ void Listener::prepareAccepts()
 	auto const maxSessionCount = mServer->GetMaxSessionCount();
 	for (uint16_t i{}; i < maxSessionCount; ++i)
 	{
-		auto const acceptEvent = ObjectPool<AcceptEvent>::Singleton::Instance().Acquire();
-		asyncAccept(acceptEvent);
+		asyncAccept();
 	}
 }
 
-void Listener::asyncAccept(std::shared_ptr<AcceptEvent> acceptEvent)
+void Listener::asyncAccept()
 {
-	acceptEvent->Init();
+	auto const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
+	ioEvent->Init();
+	ioEvent->SetIOType(EIOType::ACCEPT);
 
 	auto const iocpSession = IOCPSessionManager::Singleton::Instance().CreateSession();
-	acceptEvent->SetSession(iocpSession);
+	ioEvent->SetIOCPObject(iocpSession);
 
 	DWORD bytesReceived = 0;
-	if (not FnAcceptEx(reinterpret_cast<SOCKET>(*GetHandle()), reinterpret_cast<SOCKET>(*iocpSession->GetHandle()), iocpSession->mAcceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent)))
+	if (not FnAcceptEx(reinterpret_cast<SOCKET>(*GetHandle()), reinterpret_cast<SOCKET>(*iocpSession->GetHandle()), iocpSession->mAcceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(&(*ioEvent))))
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
-			ObjectPool<AcceptEvent>::Singleton::Instance().Release(acceptEvent);
+			
 		}
 	}
 }

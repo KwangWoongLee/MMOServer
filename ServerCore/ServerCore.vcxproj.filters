@@ -55,9 +55,6 @@
     <ClCompile Include="CircularBuffer.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="CoreGlobal.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Lock.cpp">
       <Filter>Thread</Filter>
     </ClCompile>
@@ -118,14 +115,8 @@
     <ClInclude Include="SocketUtil.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="CoreGlobal.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Lock.h">
       <Filter>Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="CoreMacro.h">
-      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="ClientEngine.h">
       <Filter>Core</Filter>

@@ -2,21 +2,30 @@
 #include "stdafx.h"
 #include "SocketUtil.h"
 #include "IOCP.h"
+#include "IOEvent.h"
 
-
-
+namespace
+{
+	enum class EIOCPSessionState : uint8_t
+	{
+		NONE,
+		CONNECTING,
+		CONNECTED,
+		DISCONNECTING,
+		DISCONNECTED
+	};
+}
 
 class IOCPSession
     : public IIOCPObject
 {
 public:
-	void Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes = 0) override;
-
-public:
 	IOCPSession();
 	virtual ~IOCPSession();
 
 public:
+	void Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes = 0) override;
+
 	bool SetSockAddr();
 	
 	void AsyncRecv();
@@ -24,21 +33,21 @@ public:
 	
 	void OnAcceptCompleted();
 	void OnConnectCompleted();
-	void OnDisConnectCompleted();
-	void OnRecvCompleted(uint32_t transferred);
-	void OnSendCompleted(uint32_t transferred);
+	void OnDisconnectCompleted();
+	void OnRecvCompleted(uint32_t const transferred);
+	void OnSendCompleted(uint32_t const transferred);
 
 	bool Connect();
-	void DisConnect(const char* reason);
+	void Disconnect(const char* reason);
 	void Send(const char* buffer, uint32_t contentSize);
 
-	inline void HandleError(int32_t errorCode)
+	inline void HandleError(int32_t const errorCode)
 	{
 		switch (errorCode)
 		{
 		case WSAECONNRESET:
 		case WSAECONNABORTED:
-			DisConnect("Handle Error");
+			Disconnect("Handle Error");
 			break;
 		default:
 			cout << "Handle Error : " << errorCode << endl;
@@ -55,23 +64,21 @@ public:
 	char	mAcceptBuf[64] = {};
 
 	USE_LOCK;
-	std::atomic<bool> mConnected = false;
-	std::atomic<bool> mSendRegistered = false;
 
 	CircularBufferRef	mRecvBuff;
 	CircularBufferRef	mSendBuffer;
 
-	uint16_t			mSendPendingCount = 0;
 private:
-	SocketAddress mSockAddress;
+	SocketAddress _sockAddress;
 
-	RecvEvent				mRecvEvent;
-	SendEvent				mSendEvent;
-	ConnectEvent			mConnectEvent;
-	DisconnectEvent			mDisconnectEvent;
+	std::atomic<EIOCPSessionState> _state{ EIOCPSessionState::NONE };
+	std::atomic<bool> _isSendPending{};
 
 	bool asyncConnect();
 	void asyncDisconnect();
+
+	void setConnected();
+	void setDisconnected();
 };
 
 class PacketSession : public Session

@@ -3,10 +3,9 @@
 
 class Listener
 	: public IIOCPObject
-	, public enable_shared_from_this<Listener>
 {
 public:
-	virtual void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) override;
+	virtual void Dispatch(std::shared_ptr<Overlapped> iocpEvent, uint32_t const numOfBytes = 0) override;
 
 public:
 	Listener() = default;
@@ -17,5 +16,5 @@ public:
 
 private:
 	void prepareAccepts();
-	bool asyncAccept(AcceptEvent* acceptEvent);
+	void asyncAccept();
 };

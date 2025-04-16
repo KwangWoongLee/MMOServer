@@ -13,15 +13,15 @@ enum class EIOType : uint8_t
 class IIOCPObject;
 class IOCPSession;
 
-class Overlapped : 
-    public OVERLAPPED
+class Overlapped 
+    : public OVERLAPPED
+    , public enable_shared_from_this<Overlapped>
 {
 public:
     Overlapped() = default;
-    explicit Overlapped(EIOType const type)
-        : _ioType(type)
+    virtual ~Overlapped()
     {
-        Init();
+        ObjectPool<Overlapped>::Singleton::Instance().Release(shared_from_this());
     }
 
 public:
@@ -36,6 +36,11 @@ public:
         return _ioType;
     }
 
+    void SetIOType(EIOType const ioType)
+    {
+        _ioType = ioType;
+    }
+
     std::shared_ptr<IIOCPObject> GetIOCPObject() const
     {
         return _iocpObj;
@@ -48,57 +53,5 @@ public:
 
 private:
     EIOType _ioType{};
-
     std::shared_ptr<IIOCPObject> _iocpObj;
-};
-
-class AcceptEvent
-    : public Overlapped
-{
-public:
-    AcceptEvent() 
-        : Overlapped(EIOType::ACCEPT)
-    {
-    };
-};
-
-class ConnectEvent
-    : public Overlapped
-{
-public:
-    ConnectEvent()
-        : Overlapped(EIOType::CONNECT)
-    {
-    };
-};
-
-
-class DisconnectEvent
-    : public Overlapped
-{
-public:
-    DisconnectEvent()
-        : Overlapped(EIOType::DISCONNECT)
-    {
-    };
-};
-
-class RecvEvent
-    : public Overlapped
-{
-public:
-    RecvEvent()
-        : Overlapped(EIOType::RECV)
-    {
-    };
-};
-
-class SendEvent
-    : public Overlapped
-{
-public:
-    SendEvent()
-        : Overlapped(EIOType::SEND)
-    {
-    };
 };

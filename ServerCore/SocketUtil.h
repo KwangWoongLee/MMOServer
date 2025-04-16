@@ -39,6 +39,7 @@ public:
 	bool Init();
 
 	SOCKET CreateSocket() const;
+	void CloseSocket(SOCKET const& socket) const;
 	bool Bind(SOCKET const& socket) const;
 	bool Listen(SOCKET const& socket, int32_t const backlog = SOMAXCONN) const;
 

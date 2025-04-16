@@ -1,6 +1,5 @@
 #pragma once
 
-//추상 클래스
 using SessionFactory = std::function<SessionRef()>;
 
 class Engine : public EnableShared<Engine>
@@ -9,7 +8,6 @@ public:
 
 
 public:
-	//가상함수 선언
 	Engine(IOCPRef iocp, uint16_t maxSessionCount, SessionFactory sessionFactory);
 	virtual ~Engine();
 
