@@ -4,27 +4,37 @@
 #include "IOCP.h"
 
 
-void IOCPSession::Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes)
+void IOCPSession::Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes)
 {
 	switch (iocpEvent->GetIOType())
 	{
 	case EIOType::ACCEPT:
-		OnAcceptCompleted();
+		{
+			OnAcceptCompleted();
+		}	
 		break;
 	case EIOType::CONNECT:
-		OnConnectCompleted();
+		{
+			OnConnectCompleted();
+		}		
 		break;
 	case EIOType::DISCONNECT:
-		OnDisConnectCompleted();
+		{
+			OnDisconnectCompleted();
+		}
 		break;
 	case EIOType::SEND:
-		OnSendCompleted(numOfBytes);
+		{
+			OnSendCompleted(numOfBytes);
+		}
 		break;
 	case EIOType::RECV:
-		OnRecvCompleted(numOfBytes);
+		{
+			OnRecvCompleted(numOfBytes);
+		}
 		break;
-	
 	default:
+		{}
 		break;
 	}
 }
@@ -60,9 +70,9 @@ bool IOCPSession::SetSockAddr()
 
 bool IOCPSession::asyncConnect()
 {
-	if (mConnected.load() == true)
-		return false;
-
+	if (EIOCPSessionState::CONNECTING != _state)
+	{
+	}
 
 	auto const& socket = reinterpret_cast<SOCKET>(*GetHandle());
 	if (not SocketUtil::Singleton::Instance().Bind(socket))

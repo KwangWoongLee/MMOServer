@@ -8,4 +8,3 @@ struct StreamHeader final
 #pragma pack(pop)
 
 static auto constexpr SIZE_OF_STREAM_HEADER = sizeof(StreamHeader);
-static auto constexpr SIZE_OF_STREAM_HEADER = sizeof(StreamHeader);

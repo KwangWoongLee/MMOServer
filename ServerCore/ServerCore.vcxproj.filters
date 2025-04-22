@@ -136,9 +136,6 @@
     <ClInclude Include="ObjectPool.h">
       <Filter>Memory</Filter>
     </ClInclude>
-    <ClInclude Include="Network\StreamParser.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="Network\Stream.h">
       <Filter>Network</Filter>
     </ClInclude>
@@ -152,5 +149,8 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="IOCPSessionManager.h" />
+    <ClInclude Include="RAII.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

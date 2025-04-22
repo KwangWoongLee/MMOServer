@@ -4,6 +4,7 @@
 #include "SocketUtil.h"
 
 class Overlapped;
+
 class IIOCPObject
 	: public enable_shared_from_this<IIOCPObject>
 {
@@ -21,7 +22,7 @@ public:
         _handle = std::move(handle);
     }
 
-    virtual void Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes = 0) = 0;
+    virtual void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) = 0;
 
 private:
     std::unique_ptr<HANDLE> _handle;
@@ -46,6 +47,9 @@ public:
 	void Stop();
 
 	void IOWorkerFunc(uint32_t const timeout = INFINITE);
+
+public:
+	static ULONG_PTR constexpr SHUTDOWN_KEY{ -1 };
 
 private:
 	HANDLE _completionPort{ INVALID_HANDLE_VALUE };

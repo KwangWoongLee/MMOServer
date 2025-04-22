@@ -5,7 +5,7 @@
 bool IOCP::RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObject)
 {
     if (auto const handle = ::CreateIoCompletionPort(iocpObject->GetHandle(), _completionPort, 0, 0); 
-		handle != _completionPort)
+		not handle)
 	{
 		return false;
 	}
@@ -20,59 +20,62 @@ void IOCP::Run(uint32_t const timeout)
 
 void IOCP::Stop()
 {	
-	::PostQueuedCompletionStatus(_completionPort, 0, reinterpret_cast<ULONG_PTR>(nullptr), nullptr);
+	::PostQueuedCompletionStatus(_completionPort, 0, SHUTDOWN_KEY, nullptr);
 }
 
 void IOCP::IOWorkerFunc(uint32_t const timeout)
 {
-	Overlapped* iocpEvent = nullptr;
+	Overlapped* ioEvent = nullptr;
+	auto const _ = RAII([&ioEvent]() {
+		if (ioEvent)
+		{
+			ObjectPool<Overlapped>::Singleton::Instance().Release(ioEvent);
+		}
+		});
+
 	ULONG_PTR key = 0;
 	DWORD dwTransferred = 0;
 
-	auto const result = ::GetQueuedCompletionStatus(_completionPort, &dwTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeout);
+	auto const result = ::GetQueuedCompletionStatus(_completionPort, &dwTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&ioEvent), timeout);
+	if (key == SHUTDOWN_KEY)
+	{
+		return;
+	}
+
+	if (not ioEvent)
+	{
+		return;
+	}
+
 	if (result)
 	{// 정상적인 io event 발생
-		auto const iocpEventSptr = std::make_shared<Overlapped>(iocpEvent);
-
-		auto const iocpObject = iocpEventSptr->GetIOCPObject();
+		auto const iocpObject = ioEvent->GetIOCPObject();
 		if (not iocpObject)
 		{
 			return;
 		}
-		iocpObject->Dispatch(iocpEventSptr, dwTransferred);
+
+		iocpObject->Dispatch(ioEvent, dwTransferred);
 	}
 	else 
 	{
-		// case 1. pending
-		// case 2. timeout
-		// case 3. error
-
 		auto const err = WSAGetLastError();
-		if (WSA_IO_PENDING == err)
+		switch (err)
 		{
-			return;
-		}
-		else if (not iocpEvent)
-		{ // timeout
-			return;
-		}
-		else
-		{
-			if (ERROR_NETNAME_DELETED == err || ERROR_CONNECTION_ABORTED == err)
-			{ // 
-				
-			}
-
-			auto const iocpEventSptr = std::make_shared<Overlapped>(iocpEvent);
-
-			auto const iocpObject = iocpEventSptr->GetIOCPObject();
-			if (not iocpObject)
+		case ERROR_NETNAME_DELETED:
+		case ERROR_CONNECTION_ABORTED:
 			{
 				return;
 			}
-			iocpObject->Dispatch(iocpEventSptr, dwTransferred);
 		}
+
+		auto const iocpObject = ioEvent->GetIOCPObject();
+		if (not iocpObject)
+		{
+			return;
+		}
+
+		iocpObject->Dispatch(ioEvent, dwTransferred);
 	}
-	
 }
 

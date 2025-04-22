@@ -3,31 +3,33 @@
 #include "IOCP.h"
 #include "IOCPSessionManager.h"
 
-void Listener::Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes)
+void Listener::Dispatch(Overlapped const* ioEvent, uint32_t const numOfBytes)
 {
-	if (EIOType::ACCEPT != iocpEvent->GetIOType())
-		return;
-
-	auto const iocpObject = iocpEvent->GetIOCPObject();
-	auto const iocpSession = std::dynamic_pointer_cast<IOCPSession>(iocpObject);
-	if (not iocpSession)
+	if (EIOType::ACCEPT != ioEvent->GetIOType())
 	{
-		asyncAccept(); // 새 세션 + 새 Overlapped로
 		return;
 	}
 
-	SOCKET acceptedSocket = reinterpret_cast<SOCKET>(iocpSession->GetHandle());
-	SOCKET listenSocket = reinterpret_cast<SOCKET>(*GetHandle());
+	auto const iocpObject = ioEvent->GetIOCPObject();
+	auto const iocpSession = std::dynamic_pointer_cast<IOCPSession>(iocpObject);
+	if (not iocpSession)
+	{
+		asyncAccept();
+		return;
+	}
+
+	auto const acceptedSocket = reinterpret_cast<SOCKET>(iocpSession->GetHandle());
+	auto const listenSocket = reinterpret_cast<SOCKET>(*GetHandle());
 
 	if (not SocketUtil::Singleton::Instance().SetUpdateAcceptSocket(acceptedSocket, listenSocket))
 	{
-		asyncAccept(); // 실패 시에도 재시도
+		asyncAccept();
 		return;
 	}
 
 	if (not iocpSession->SetSockAddr())
 	{
-		asyncAccept(); // 실패 시에도 재시도
+		asyncAccept();
 		return;
 	}
 
@@ -65,7 +67,7 @@ bool Listener::Init()
 
 	SetHandle(std::make_unique<HANDLE>(listenSocket));
 
-	if (IOCPSessionManager::Singleton::Instance().RegistListener(shared_from_this()))
+	if (not IOCPSessionManager::Singleton::Instance().RegistListener(shared_from_this()))
 	{
 		return false;
 	}
@@ -78,7 +80,7 @@ bool Listener::Init()
 
 void Listener::prepareAccepts()
 {
-	auto const maxSessionCount = mServer->GetMaxSessionCount();
+	auto const maxSessionCount = 10; // TODO: config
 	for (uint16_t i{}; i < maxSessionCount; ++i)
 	{
 		asyncAccept();
@@ -87,7 +89,7 @@ void Listener::prepareAccepts()
 
 void Listener::asyncAccept()
 {
-	auto const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
+	auto* const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
 	ioEvent->Init();
 	ioEvent->SetIOType(EIOType::ACCEPT);
 
@@ -99,7 +101,7 @@ void Listener::asyncAccept()
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
-			
+			ObjectPool<Overlapped>::Singleton::Instance().Release(ioEvent); // 이런 경우 GetQueuedCompletionStatus 에 감지되지 않아 메모리 반납 필요
 		}
 	}
 }

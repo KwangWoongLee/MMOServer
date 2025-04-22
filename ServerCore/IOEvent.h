@@ -15,15 +15,7 @@ class IOCPSession;
 
 class Overlapped 
     : public OVERLAPPED
-    , public enable_shared_from_this<Overlapped>
 {
-public:
-    Overlapped() = default;
-    virtual ~Overlapped()
-    {
-        ObjectPool<Overlapped>::Singleton::Instance().Release(shared_from_this());
-    }
-
 public:
     void Init()
     {

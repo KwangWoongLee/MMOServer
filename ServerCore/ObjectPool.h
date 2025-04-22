@@ -5,7 +5,6 @@ template <typename T>
 class ObjectPool
 {
 public:
-    using SPtr = std::shared_ptr<T>;
     using Singleton = Singleton<ObjectPool<T>>;
 
 public:
@@ -13,39 +12,33 @@ public:
     {
         for (size_t i = 0; i < initialCapacity; ++i)
         {
-            _pool.emplace_back(std::make_shared<T>());
+            _pool.emplace_back(new T());
         }
     }
 
-    SPtr Acquire()
+    T* Acquire()
     {
         std::scoped_lock lock(_mutex);
 
         if (!_pool.empty())
         {
-            SPtr obj = _pool.back();
+            auto* obj = _pool.back();
             _pool.pop_back();
             return obj;
         }
         else
         {
-            return createNew();
+            return new T();
         }
     }
 
-    void Release(SPtr const& obj)
+    void Release(T const* obj)
     {
         std::scoped_lock lock(_mutex);
         _pool.emplace_back(obj);
     }
 
 private:
-    SPtr createNew() const
-    {
-        return std::make_shared<T>();
-    }
-
-private:
-    std::deque<SPtr> _pool;
+    std::deque<T*> _pool;
     std::mutex _mutex;
 };

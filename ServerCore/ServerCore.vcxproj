@@ -201,8 +201,8 @@
     <ClInclude Include="Lock.h" />
     <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="Network\Stream.h" />
-    <ClInclude Include="Network\StreamParser.h" />
     <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="RAII.h" />
     <ClInclude Include="ServerEngine.h" />
     <ClInclude Include="IOCPSession.h" />
     <ClInclude Include="Singleton.h" />

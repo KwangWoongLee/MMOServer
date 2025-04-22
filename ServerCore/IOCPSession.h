@@ -24,7 +24,7 @@ public:
 	virtual ~IOCPSession();
 
 public:
-	void Dispatch(std::shared_ptr<Overlapped> const iocpEvent, uint32_t const numOfBytes = 0) override;
+	void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) override;
 
 	bool SetSockAddr();
 	
