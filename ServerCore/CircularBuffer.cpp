@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "CircularBuffer.h"
 
-CircularBuffer::CircularBuffer(uint32_t capacity) 
+CircularBuffer::CircularBuffer(uint32_t const capacity) 
 	: mCapacity(capacity), mARegionPos(0), mBRegionPos(mCapacity + 1), mARegionSize(0), mBRegionSize(0)
 {
-	mBuffer = Vector<char>(mCapacity);
+    mBuffer.reserve(mCapacity);
 }
 
 CircularBuffer::~CircularBuffer()

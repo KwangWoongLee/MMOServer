@@ -65,7 +65,7 @@ bool Listener::Init()
 		return false;
 	}
 
-	SetHandle(std::make_unique<HANDLE>(listenSocket));
+	SetHandle(std::make_unique<HANDLE>(reinterpret_cast<HANDLE>(listenSocket)));
 
 	if (not IOCPSessionManager::Singleton::Instance().RegistListener(shared_from_this()))
 	{
@@ -97,7 +97,7 @@ void Listener::asyncAccept()
 	ioEvent->SetIOCPObject(iocpSession);
 
 	DWORD bytesReceived = 0;
-	if (not FnAcceptEx(reinterpret_cast<SOCKET>(*GetHandle()), reinterpret_cast<SOCKET>(*iocpSession->GetHandle()), iocpSession->mAcceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(&(*ioEvent))))
+	if (not FnAcceptEx(reinterpret_cast<SOCKET>(*GetHandle()), reinterpret_cast<SOCKET>(*iocpSession->GetHandle()), iocpSession->_acceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(&(*ioEvent))))
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{

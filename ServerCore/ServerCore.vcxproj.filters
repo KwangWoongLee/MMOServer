@@ -13,9 +13,6 @@
     <Filter Include="Thread">
       <UniqueIdentifier>{86188ce4-060f-427a-813d-6f22a68f63e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Job">
-      <UniqueIdentifier>{63cb2b69-ab2a-41f2-8f69-af961a647b85}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Memory">
       <UniqueIdentifier>{c89113db-bce7-415d-8cd5-80b7fcae8877}</UniqueIdentifier>
     </Filter>
@@ -61,18 +58,6 @@
     <ClCompile Include="ClientEngine.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="JobQueue.cpp">
-      <Filter>Job</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalQueue.cpp">
-      <Filter>Job</Filter>
-    </ClCompile>
-    <ClCompile Include="JobTimer.cpp">
-      <Filter>Job</Filter>
-    </ClCompile>
-    <ClCompile Include="Job.cpp">
-      <Filter>Job</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IOCP.h">
@@ -100,9 +85,6 @@
     <ClInclude Include="Engine.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="CorePch.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -120,18 +102,6 @@
     </ClInclude>
     <ClInclude Include="ClientEngine.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Job.h">
-      <Filter>Job</Filter>
-    </ClInclude>
-    <ClInclude Include="JobQueue.h">
-      <Filter>Job</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalQueue.h">
-      <Filter>Job</Filter>
-    </ClInclude>
-    <ClInclude Include="JobTimer.h">
-      <Filter>Job</Filter>
     </ClInclude>
     <ClInclude Include="ObjectPool.h">
       <Filter>Memory</Filter>

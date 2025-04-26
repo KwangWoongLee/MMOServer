@@ -2,7 +2,7 @@
 #include "IOCP.h"
 #include "IOEvent.h"
 
-bool IOCP::RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObject)
+bool IOCP::RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObject) const
 {
     if (auto const handle = ::CreateIoCompletionPort(iocpObject->GetHandle(), _completionPort, 0, 0); 
 		not handle)
@@ -13,17 +13,17 @@ bool IOCP::RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObjec
 	return true;
 }
 
-void IOCP::Run(uint32_t const timeout)
+void IOCP::Run(uint32_t const timeout) const
 {
 	IOWorkerFunc(timeout);
 }
 
-void IOCP::Stop()
+void IOCP::Stop() const
 {	
 	::PostQueuedCompletionStatus(_completionPort, 0, SHUTDOWN_KEY, nullptr);
 }
 
-void IOCP::IOWorkerFunc(uint32_t const timeout)
+void IOCP::IOWorkerFunc(uint32_t const timeout) const
 {
 	Overlapped* ioEvent = nullptr;
 	auto const _ = RAII([&ioEvent]() {
@@ -67,7 +67,9 @@ void IOCP::IOWorkerFunc(uint32_t const timeout)
 			{
 				return;
 			}
-		}
+        default: 
+			{} break;
+        }
 
 		auto const iocpObject = ioEvent->GetIOCPObject();
 		if (not iocpObject)

@@ -3,7 +3,6 @@
 
 #include <windows.h>
 #include <iostream>
-using namespace std;
 
 #include <winsock2.h>
 #include <mswsock.h>
@@ -28,6 +27,8 @@ using namespace std;
 #include <atomic>
 #include <queue>
 
+#include <shared_mutex>
+
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/message_lite.h>
@@ -36,14 +37,10 @@ using namespace std;
 #include "RAII.h"
 #include "Singleton.h"
 
-#include "Types.h"
-
 #include "CoreMacro.h"
 #include "CoreGlobal.h"
 #include "Container.h"
-#include "Memory.h"
 #include "ObjectPool.h"
 #include "ThreadLocalStorage.h"
 #include "LockQueue.h"
 #include "Session.h"
-#include "JobQueue.h"

@@ -39,19 +39,6 @@ void IOCPSession::Dispatch(Overlapped const* iocpEvent, uint32_t const numOfByte
 	}
 }
 
-IOCPSession::IOCPSession()
-{
-	mSendBuffer = ObjectPool<CircularBuffer>::MakeShared(65535);
-	mRecvBuff = ObjectPool<CircularBuffer>::MakeShared(65535);
-}
-
-IOCPSession::~IOCPSession()
-{
-	mSendBuffer = nullptr;
-	mRecvBuff = nullptr;
-}
-
-
 bool IOCPSession::SetSockAddr()
 {
 	SocketAddress sockAddress;
@@ -84,22 +71,15 @@ bool IOCPSession::asyncConnect()
 	{
 		return false;
 	}
-	
 
-	auto clientEngine = static_pointer_cast<ClientEngine>(GetEngine());
-	auto serverSockAddress = clientEngine->GetServerSockAddr();
-
-	mConnectEvent.Init();
-	mConnectEvent.owner = shared_from_this();
+	auto const connectIOEvent = Overlapped::GetObjectPoolIOEvent(EIOType::CONNECT, shared_from_this());
 
 	DWORD numOfBytes = 0;
-	if (FALSE == FnConnectEx(mSocket, reinterpret_cast<const SOCKADDR*>(&serverSockAddress.GetSockAddr()), sizeof(serverSockAddress.GetSockAddr()), nullptr, 0, &numOfBytes, &mConnectEvent))
+	if (not FnConnectEx(reinterpret_cast<SOCKET>(GetHandle()), reinterpret_cast<const SOCKADDR*>(&serverSockAddress.GetSockAddr()), sizeof(serverSockAddress.GetSockAddr()), nullptr, 0, &numOfBytes, connectIOEvent))
 	{
-		auto error = WSAGetLastError();
-
-		if (error != WSA_IO_PENDING)
+        if (const auto error = WSAGetLastError(); WSA_IO_PENDING != error)
 		{
-			mConnectEvent.owner = nullptr;
+			ObjectPool<Overlapped>::Singleton::Instance().Release(connectIOEvent);
 			return false;
 		}
 	}
@@ -109,15 +89,13 @@ bool IOCPSession::asyncConnect()
 
 void IOCPSession::asyncDisconnect()
 {
-	mDisconnectEvent.Init();
-	mDisconnectEvent.owner = shared_from_this();
+	auto const disconnectIOEvent = Overlapped::GetObjectPoolIOEvent(EIOType::DISCONNECT, shared_from_this());
 
-
-	if (FALSE == FnDisconnectEx(mSocket, &mDisconnectEvent, TF_REUSE_SOCKET, 0))
+	if (not FnDisconnectEx(reinterpret_cast<SOCKET>(GetHandle()), disconnectIOEvent, TF_REUSE_SOCKET, 0))
 	{
-		if (WSAGetLastError() != WSA_IO_PENDING)
+		if (const auto error = WSAGetLastError(); WSA_IO_PENDING != error)
 		{
-			mDisconnectEvent.owner = nullptr;
+			ObjectPool<Overlapped>::Singleton::Instance().Release(disconnectIOEvent);
 		}
 	}
 }
@@ -127,7 +105,7 @@ void IOCPSession::setConnected()
 	_state = EIOCPSessionState::CONNECTED;
 
 	OnConnected();
-	AsyncRecv();
+	asyncRecv();
 }
 
 void IOCPSession::setDisconnected()
@@ -139,78 +117,67 @@ void IOCPSession::setDisconnected()
 
 	_state = EIOCPSessionState::DISCONNECTED;
 	OnDisconnected();
-	
-	
 }
 
-void IOCPSession::AsyncRecv()
-{
-	if (EIOCPSessionState::CONNECTED == _state)
-	{
-		return;
-	}
-
-	auto const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
-	ioEvent->SetIOType(EIOType::RECV);
-
-	ioEvent->Init();
-	ioEvent->SetIOCPObject(shared_from_this());
-	
-	WSABUF wsaBuf;
-	wsaBuf.buf = mRecvBuff->GetBuffer();
-	wsaBuf.len = static_cast<ULONG>(mRecvBuff->GetFreeSpaceSize());
-
-	DWORD flags = 0;
-	DWORD recvBytes = 0;
-
-	auto error = WSARecv(reinterpret_cast<SOCKET>(*GetHandle()), &wsaBuf, 1, &recvBytes, &flags, &(*ioEvent), NULL);
-	if (error == SOCKET_ERROR)
-	{
-		if (auto const err = WSAGetLastError(); WSA_IO_PENDING != err)
-		{
-			HandleError(err);
-		}
-	}
-}
-
-void IOCPSession::AsyncSend()
+void IOCPSession::asyncRecv()
 {
 	if (EIOCPSessionState::CONNECTED != _state)
 	{
 		return;
 	}
 
-	if (_isSendPending.exchange(true))
+	auto const recvIOEvent = Overlapped::GetObjectPoolIOEvent(EIOType::RECV, shared_from_this());
+	
+	WSABUF wsaBuf;
+	wsaBuf.buf = _recvBuffer.GetBuffer();
+	wsaBuf.len = static_cast<ULONG>(_recvBuffer.GetFreeSpaceSize());
+
+	DWORD flags = 0;
+	DWORD recvBytes = 0;
+
+	auto error = WSARecv(reinterpret_cast<SOCKET>(*GetHandle()), &wsaBuf, 1, &recvBytes, &flags, recvIOEvent, NULL);
+	if (error == SOCKET_ERROR)
+	{
+		if (auto const err = WSAGetLastError(); WSA_IO_PENDING != err)
+		{
+			handleError(err);
+		}
+	}
+}
+
+void IOCPSession::asyncSend()
+{
+	if (EIOCPSessionState::CONNECTED != _state)
 	{
 		return;
 	}
 
+	WRITE_LOCK;
+
+	_isSendPending = true;
+
+	if (0 == _sendBuffer.GetContiguiousBytes())
 	{
-		WRITE_LOCK;
+		return;
+	}
 
-		if (0 == mSendBuffer->GetContiguiousBytes())
+	auto const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
+	ioEvent->SetIOType(EIOType::SEND);
+
+	ioEvent->Init();
+	ioEvent->SetIOCPObject(shared_from_this());
+
+	DWORD sendbytes = 0;
+	DWORD flags = 0;
+	WSABUF wsaBuf;
+	wsaBuf.len = static_cast<ULONG>(_sendBuffer.GetContiguiousBytes());
+	wsaBuf.buf = _sendBuffer.GetBufferStart();
+
+	if (SOCKET_ERROR == WSASend(reinterpret_cast<SOCKET>(*GetHandle()), &wsaBuf, 1, &sendbytes, flags, &(*ioEvent), NULL))
+	{
+		if (auto const err = WSAGetLastError(); WSA_IO_PENDING != err)
 		{
-			return;			
-		}
-
-		auto const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
-		ioEvent->SetIOType(EIOType::SEND);
-
-		ioEvent->Init();
-		ioEvent->SetIOCPObject(shared_from_this());
-
-		DWORD sendbytes = 0;
-		DWORD flags = 0;
-		WSABUF wsaBuf;
-		wsaBuf.len = (ULONG)mSendBuffer->GetContiguiousBytes();
-		wsaBuf.buf = mSendBuffer->GetBufferStart();
-
-		if (SOCKET_ERROR == WSASend(reinterpret_cast<SOCKET>(*GetHandle()), &wsaBuf, 1, &sendbytes, flags, &(*ioEvent), NULL))
-		{
-			if (auto const err = WSAGetLastError(); WSA_IO_PENDING != err)
-			{
-				HandleError(err);
-			}
+			handleError(err);
 		}
 	}
 }
@@ -230,47 +197,44 @@ void IOCPSession::OnDisconnectCompleted()
 	setDisconnected();
 }
 
-void IOCPSession::OnRecvCompleted(uint32_t transferred)
+void IOCPSession::OnRecvCompleted(uint32_t const transferred)
 {
-
-	if (transferred == 0)
+	if (0 == transferred)
 	{
-		Disconnect("Transfered Byte Zero By Client");
+		Disconnect(EDisconnectReason::RECV_ZERO);
 		return;
 	}
 
-	uint32_t freeSize = mRecvBuff->GetFreeSpaceSize();
-	if (transferred > freeSize)
+	uint32_t const freeSize = _recvBuffer.GetFreeSpaceSize();
+	if (freeSize < transferred)
 	{
-		Disconnect("Recv Buffer Over Write");
+		Disconnect(EDisconnectReason::RECV_OVERFLOW);
 		return;
 	}
 
-	mRecvBuff->Commit(transferred);
+	_recvBuffer.Commit(transferred);
 
-	OnRecv();
+	// OnRecv Å¥À×
 
-	AsyncRecv();
+	asyncRecv();
 }
 
-void IOCPSession::OnSendCompleted(uint32_t transferred)
+void IOCPSession::OnSendCompleted(uint32_t const transferred)
 {
-	mSendEvent.owner = nullptr;
-
-	if (transferred == 0)
+	if (0 == transferred)
 	{
-		DisConnect("Send Zero Byte");
+		Disconnect(EDisconnectReason::SEND_ZERO);
 		return;
 	}
 
-	OnSend(transferred);
+	// OnSend Å¥À×
 
 	{
 		WRITE_LOCK;
 
-		mSendBuffer->Remove(transferred);
+		_sendBuffer.Remove(transferred);
 
-		mSendRegistered.store(false);
+		_isSendPending = false;
 	}
 }
 
@@ -279,38 +243,40 @@ bool IOCPSession::Connect()
 	return asyncConnect();
 }
 
-void IOCPSession::Disconnect(const char* reason)
+void IOCPSession::Disconnect(EDisconnectReason const reason)
 {
-	if (mConnected.exchange(false) == false)
+	if (EIOCPSessionState::CONNECTED != _state)
 	{
 		return;
 	}
 
-	cout << reason << endl;
+	//TODO: LOG
+	auto const reasonStr = ToString(reason);
 
 	asyncDisconnect();
 }
 
 void IOCPSession::Send(const char* buffer, uint32_t contentSize)
 {
-	if (!mConnected.load())
+	if (EIOCPSessionState::CONNECTED != _state)
+	{
 		return;
-
+	}
 
 	bool registerSend = false;
 
 	{
-		WRITE_LOCK;
+		std::scoped_lock lock(_sendMutex);
 
-		if (mSendBuffer->GetFreeSpaceSize() < contentSize)
+		if (_sendBuffer.GetFreeSpaceSize() < contentSize)
 			return;
 
-		char* destData = mSendBuffer->GetBuffer();
+		auto* destData = _sendBuffer.GetBuffer();
 		memcpy(destData, buffer, contentSize);
 
-		mSendBuffer->Commit(contentSize);
+		_sendBuffer.Commit(contentSize);
 
-		if (mSendRegistered.exchange(true) == false)
+		if (_isSendPending.exchange(true) == false)
 			registerSend = true;
 	}
 
@@ -338,20 +304,20 @@ void PacketIOCPSession::Send(uint16_t packetId, google::protobuf::MessageLite& p
 
 		auto packetSize = sizeof(PacketHeader) + contentSize;
 
-		if (mSendBuffer->GetFreeSpaceSize() < packetSize)
+		if (_sendBuffer.GetFreeSpaceSize() < packetSize)
 			return;
 
-		google::protobuf::io::ArrayOutputStream arrayOutputStream(mSendBuffer->GetBuffer(), packetSize);
+		google::protobuf::io::ArrayOutputStream arrayOutputStream(_sendBuffer.GetBuffer(), packetSize);
 		google::protobuf::io::CodedOutputStream codedOutputStream(&arrayOutputStream);
 
 
 		codedOutputStream.WriteRaw(&header, sizeof(PacketHeader));
 		packet.SerializeToCodedStream(&codedOutputStream);
 
-		mSendBuffer->Commit(packetSize);
+		_sendBuffer.Commit(packetSize);
 
 
-		if (mSendRegistered.exchange(true) == false)
+		if (_isSendPending.exchange(true) == false)
 			registerSend = true;
 	}
 
@@ -362,7 +328,7 @@ void PacketIOCPSession::Send(uint16_t packetId, google::protobuf::MessageLite& p
 
 bool PacketIOCPSession::OnRecv()
 {
-	google::protobuf::io::ArrayInputStream arrayInputStream(mRecvBuff->GetBufferStart(), mRecvBuff->GetContiguiousBytes());
+	google::protobuf::io::ArrayInputStream arrayInputStream(_recvBuffer.GetBufferStart(), _recvBuffer.GetContiguiousBytes());
 	google::protobuf::io::CodedInputStream codedInputStream(&arrayInputStream);
 
 	PacketHeader packetheader;
@@ -384,7 +350,7 @@ bool PacketIOCPSession::OnRecv()
 		OnRecvPacket(packetheader, payloadInputStream);
 
 		codedInputStream.Skip(packetheader.size); 
-		mRecvBuff->Remove(sizeof(PacketHeader) + packetheader.size);
+		_recvBuffer.Remove(sizeof(PacketHeader) + packetheader.size);
 	}
 
 	return true;

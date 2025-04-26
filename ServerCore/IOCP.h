@@ -41,15 +41,15 @@ public:
 		}
 	}
 
-	bool RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObject);
+	bool RegistForCompletionPort(std::shared_ptr<IIOCPObject> const& iocpObject) const;
 
-	void Run(uint32_t timeout = INFINITE);
-	void Stop();
+	void Run(uint32_t timeout = INFINITE) const;
+	void Stop() const;
 
-	void IOWorkerFunc(uint32_t const timeout = INFINITE);
+	void IOWorkerFunc(uint32_t const timeout = INFINITE) const;
 
 public:
-	static ULONG_PTR constexpr SHUTDOWN_KEY{ -1 };
+	static ULONG_PTR constexpr SHUTDOWN_KEY{ static_cast<ULONG_PTR>(-1) };
 
 private:
 	HANDLE _completionPort{ INVALID_HANDLE_VALUE };
