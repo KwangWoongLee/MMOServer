@@ -1,31 +1,29 @@
 #pragma once
 #include "stdafx.h"
 
-#include "SocketUtil.h"
-
 class Overlapped;
 
 class IIOCPObject
-	: public enable_shared_from_this<IIOCPObject>
+	: public std::enable_shared_from_this<IIOCPObject>
 {
 public:
     IIOCPObject() = default;
     virtual ~IIOCPObject() = default;
 
-    HANDLE* GetHandle() const
+    auto GetHandle() const
     {
-        return _handle.get();
+        return _handle;
     }
 
-    void SetHandle(std::unique_ptr<HANDLE> handle)
+    void SetHandle(HANDLE const& handle)
     {
-        _handle = std::move(handle);
+		_handle = handle;
     }
 
     virtual void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) = 0;
 
 private:
-    std::unique_ptr<HANDLE> _handle;
+    HANDLE _handle;
 };
 
 class IOCP final

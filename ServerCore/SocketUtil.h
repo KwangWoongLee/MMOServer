@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 
 class SocketAddress
 {
@@ -17,8 +18,6 @@ private:
 	SOCKADDR_IN mSockAddr;
 
 };
-
-
 
 extern LPFN_CONNECTEX		FnConnectEx;
 extern LPFN_DISCONNECTEX	FnDisconnectEx;
@@ -43,19 +42,20 @@ public:
 	bool Bind(SOCKET const& socket) const;
 	bool Listen(SOCKET const& socket, int32_t const backlog = SOMAXCONN) const;
 
-	bool	SetLinger(SOCKET const& socket, uint16_t const onoff, uint16_t const linger) const;
-	bool	SetReuseAddress(SOCKET const& socket, bool const flag) const;
-	bool	SetRecvBufferSize(SOCKET const& socket, int32_t const size) const;
-	bool	SetSendBufferSize(SOCKET const& socket, int32_t const size) const;
-	bool	SetTcpNoDelay(SOCKET const& socket, bool const flag) const;
-	bool	SetUpdateAcceptSocket(SOCKET const& socket, SOCKET const listenSocket) const;
+	bool SetLinger(SOCKET const& socket, uint16_t const onoff, uint16_t const linger) const;
+	bool SetReuseAddress(SOCKET const& socket, bool const flag) const;
+	bool SetRecvBufferSize(SOCKET const& socket, int32_t const size) const;
+	bool SetSendBufferSize(SOCKET const& socket, int32_t const size) const;
+	bool SetKeepAlive(SOCKET const& socket, bool const flag) const;
+	bool SetTcpNoDelay(SOCKET const& socket, bool const flag) const;
+	bool SetUpdateAcceptSocket(SOCKET const& socket, SOCKET const listenSocket) const;
 
 private:
 	bool	setExFunction();
 
 	template<typename T>
-	static inline bool setSockOpt(SOCKET const& socket, int32_t const level, int32_t const optName, T const& optVal)
+	static bool SetSockOpt(SOCKET const& socket, int32_t const level, int32_t const optName, T const& optVal)
 	{
-		return SOCKET_ERROR != ::setSockOpt(socket, level, optName, reinterpret_cast<char*>(&optVal), sizeof(T));
+		return SOCKET_ERROR != ::setsockopt(socket, level, optName, reinterpret_cast<char*>(&optVal), sizeof(T));
 	}
 };

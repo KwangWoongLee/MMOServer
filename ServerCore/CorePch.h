@@ -18,6 +18,7 @@
 #include <thread>
 #include <mutex>
 #include <functional>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -37,10 +38,5 @@
 #include "RAII.h"
 #include "Singleton.h"
 
-#include "CoreMacro.h"
-#include "CoreGlobal.h"
-#include "Container.h"
 #include "ObjectPool.h"
-#include "ThreadLocalStorage.h"
 #include "LockQueue.h"
-#include "Session.h"

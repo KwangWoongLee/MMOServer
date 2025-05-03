@@ -48,7 +48,7 @@ public:
     }
 
     [[nodiscard]]
-    static Overlapped* GetObjectPoolIOEvent(EIOType const ioType, std::shared_ptr<IIOCPObject> const& iocpObject) // ¹«Á¶°Ç ObjectPool¿¡¼­ ¹Ý³³ÇÒ °Í
+    static Overlapped* GetObjectPoolIOEvent(EIOType const ioType, std::shared_ptr<IIOCPObject> const& iocpObject) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ObjectPoolï¿½ï¿½ï¿½ï¿½ ï¿½Ý³ï¿½ï¿½ï¿½ ï¿½ï¿½
     {
         auto const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
 

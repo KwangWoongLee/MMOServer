@@ -15,6 +15,16 @@ public:
             _pool.emplace_back(new T());
         }
     }
+    ~ObjectPool()
+    {
+        std::scoped_lock lock(_mutex);
+	    for (auto* obj : _pool)
+	    {
+            delete obj;
+	    }
+
+        _pool.clear();
+    }
 
     T* Acquire()
     {
@@ -26,16 +36,26 @@ public:
             _pool.pop_back();
             return obj;
         }
-        else
-        {
-            return new T();
-        }
+
+        return new T();
     }
 
     void Release(T const* obj)
     {
         std::scoped_lock lock(_mutex);
         _pool.emplace_back(obj);
+    }
+
+    std::shared_ptr<T> AcquireShared()
+    {
+        T* obj = Acquire();
+
+        return std::shared_ptr<T>(
+            obj,
+            [](T* ptr) {
+                ObjectPool<T>::Singleton::Instance().Release(ptr);
+            }
+        );
     }
 
 private:

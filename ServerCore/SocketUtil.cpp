@@ -88,32 +88,37 @@ bool SocketUtil::SetLinger(SOCKET const& socket, uint16_t const onoff, uint16_t 
 	LINGER option;
 	option.l_onoff = onoff;
 	option.l_linger = linger;
-	return setSockOpt(socket, SOL_SOCKET, SO_LINGER, option);
+	return SetSockOpt(socket, SOL_SOCKET, SO_LINGER, option);
 }
 
 bool SocketUtil::SetReuseAddress(SOCKET const& socket, bool const flag) const
 {
-	return setSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, flag);
+	return SetSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, flag);
 }
 
 bool SocketUtil::SetRecvBufferSize(SOCKET const& socket, int32_t const size) const
 {
-	return setSockOpt(socket, SOL_SOCKET, SO_RCVBUF, size);
+	return SetSockOpt(socket, SOL_SOCKET, SO_RCVBUF, size);
 }
 
 bool SocketUtil::SetSendBufferSize(SOCKET const& socket, int32_t const size) const
 {
-	return setSockOpt(socket, SOL_SOCKET, SO_SNDBUF, size);
+	return SetSockOpt(socket, SOL_SOCKET, SO_SNDBUF, size);
+}
+
+bool SocketUtil::SetKeepAlive(SOCKET const& socket, bool const flag) const
+{
+	return SetSockOpt(socket, SOL_SOCKET, SO_KEEPALIVE, flag);
 }
 
 bool SocketUtil::SetTcpNoDelay(SOCKET const& socket, bool const flag) const
 {
-	return setSockOpt(socket, SOL_SOCKET, TCP_NODELAY, flag);
+	return SetSockOpt(socket, SOL_SOCKET, TCP_NODELAY, flag);
 }
 
 bool SocketUtil::SetUpdateAcceptSocket(SOCKET const& socket, SOCKET const listenSocket) const
 {
-	return setSockOpt(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
+	return SetSockOpt(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
 }
 
 bool SocketUtil::setExFunction()

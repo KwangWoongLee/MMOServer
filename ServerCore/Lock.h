@@ -1,13 +1,8 @@
 #pragma once
-#include "Types.h"
+#include "stdafx.h"
 
 
-using LOCK = class Lock; // 나중에 여러 Lock 테스트
-/*--------------------------------------------
-[WWWWWWWW][WWWWWWWW][RRRRRRRR][RRRRRRRR]
-W : WriteFlag (Exclusive Lock Owner ThreadId)
-R : ReadFlag (Shared Lock Count)
----------------------------------------------*/
+using LOCK = class Lock;
 
 class Lock
 {

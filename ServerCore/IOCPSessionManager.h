@@ -7,43 +7,39 @@ class IOCPSessionManager
 {
 public:
     using Singleton = Singleton<IOCPSessionManager>;
+    using SessionId = int64_t;
 
 public:
-    bool RegistListener(std::shared_ptr<IIOCPObject> const& iocpObject)
-    {
-        if (not iocpObject || INVALID_HANDLE_VALUE == iocpObject->GetHandle())
-        {
-            return false;
-        }
-
-        auto const listener = dynamic_pointer_cast<Listener>(iocpObject);
-        if (not listener)
-        {
-            return false;
-        }
-
-        _listener = listener;
-
-        return _iocp->RegistForCompletionPort(iocpObject);
-    }
-
     std::shared_ptr<IOCPSession> CreateSession()
     {
-        auto const iocpSession = ObjectPool<IOCPSession>::Singleton::Instance().Acquire();
-        iocpSession->SetHandle(std::make_unique<HANDLE>(SocketUtil::Singleton::Instance().CreateSocket()));
+        auto const iocpSession = ObjectPool<IOCPSession>::Singleton::Instance().AcquireShared();
+        iocpSession->SetHandle(reinterpret_cast<HANDLE>(SocketUtil::Singleton::Instance().CreateSocket()));
 
         if (not _iocp->RegistForCompletionPort(iocpSession))
         {
             return nullptr;
         }
+
+        _sessions.emplace(NEXT_SESSION_ID++, iocpSession);
         
         return iocpSession;
     }
 
-    void ReleaseSession(std::shared_ptr<IOCPSession> iocpSession)
+    void ReleaseSession(SessionId const sessionId)
     {
-        SocketUtil::Singleton::Instance().CloseSocket(reinterpret_cast<SOCKET>(*iocpSession->GetHandle()));
-        ObjectPool<IOCPSession>::Singleton::Instance().Release(iocpSession);
+        auto const iter = _sessions.find(sessionId);
+        if (_sessions.end() == iter)
+        {
+            //TODO: log
+            return;
+        }
+
+        auto const iocpSession = iter->second;
+
+        SocketUtil::Singleton::Instance().CloseSocket(reinterpret_cast<SOCKET>(iocpSession->GetHandle()));
+        iocpSession->SetHandle(nullptr);
+
+        _sessions.erase(iter);
     }
 
 private:
@@ -52,5 +48,7 @@ private:
 
 private:
     std::shared_ptr<IOCP> _iocp;
-    std::shared_ptr<Listener> _listener;
+
+    int64_t NEXT_SESSION_ID{ 1 };
+    std::unordered_map<SessionId, std::shared_ptr<IOCPSession>> _sessions;
 };

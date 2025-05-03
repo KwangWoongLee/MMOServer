@@ -19,7 +19,7 @@ void Listener::Dispatch(Overlapped const* ioEvent, uint32_t const numOfBytes)
 	}
 
 	auto const acceptedSocket = reinterpret_cast<SOCKET>(iocpSession->GetHandle());
-	auto const listenSocket = reinterpret_cast<SOCKET>(*GetHandle());
+	auto const listenSocket = reinterpret_cast<SOCKET>(GetHandle());
 
 	if (not SocketUtil::Singleton::Instance().SetUpdateAcceptSocket(acceptedSocket, listenSocket))
 	{
@@ -36,10 +36,6 @@ void Listener::Dispatch(Overlapped const* ioEvent, uint32_t const numOfBytes)
 	iocpSession->OnAcceptCompleted(); // 연결 완료 처리
 
 	asyncAccept(); // 다음 AcceptEx 등록 (새 Overlapped, 새 소켓)
-}
-
-Listener::~Listener()
-{
 }
 
 bool Listener::Init()
@@ -65,9 +61,9 @@ bool Listener::Init()
 		return false;
 	}
 
-	SetHandle(std::make_unique<HANDLE>(reinterpret_cast<HANDLE>(listenSocket)));
+	SetHandle(reinterpret_cast<HANDLE>(listenSocket));
 
-	if (not IOCPSessionManager::Singleton::Instance().RegistListener(shared_from_this()))
+	if (not _iocp->RegistForCompletionPort(shared_from_this()))
 	{
 		return false;
 	}
@@ -97,7 +93,7 @@ void Listener::asyncAccept()
 	ioEvent->SetIOCPObject(iocpSession);
 
 	DWORD bytesReceived = 0;
-	if (not FnAcceptEx(reinterpret_cast<SOCKET>(*GetHandle()), reinterpret_cast<SOCKET>(*iocpSession->GetHandle()), iocpSession->_acceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(&(*ioEvent))))
+	if (not FnAcceptEx(reinterpret_cast<SOCKET>(GetHandle()), reinterpret_cast<SOCKET>(iocpSession->GetHandle()), iocpSession->_acceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(&(*ioEvent))))
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{

@@ -13,9 +13,6 @@
     <Filter Include="Thread">
       <UniqueIdentifier>{86188ce4-060f-427a-813d-6f22a68f63e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Memory">
-      <UniqueIdentifier>{c89113db-bce7-415d-8cd5-80b7fcae8877}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Task">
       <UniqueIdentifier>{3a291d40-3996-4bee-8a5b-9c7f552798f4}</UniqueIdentifier>
     </Filter>
@@ -30,33 +27,18 @@
     <ClCompile Include="IOCPSession.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="ServerEngine.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Engine.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="CorePch.cpp">
       <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadManager.cpp">
-      <Filter>Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadLocalStorage.cpp">
-      <Filter>Thread</Filter>
     </ClCompile>
     <ClCompile Include="SocketUtil.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Lock.cpp">
       <Filter>Thread</Filter>
     </ClCompile>
-    <ClCompile Include="ClientEngine.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="Connector.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -72,9 +54,6 @@
     <ClInclude Include="Singleton.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="ServerEngine.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="IOEvent.h">
       <Filter>Network</Filter>
@@ -82,32 +61,14 @@
     <ClInclude Include="CircularBuffer.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Engine.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="CorePch.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadManager.h">
-      <Filter>Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadLocalStorage.h">
-      <Filter>Thread</Filter>
     </ClInclude>
     <ClInclude Include="SocketUtil.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Lock.h">
       <Filter>Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientEngine.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectPool.h">
-      <Filter>Memory</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\Stream.h">
-      <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Task.h">
       <Filter>Task</Filter>
@@ -121,6 +82,21 @@
     <ClInclude Include="IOCPSessionManager.h" />
     <ClInclude Include="RAII.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectPool.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamWriter.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamReader.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamHeader.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Connector.h">
+      <Filter>Network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

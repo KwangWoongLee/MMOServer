@@ -2,7 +2,7 @@
 
 using SessionFactory = std::function<SessionRef()>;
 
-class Engine : public EnableShared<Engine>
+class Engine
 {
 public:
 
@@ -30,7 +30,6 @@ protected:
 	uint16_t					mMaxSessionCount = 0;
 	SessionFactory			mSessionFactory;
 	std::vector<SessionRef>	mSessions;
-
 };
 
 
