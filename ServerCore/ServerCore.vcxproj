@@ -189,6 +189,7 @@
     <ClInclude Include="IOCPSessionManager.h" />
     <ClInclude Include="IOEvent.h" />
     <ClInclude Include="IOCP.h" />
+    <ClInclude Include="KeySerialTaskExecutor.h" />
     <ClInclude Include="Listener.h" />
     <ClInclude Include="Lock.h" />
     <ClInclude Include="CircularBuffer.h" />
@@ -201,7 +202,7 @@
     <ClInclude Include="SocketUtil.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Task.h" />
-    <ClInclude Include="TaskManager.h" />
+    <ClInclude Include="TaskDispatcher.h" />
     <ClInclude Include="LockQueue.h" />
     <ClInclude Include="ThreadLocalStorage.h" />
     <ClInclude Include="ThreadManager.h" />
