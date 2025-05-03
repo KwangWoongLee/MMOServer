@@ -73,7 +73,7 @@
     <ClInclude Include="Task.h">
       <Filter>Task</Filter>
     </ClInclude>
-    <ClInclude Include="TaskManager.h">
+    <ClInclude Include="TaskDispatcher.h">
       <Filter>Task</Filter>
     </ClInclude>
     <ClInclude Include="LockQueue.h">
@@ -97,6 +97,8 @@
     </ClInclude>
     <ClInclude Include="Connector.h">
       <Filter>Network</Filter>
+    <ClInclude Include="KeySerialTaskExecutor.h">
+      <Filter>Task</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <atomic>
 #include <queue>
+#include <condition_variable>
 
 #include <shared_mutex>
 
