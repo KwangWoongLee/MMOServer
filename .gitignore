@@ -5,3 +5,4 @@ Binary/Release/
 GameServer/x64/
 DummyClient/x64/
 x64/Debug/*.pdb
+*.pch
