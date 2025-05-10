@@ -7,7 +7,6 @@ class IOCPSessionManager
 {
 public:
     using Singleton = Singleton<IOCPSessionManager>;
-    using SessionId = int64_t;
 
 public:
     std::shared_ptr<IOCPSession> CreateSession()
@@ -20,7 +19,8 @@ public:
             return nullptr;
         }
 
-        _sessions.emplace(NEXT_SESSION_ID++, iocpSession);
+        iocpSession->SetSessionId(NEXT_SESSION_ID);
+        _sessions.insert({NEXT_SESSION_ID++, iocpSession});
         
         return iocpSession;
     }
@@ -41,10 +41,6 @@ public:
 
         _sessions.erase(iter);
     }
-
-private:
-    IOCPSessionManager() = default;
-    ~IOCPSessionManager() = default;
 
 private:
     std::shared_ptr<IOCP> _iocp;

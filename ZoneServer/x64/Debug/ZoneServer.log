@@ -1,9 +1,0 @@
-﻿  stdafx.cpp
-  Main.cpp
-  ZoneClientSession.cpp
-  ZoneClientSessionManager.cpp
-  ZoneServerApp.cpp
-  ZoneWorldSession.cpp
-  ZoneWorldSessionManager.cpp
-  코드를 생성하고 있습니다...
-  ZoneServer.vcxproj -> C:\workspace\port\x64\Debug\ZoneServer.exe

@@ -40,7 +40,7 @@ public:
         return new T();
     }
 
-    void Release(T const* obj)
+    void Release(T* obj)
     {
         std::scoped_lock lock(_mutex);
         _pool.emplace_back(obj);
@@ -53,7 +53,7 @@ public:
         return std::shared_ptr<T>(
             obj,
             [](T* ptr) {
-                ObjectPool<T>::Singleton::Instance().Release(ptr);
+                Singleton::Instance().Release(ptr);
             }
         );
     }

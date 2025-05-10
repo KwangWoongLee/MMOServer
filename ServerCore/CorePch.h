@@ -1,12 +1,13 @@
 #pragma once
 
+#pragma warning(disable: 4251)
 
-#include <windows.h>
 #include <iostream>
 
 #include <winsock2.h>
 #include <mswsock.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 #pragma comment(lib, "ws2_32.lib")
 
 
@@ -41,3 +42,8 @@
 
 #include "ObjectPool.h"
 #include "LockQueue.h"
+
+#include "Task.h"
+#include "BaseSessionManager.h"
+
+using SessionId = int64_t; //TODO: types.h

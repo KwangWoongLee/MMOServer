@@ -1,37 +1,105 @@
 #pragma once
+
 #include "stdafx.h"
-
 #include "Task.h"
-
-class ITask;
+#include "LockQueue.h"
 
 class KeySerialTaskExecutor final
 {
 public:
-    void Init(uint8_t const threadCount)
+    explicit KeySerialTaskExecutor(uint8_t const threadCount)
+        : _threadCount(threadCount)
     {
-        _threadCount = threadCount;
-        _queuesByThread.resize(_threadCount);
+        _workers.resize(_threadCount);
+    }
+
+    ~KeySerialTaskExecutor()
+    {
+        Shutdown();
+    }
+
+    void Start()
+    {
+        for (auto i = 0; i < _threadCount; ++i)
+        {
+            _workers[i].wakeEvent = ::CreateEvent(nullptr, FALSE, FALSE, nullptr); // auto-reset
+            _workers[i].worker = std::thread([this, i]() { ThreadLoop(i); });
+        }
     }
 
     void Reserve(std::shared_ptr<ITask> const& task)
     {
-        std::assert(0 != _threadCount); // 명시적으로 초기화 하지 않으면 안됩니다.
-
-        int64_t const key = task->Key();
-
-        if (key < 0 || static_cast<size_t>(key) >= MaxKeyCount)
+        auto const key = task->GetKey();
+        if (0 > key)
         {
-            //TODO: log
             return;
         }
 
-        auto const targetThreadIndex = key % _threadCount;
-        auto& queue = _queuesByThread.at(targetThreadIndex);
-        queue.Enqueue(task);
+        auto const index = key % _threadCount;
+        _workers[index].queue.Enqueue(task);
+        ::SetEvent(_workers[index].wakeEvent);
+    }
+
+    void Shutdown()
+    {
+        if (_stopped.exchange(true))
+        {
+            return;
+        }
+
+        for (auto& w : _workers)
+        {
+            if (w.wakeEvent)
+            {
+                ::SetEvent(w.wakeEvent);
+            }
+        }
+
+        for (auto& w : _workers)
+        {
+            if (w.worker.joinable())
+            {
+                w.worker.join();
+            }
+
+            if (w.wakeEvent)
+            {
+                ::CloseHandle(w.wakeEvent);
+                w.wakeEvent = nullptr;
+            }
+        }
     }
 
 private:
-    size_t _threadCount{};
-    std::vector<LockQueue<ITask>> _queuesByThread;
+    void ThreadLoop(size_t const index)
+    {
+        auto& ctx = _workers[index];
+
+        while (not _stopped)
+        {
+            ::WaitForSingleObject(ctx.wakeEvent, INFINITE);
+
+            std::queue<std::shared_ptr<ITask>> localQueue;
+            ctx.queue.DequeueAll(localQueue);
+
+            while (not localQueue.empty())
+            {
+                localQueue.front()->Execute();
+                localQueue.pop();
+            }
+        }
+    }
+
+private:
+    uint8_t _threadCount{};
+
+    struct TaskWorkerContext
+    {
+        LockQueue<std::shared_ptr<ITask>> queue;
+        HANDLE wakeEvent = nullptr;
+        std::thread worker;
+    };
+
+    std::vector<TaskWorkerContext> _workers;
+    std::atomic<bool> _stopped{false};
 };

@@ -48,7 +48,7 @@ public:
     }
 
     [[nodiscard]]
-    static Overlapped* GetObjectPoolIOEvent(EIOType const ioType, std::shared_ptr<IIOCPObject> const& iocpObject) // ������ ObjectPool���� �ݳ��� ��
+    static Overlapped* GetObjectPoolIOEvent(EIOType const ioType, std::shared_ptr<IIOCPObject> const& iocpObject)
     {
         auto const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
 
@@ -62,4 +62,22 @@ public:
 private:
     EIOType _ioType{};
     std::shared_ptr<IIOCPObject> _iocpObj;
+};
+
+class OverlappedAccept final
+	: public Overlapped
+{
+public:
+    OverlappedAccept()
+    {
+        ZeroMemory(_acceptBuf, sizeof(_acceptBuf));
+    }
+
+    char* GetBuffer()
+    {
+        return _acceptBuf;
+    }
+
+private:
+    char _acceptBuf[sizeof(SOCKADDR_IN) * 2 + 32]{};
 };

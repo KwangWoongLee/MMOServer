@@ -11,24 +11,41 @@ public:
     using Singleton = Singleton<TaskDispatcher>;
 
 public:
-    void Init()
+    bool AddExecutor(ETaskType const taskType, uint8_t const threadCount)
     {
-        for ()
+        // TODO: taskType valid
+
+        if (0 >= threadCount)
+        {
+            //TODO: log
+            return false;
+        }
+
+    	if (_executors.contains(taskType))
+    	{
+            //TODO: log
+            return false;
+    	}
+
+        auto executor = std::make_unique<KeySerialTaskExecutor>(threadCount);
+        executor->Start();
+
+        _executors.emplace(taskType, std::move(executor));
+        return true;
     }
 
     void Dispatch(std::shared_ptr<ITask> const& task)
     {
-        if ()
-
-        size_t const index = static_cast<size_t>(task->GetTaskType());
-        if (index >= static_cast<size_t>(ETaskType::MAX))
+        auto const iter = _executors.find(task->GetTaskType());
+        if (_executors.end() == iter)
         {
-            return;
+            //TODO: log
+            assert(false);
         }
 
-        _executors[index].Reserve(task);
+        iter->second->Reserve(task);
     }
 
 private:
-    std::array<KeySerialTaskExecutor, TaskTypeMax> _executors;
+    std::unordered_map<ETaskType, std::unique_ptr<KeySerialTaskExecutor>> _executors;
 };

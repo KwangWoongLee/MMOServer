@@ -85,19 +85,19 @@ void Listener::prepareAccepts()
 
 void Listener::asyncAccept()
 {
-	auto* const ioEvent = ObjectPool<Overlapped>::Singleton::Instance().Acquire();
-	ioEvent->Init();
-	ioEvent->SetIOType(EIOType::ACCEPT);
+	auto* const acceptIOEvent = ObjectPool<OverlappedAccept>::Singleton::Instance().Acquire();
+	acceptIOEvent->Init();
+	acceptIOEvent->SetIOType(EIOType::ACCEPT);
 
 	auto const iocpSession = IOCPSessionManager::Singleton::Instance().CreateSession();
-	ioEvent->SetIOCPObject(iocpSession);
+	acceptIOEvent->SetIOCPObject(iocpSession);
 
 	DWORD bytesReceived = 0;
-	if (not FnAcceptEx(reinterpret_cast<SOCKET>(GetHandle()), reinterpret_cast<SOCKET>(iocpSession->GetHandle()), iocpSession->_acceptBuf, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(&(*ioEvent))))
+	if (not FnAcceptEx(reinterpret_cast<SOCKET>(GetHandle()), reinterpret_cast<SOCKET>(iocpSession->GetHandle()), acceptIOEvent->GetBuffer(), 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(&(*acceptIOEvent))))
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
-			ObjectPool<Overlapped>::Singleton::Instance().Release(ioEvent); // 이런 경우 GetQueuedCompletionStatus 에 감지되지 않아 메모리 반납 필요
+			ObjectPool<Overlapped>::Singleton::Instance().Release(acceptIOEvent); // 이런 경우 GetQueuedCompletionStatus 에 감지되지 않아 메모리 반납 필요
 		}
 	}
 }

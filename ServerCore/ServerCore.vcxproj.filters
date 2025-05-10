@@ -1,104 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Network">
-      <UniqueIdentifier>{06b2eeed-7ff4-4874-99a2-465a7686d5e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utils">
-      <UniqueIdentifier>{3299bd67-5cbc-46ad-8a14-0c93107ba19a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core">
-      <UniqueIdentifier>{c40e7ea3-7523-48ca-839e-87c625eb5589}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Thread">
-      <UniqueIdentifier>{86188ce4-060f-427a-813d-6f22a68f63e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Task">
-      <UniqueIdentifier>{3a291d40-3996-4bee-8a5b-9c7f552798f4}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Listener.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCP.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPSession.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
+    <ClCompile Include="CorePch.cpp" />
+    <ClCompile Include="IOCP.cpp" />
+    <ClCompile Include="Listener.cpp" />
+    <ClCompile Include="IOCPSession.cpp" />
+    <ClCompile Include="SocketUtil.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="CorePch.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="SocketUtil.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Lock.cpp">
-      <Filter>Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="Connector.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IOCP.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Listener.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPSession.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="IOEvent.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="CircularBuffer.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="CorePch.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SocketUtil.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Lock.h">
-      <Filter>Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="Task.h">
-      <Filter>Task</Filter>
-    </ClInclude>
-    <ClInclude Include="TaskDispatcher.h">
-      <Filter>Task</Filter>
-    </ClInclude>
-    <ClInclude Include="LockQueue.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
+    <ClInclude Include="Connector.h" />
+    <ClInclude Include="CorePch.h" />
     <ClInclude Include="IOCPSessionManager.h" />
-    <ClInclude Include="RAII.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectPool.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="StreamWriter.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="StreamReader.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="StreamHeader.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Connector.h">
-      <Filter>Network</Filter>
-    <ClInclude Include="KeySerialTaskExecutor.h">
-      <Filter>Task</Filter>
-    </ClInclude>
+    <ClInclude Include="IOEvent.h" />
+    <ClInclude Include="IOCP.h" />
+    <ClInclude Include="KeySerialTaskExecutor.h" />
+    <ClInclude Include="Listener.h" />
+    <ClInclude Include="CircularBuffer.h" />
+    <ClInclude Include="ObjectPool.h" />
+    <ClInclude Include="RAII.h" />
+    <ClInclude Include="IOCPSession.h" />
+    <ClInclude Include="Singleton.h" />
+    <ClInclude Include="SocketUtil.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="StreamHeader.h" />
+    <ClInclude Include="StreamReader.h" />
+    <ClInclude Include="StreamWriter.h" />
+    <ClInclude Include="Task.h" />
+    <ClInclude Include="TaskDispatcher.h" />
+    <ClInclude Include="LockQueue.h" />
+    <ClInclude Include="App.h" />
+    <ClInclude Include="PacketSendTaskBase.h" />
+    <ClInclude Include="BaseSessionManager.h" />
   </ItemGroup>
 </Project>

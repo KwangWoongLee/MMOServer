@@ -115,7 +115,7 @@ int main()
 	catch (std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-		return -1; // ºñÁ¤»ó Á¾·á
+		return -1; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	}	
 
 	return 0;

@@ -41,35 +41,50 @@ public:
     void Dispatch(Overlapped const* iocpEvent, uint32_t const numOfBytes = 0) override;
 
     bool SetSockAddr();
-    bool Connect();
+    void SetSessionId(SessionId const sessionId)
+    {
+        _sessionId = sessionId;
+    }
+
     void Disconnect(EDisconnectReason const reason);
     void Send(const char* buffer, uint32_t const contentSize);
     void SendPacket(uint16_t const packetId, google::protobuf::MessageLite& packet);
 
-    void OnConnectCompleted();
-    void OnDisconnectCompleted();
-    void OnRecvCompleted(uint32_t const transferred);
-    void OnSendCompleted(uint32_t const transferred);
     void OnAcceptCompleted();
 
 protected:
+    using PacketHandler = std::function<void(uint16_t const packetId, void const* payload, uint32_t const size)>;
+    void SetPacketHandler(PacketHandler const& handler)
+    {
+        _packetHandler = handler;
+    }
+
+    SessionId _sessionId{};
+
+private:
     virtual void OnConnected()
     {
     }
     virtual void OnDisconnected()
     {
     }
-    virtual void OnRecvPacket(uint16_t const packetId, const void* payload, uint32_t const size) = 0;
 
-private:
     void SetConnected();
     void SetDisconnected();
-    bool AsyncConnect();
+
     void AsyncDisconnect();
     void AsyncRecv();
     void AsyncSend();
     void HandleError(int32_t const errorCode);
-    void SetupSocketOptions();
+
+    bool TryProcessPacket();
+
+    void OnConnectCompleted();
+    void OnDisconnectCompleted();
+    void OnRecvCompleted(uint32_t const transferred);
+    void OnSendCompleted(uint32_t const transferred);
+
+    void OnRecvPacket(uint16_t const packetId, const void* payload, uint32_t const size);
 
 private:
     char _acceptBuf[64] = {};
@@ -84,4 +99,6 @@ private:
 
     StreamWriter _streamWriter;
     StreamReader _streamReader;
+
+    PacketHandler _packetHandler;
 };

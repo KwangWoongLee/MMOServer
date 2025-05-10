@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "IOCPSession.h"
 
+#include "IOCPSessionManager.h"
+
 char const* ToString(EDisconnectReason const reason)
 {
     switch (reason)
@@ -42,22 +44,15 @@ void IOCPSession::Dispatch(Overlapped const* iocpEvent, uint32_t const numOfByte
 
 bool IOCPSession::SetSockAddr()
 {
-    SocketAddress sockAddress;
-    auto const name = reinterpret_cast<SOCKADDR*>(&sockAddress.GetSockAddr());
-    int nameSize = sizeof(SOCKADDR);
-
-    if (not ::getpeername(reinterpret_cast<SOCKET>(GetHandle()), name, &nameSize))
+    SocketAddress addr;
+    auto len = static_cast<int>(addr.GetSize());
+    if (::getpeername(reinterpret_cast<SOCKET>(GetHandle()), addr.GetAsSockAddr(), &len) != 0)
     {
         return false;
     }
 
-    _sockAddress = sockAddress;
+    _sockAddress = addr;
     return true;
-}
-
-bool IOCPSession::Connect()
-{
-    return AsyncConnect();
 }
 
 void IOCPSession::Disconnect(EDisconnectReason const reason)
@@ -147,9 +142,45 @@ void IOCPSession::OnDisconnectCompleted()
     SetDisconnected();
 }
 
+bool IOCPSession::TryProcessPacket()
+{
+    if (_recvBuffer.GetContiguousBytes() < sizeof(StreamHeader))
+    {
+        return false;
+    }
+
+    auto const streamHeader = reinterpret_cast<StreamHeader const*>(_recvBuffer.GetBufferStart());
+
+    if (0 == streamHeader->size || streamHeader->size > _recvBuffer.GetCapacity())
+    {
+        Disconnect(EDisconnectReason::INVALID_OPERATION);
+        return false;
+    }
+
+    if (_recvBuffer.GetContiguousBytes() < sizeof(StreamHeader) + streamHeader->size)
+    {
+        return false;
+    }
+
+    _streamReader.Init(
+        _recvBuffer.GetBufferStart() + sizeof(StreamHeader),
+        streamHeader->size);
+
+    PacketHeader packetHeader;
+    void const* payload = nullptr;
+
+    while (_streamReader.ReadPacket(packetHeader, payload))
+    {
+        OnRecvPacket(packetHeader.id, payload, packetHeader.size);
+    }
+
+    _recvBuffer.Remove(sizeof(StreamHeader) + streamHeader->size);
+    return true;
+}
+
 void IOCPSession::OnRecvCompleted(uint32_t const transferred)
 {
-    if (transferred == 0)
+    if (0 == transferred)
     {
         Disconnect(EDisconnectReason::RECV_ZERO);
         return;
@@ -163,36 +194,8 @@ void IOCPSession::OnRecvCompleted(uint32_t const transferred)
 
     _recvBuffer.Commit(transferred);
 
-    while (true)
+    while (TryProcessPacket())
     {
-        if (_recvBuffer.GetContiguousBytes() < sizeof(StreamHeader))
-        {
-            break;
-        }
-
-        auto* streamHeader = reinterpret_cast<StreamHeader*>(_recvBuffer.GetBufferStart());
-
-        if (streamHeader->size == 0 || streamHeader->size > _recvBuffer.GetCapacity())
-        {
-            Disconnect(EDisconnectReason::INVALID_OPERATION);
-            return;
-        }
-
-        if (_recvBuffer.GetContiguousBytes() < sizeof(StreamHeader) + streamHeader->size)
-        {
-            break;
-        }
-
-        _streamReader.Init(reinterpret_cast<uint8_t*>(_recvBuffer.GetBufferStart() + sizeof(StreamHeader)), streamHeader->size);
-
-        PacketHeader packetHeader;
-        const void* payload = nullptr;
-        while (_streamReader.ReadPacket(packetHeader, payload))
-        {
-            OnRecvPacket(packetHeader.id, payload, packetHeader.size);
-        }
-
-        _recvBuffer.Remove(sizeof(StreamHeader) + streamHeader->size);
     }
 
     AsyncRecv();
@@ -218,6 +221,18 @@ void IOCPSession::OnSendCompleted(uint32_t const transferred)
     }
 }
 
+void IOCPSession::OnRecvPacket(uint16_t const packetId, const void* payload, uint32_t const size)
+{
+    if (_packetHandler)
+    {
+        _packetHandler(packetId, payload, size);
+    }
+    else
+    {
+        // TODO: log - 핸들러 없음
+    }
+}
+
 void IOCPSession::SetConnected()
 {
     _state = EIOCPSessionState::CONNECTED;
@@ -234,39 +249,7 @@ void IOCPSession::SetDisconnected()
 
     _state = EIOCPSessionState::DISCONNECTED;
     OnDisconnected();
-}
-
-bool IOCPSession::AsyncConnect()
-{
-    if (_state != EIOCPSessionState::CONNECTING)
-    {
-        return false;
-    }
-
-    auto const socket = reinterpret_cast<SOCKET>(GetHandle());
-
-    if (not SocketUtil::Singleton::Instance().Bind(socket))
-    {
-        return false;
-    }
-
-    if (not SocketUtil::Singleton::Instance().SetReuseAddress(socket, true))
-    {
-        return false;
-    }
-
-    auto const connectIoEvent = Overlapped::GetObjectPoolIOEvent(EIOType::CONNECT, shared_from_this());
-
-    DWORD numOfBytes = 0;
-    if (not FnConnectEx(socket, reinterpret_cast<const SOCKADDR*>(&serverSockAddress.GetSockAddr()), sizeof(SOCKADDR_IN), nullptr, 0, &numOfBytes, connectIoEvent))
-    {
-        if (const auto error = WSAGetLastError(); error != WSA_IO_PENDING)
-        {
-            ObjectPool<Overlapped>::Singleton::Instance().Release(connectIoEvent);
-            return false;
-        }
-    }
-    return true;
+    IOCPSessionManager::Singleton::Instance().ReleaseSession(_sessionId);
 }
 
 void IOCPSession::AsyncDisconnect()
@@ -275,7 +258,7 @@ void IOCPSession::AsyncDisconnect()
 
     if (not FnDisconnectEx(reinterpret_cast<SOCKET>(GetHandle()), disconnectIoEvent, TF_REUSE_SOCKET, 0))
     {
-        if (const auto error = WSAGetLastError(); error != WSA_IO_PENDING)
+        if (auto const error = WSAGetLastError(); error != WSA_IO_PENDING)
         {
             ObjectPool<Overlapped>::Singleton::Instance().Release(disconnectIoEvent);
             ::closesocket(reinterpret_cast<SOCKET>(GetHandle()));

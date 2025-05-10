@@ -17,8 +17,8 @@ public:
 
     bool WritePacket(uint16_t packetId, google::protobuf::MessageLite& packet)
     {
-        uint32_t packetSize = packet.ByteSizeLong();
-        uint32_t requiredSize = sizeof(PacketHeader) + packetSize;
+        auto const  packetSize = static_cast<uint32_t>(packet.ByteSizeLong());
+        auto const requiredSize = sizeof(PacketHeader) + packetSize;
 
         if (_offset + requiredSize > _capacity)
             return false;

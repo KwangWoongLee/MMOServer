@@ -11,12 +11,6 @@ public:
         _queue.emplace(value);
     }
 
-    void Enqueue(T&& value)
-    {
-        std::scoped_lock lock(_mutex);
-        _queue.emplace(std::move(value));
-    }
-
     void DequeueAll(std::queue<T>& out)
     {
         std::scoped_lock lock(_mutex);

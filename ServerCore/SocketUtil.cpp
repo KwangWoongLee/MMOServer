@@ -1,38 +1,9 @@
 #include "stdafx.h"
 #include "SocketUtil.h"
 
-#include "Listener.h"
-
 LPFN_CONNECTEX		FnConnectEx = nullptr;
 LPFN_DISCONNECTEX	FnDisconnectEx = nullptr;
 LPFN_ACCEPTEX		FnAcceptEx = nullptr;
-
-SocketAddress::SocketAddress()
-{
-	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
-}
-
-
-SocketAddress::SocketAddress(uint16_t port)
-{
-	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
-
-	mSockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	mSockAddr.sin_family = AF_INET;
-	mSockAddr.sin_port = htons((SHORT)port);
-}
-
-SocketAddress::SocketAddress(std::string_view ip, uint16_t port)
-{
-	ZeroMemory(&mSockAddr, sizeof(SOCKADDR_IN));
-
-	IN_ADDR addr;
-	::InetPtonA(AF_INET, ip.data(), &addr);
-
-	mSockAddr.sin_family = AF_INET;
-	mSockAddr.sin_addr = addr;
-	mSockAddr.sin_port = htons(port);
-}
 
 bool SocketUtil::Init()
 {
@@ -59,12 +30,9 @@ void SocketUtil::CloseSocket(SOCKET const& socket) const
 
 bool SocketUtil::Bind(SOCKET const& socket) const
 {
-	SOCKADDR_IN myAddress;
-	myAddress.sin_family = AF_INET;
-	myAddress.sin_addr.s_addr = ::htonl(INADDR_ANY);
-	myAddress.sin_port = ::htons(0);
+	SocketAddress address(7777); // TODO: config
 
-	if (SOCKET_ERROR == ::bind(socket, (struct sockaddr*)&myAddress, sizeof(SOCKADDR_IN)))
+	if (SOCKET_ERROR == ::bind(socket, address.GetAsSockAddr(), static_cast<int>(address.GetSize())))
 	{
 		return false;
 	}

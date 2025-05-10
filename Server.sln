@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32413.511
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerCore", "ServerCore\ServerCore.vcxproj", "{00A771EB-4755-4840-9606-ACFF58A515B7}"
 EndProject
@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProtoFiles", "ProtoFiles", 
 		..\Tools\ProtoBuf\protocol.proto = ..\Tools\ProtoBuf\protocol.proto
 		..\Tools\ProtoBuf\struct.proto = ..\Tools\ProtoBuf\struct.proto
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZoneServer", "ZoneServer\ZoneServer.vcxproj", "{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,14 @@ Global
 		{300929F3-8D9B-4AB2-AEF4-0D786B228DEC}.Release|x64.Build.0 = Release|x64
 		{300929F3-8D9B-4AB2-AEF4-0D786B228DEC}.Release|x86.ActiveCfg = Release|Win32
 		{300929F3-8D9B-4AB2-AEF4-0D786B228DEC}.Release|x86.Build.0 = Release|Win32
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Debug|x64.ActiveCfg = Debug|x64
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Debug|x64.Build.0 = Debug|x64
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Debug|x86.ActiveCfg = Debug|Win32
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Debug|x86.Build.0 = Debug|Win32
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Release|x64.ActiveCfg = Release|x64
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Release|x64.Build.0 = Release|x64
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Release|x86.ActiveCfg = Release|Win32
+		{CA1F3EE0-CC1E-4E6A-87D2-42CE269634C0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
